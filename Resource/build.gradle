@@ -1,0 +1,43 @@
+group 'com.provesoft'
+version '1.0.0'
+
+buildscript {
+    repositories {
+        maven { url "https://repo.spring.io/libs-release" }
+        mavenLocal()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.2.2.RELEASE")
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'spring-boot'
+
+jar {
+    baseName = 'Resource'
+    version =  '1.0.0'
+    manifest {
+        attributes 'Main-Class': 'com.provesoft.resource.ResourceApplication'
+    }
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url "https://repo.spring.io/libs-release" }
+}
+
+dependencies {
+    compile("org.springframework.boot:spring-boot-starter-web")
+    compile("org.springframework.boot:spring-boot-starter-security")
+    compile("org.springframework.boot:spring-boot-starter-redis")
+    compile("org.springframework.session:spring-session:1.0.1.RELEASE")
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.2'
+}
+

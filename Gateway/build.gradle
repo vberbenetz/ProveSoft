@@ -1,0 +1,47 @@
+group 'com.provesoft'
+version '1.0.0'
+
+buildscript {
+    repositories {
+        maven { url "https://repo.spring.io/libs-release" }
+        mavenLocal()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.2.2.RELEASE")
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'spring-boot'
+
+jar {
+    baseName = 'Gateway'
+    version =  '1.0.0'
+    manifest {
+        attributes 'Main-Class': 'com.provesoft.gateway.GatewayApplication'
+    }
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url "https://repo.spring.io/libs-release" }
+}
+
+dependencies {
+    compile("mysql:mysql-connector-java")
+    compile("commons-dbcp:commons-dbcp")
+    compile("org.springframework.boot:spring-boot-starter-data-jpa")
+    compile("org.springframework.boot:spring-boot-starter-web")
+    compile("org.springframework.boot:spring-boot-starter-redis")
+    compile("org.springframework.session:spring-session:1.0.1.RELEASE")
+    compile("org.springframework.cloud:spring-cloud-starter-zuul:1.0.1.RELEASE")
+    compile("org.springframework.cloud:spring-cloud-starter-security:1.0.1.RELEASE")
+    compile("org.apache.httpcomponents:httpclient")
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.2'
+}
