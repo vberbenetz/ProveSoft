@@ -16,6 +16,7 @@ public class UserController {
     @RequestMapping("/user")
     @ResponseBody
     public Map<String, String> user(Principal user) {
+
         return Collections.singletonMap("name", user.getName());
     }
 

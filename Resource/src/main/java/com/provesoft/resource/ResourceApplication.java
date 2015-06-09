@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @EnableAutoConfiguration
 @RestController
 @EnableRedisHttpSession
-class ResourceApplication {
+public class ResourceApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(ResourceApplication.class, args);

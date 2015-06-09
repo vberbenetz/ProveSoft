@@ -19,7 +19,7 @@ public class AppConfiguration {
         BasicDataSource dataSource = new BasicDataSource();
         dataSource.setTestOnBorrow(true);
         dataSource.setValidationQuery("SELECT 1");
-        dataSource.setUrl("jdbc:mysql://localhost:3306/provesoftgateway");
+        dataSource.setUrl("jdbc:mysql://localhost:3306/provesoftauth");
         dataSource.setUsername("psgateway");
         dataSource.setPassword("P$G@t3w@y");
         return dataSource;
@@ -29,7 +29,7 @@ public class AppConfiguration {
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(
             DataSource dataSource) {
         LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
-        emf.setPackagesToScan("com.cantango.entity");
+        emf.setPackagesToScan("com.provesoft.gateway.entity");
         emf.setPersistenceProvider(new HibernatePersistenceProvider());
         Properties jpaProperties = new Properties();
         jpaProperties.setProperty("hibernate.hbm2ddl.auto", "update");
