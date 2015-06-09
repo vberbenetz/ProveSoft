@@ -75,3 +75,40 @@ Finally, additional entropy needs to be added to the server to allow the web app
 ```
 	sudo apt-get install haveged
 ```
+Configure the Datasource Beans in the Gateway and Resource applications so that Gateway uses "provesoftauth" id and Resource uses "provesoft" id.
+
+
+Create a directory to house the application and claim ownership.
+```
+	sudo mkdir /www
+	sudo chown provesoft:provesoft -R /www
+	sudo chmod -R 770 /www
+```
+Create another subdirectory to hold the apps
+```
+	mkdir /www/provesoft && chmod -R 770 /www/provesoft
+```
+Finally create a log directory.
+```
+	mkdir /www/provesoft/logs && chmod -R 770 /www/provesoft/logs
+```
+Move the compiled jars for each of the applications into the folder.
+
+Create a Supervisor configuration file for each application.
+```
+	sudo vi /etc/supervisor/conf.d/provesoft_gateway.conf
+	sudo vi /etc/supervisor/conf.d/provesoft_ui.conf
+	sudo vi /etc/supervisor/conf.d/provesoft_resource.conf
+```
+Add the following configuration (using Gateway as an example):
+```
+	[program:gateway]
+	command=/usr/bin/java -jar /www/aerosource/Provesoft_Gateway.jar
+	user=provesoft
+	autostart=true
+	autorestart=true
+	startsecs=10
+	startretries=3
+	stdout_logfile=/www/provesoft/logs/gateway-stdout.log
+	stderr_logfile=/www/provesoft/logs/gateway-stderr.log
+```
