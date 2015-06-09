@@ -39,7 +39,8 @@ Login as root and create a blank provesoft database. Follow up by creating two u
 ```
   CREATE DATABASE provesoft CHARCTER SET utf8 COLLATE utf8_unicode_ci;
   CREATE USER 'provesoftauth'@'localhost' IDENTIFIED BY 'Pr0v3$0ftAuth';    (Used by the Gateway for authentication)
-  CREATE USER 'provesoft'@'%' IDENTIFIED BY 'Pr0v3$0ft';                    (Used by the Resource component)
+  CREATE USER 'provesoft'@'localhost' IDENTIFIED BY 'Pr0v3$0ft';            (Used by the Resource component)
+  CREATE USER 'provesoft'@'%' IDENTIFIED BY 'Pr0v3$0ft';            	    (Used for remote access)
 ```
 To segregate the user authentication and application components, the two users will have separate access rights to the database. Provesoft will need to retain read access to Authorities to determine the current user's role when returning Resource data. In order to allow read only external access, grant select permissions on the same tables as provesoft@localhost to provesoft@%
 Using this method, every subsequent table will need to manually have permissions added to the provesoft user.
@@ -97,11 +98,11 @@ Setup Redis to run as a Daemon auto-restart process.
 ```
 Edit the configuration file /etc/redis/6379.conf:
 ```
-  Set **daemonize** to yes
-  Set **pidfile** to /var/run/redis_6379.pid
-  Uncomment **bind 127.0.0.1**		(Only allow localhost access)
-  Set the **logfile** to /var/log/redis_6379.log
-  Set the **dir** to /var/redis/6379
+  Set daemonize to yes
+  Set pidfile to /var/run/redis_6379.pid
+  Uncomment bind 127.0.0.1		(Only allow localhost access)
+  Set the logfile to /var/log/redis_6379.log
+  Set the dir to /var/redis/6379
 ```
 Add new Redis init script to all default run levels
 ```
