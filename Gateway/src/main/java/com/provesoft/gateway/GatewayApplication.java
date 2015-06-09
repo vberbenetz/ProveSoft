@@ -68,7 +68,7 @@ public class GatewayApplication {
                     .logout()
                     .and()
                     .authorizeRequests()
-                    .antMatchers("/index.html", "/login", "/").permitAll()
+                    .antMatchers("/index.html", "/login", "/", "/css/**", "/font-awesome/**", "/fonts/**", "/img/**", "/js/**").permitAll()
                     .anyRequest().authenticated()
                     .and()
                     .csrf().csrfTokenRepository(csrfTokenRepository())

@@ -4,7 +4,7 @@ angular.module('hello', []).config(function($httpProvider) {
 
 }).controller('navigation',
 
-function($scope, $http) {
+function($scope, $http, $window) {
 
 	var authenticate = function(credentials, callback) {
 
@@ -14,7 +14,7 @@ function($scope, $http) {
 							+ credentials.password)
 		} : {};
 
-		$scope.user = ''
+		$scope.user = '';
 		$http.get('user', {
 			headers : headers
 		}).success(function(data) {
@@ -30,7 +30,7 @@ function($scope, $http) {
 			callback && callback(false);
 		});
 
-	}
+	};
 
 	authenticate();
 
@@ -39,6 +39,7 @@ function($scope, $http) {
 		authenticate($scope.credentials, function(authenticated) {
 			$scope.authenticated = authenticated;
 			$scope.error = !authenticated;
+            $window.location.href = '/ui/';
 		})
 	};
 
@@ -46,7 +47,7 @@ function($scope, $http) {
 		$http.post('logout', {}).success(function() {
 			$scope.authenticated = false;
 		}).error(function(data) {
-			console.log("Logout failed")
+			console.log("Logout failed");
 			$scope.authenticated = false;
 		});
 	}
