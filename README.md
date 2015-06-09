@@ -73,11 +73,47 @@ Install Supervisor to manage the Web Application. This will ensure that the app 
 ```
 Finally, additional entropy needs to be added to the server to allow the web application's methods relying on randomness to function correctly.
 ```
-	sudo apt-get install haveged
+  sudo apt-get install haveged
 ```
 Configure the Datasource Beans in the Gateway and Resource applications so that Gateway uses "provesoftauth" id and Resource uses "provesoft" id.
 
+#### Install Redis (Needed for gateway authentication)
+Get the latest version of Redis and extract it in the home directory
+```
+  wget http://download.redis.io/redis-stable.tar.gz
+  tar xvzf redis-stable.tar.gz
+  cd redis-stable
+  make
+  make install
+```
+Setup Redis to run as a Daemon auto-restart process.
+```
+  sudo mkdir /etc/redis
+  sudo mkdir /var/redis
+  
+  sudo cp utils/redis_init_script /etc/init.d/redis_6379
+  sudo cp redis.conf /etc/redis/6379.conf
+  sudo mkdir /var/redis/6379
+```
+Edit the configuration file /etc/redis/6379.conf:
+```
+  Set **daemonize** to yes
+  Set **pidfile** to /var/run/redis_6379.pid
+  Uncomment **bind 127.0.0.1**		(Only allow localhost access)
+  Set the **logfile** to /var/log/redis_6379.log
+  Set the **dir** to /var/redis/6379
+```
+Add new Redis init script to all default run levels
+```
+  sudo update-rc.d redis_6379 defaults
+```
+Reboot server and test if Redis server works by pinging the server.
+```
+  redis-cli
+  ping
+```
 
+#### Finalize and Setup Folder Structure
 Create a directory to house the application and claim ownership.
 ```
 	sudo mkdir /www
