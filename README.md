@@ -35,24 +35,20 @@ Activate MySQL and finish up with secure install. Remove anonymous users, disall
   sudo mysql_install_db
   sudo /usr/bin/mysql_secure_installation
 ```
-Login as root and create a blank provesoft database. Follow up by creating two users, one of which will be used for the Gateway, and the other for Resource.
+Login as root and create a blank provesoft database. Follow up by creating two database with two users, one of which will be used for the Gateway, and the other for Resource.
 ```
-  CREATE DATABASE provesoft CHARCTER SET utf8 COLLATE utf8_unicode_ci;
+  CREATE DATABASE provesoftauth CHARCTER SET utf8 COLLATE utf8_unicode_ci;
+  CREATE DATABASE provesoft CHARACTER SET utf8 COLLATE utf8_unicode_ci;
   CREATE USER 'provesoftauth'@'localhost' IDENTIFIED BY 'Pr0v3$0ftAuth';    (Used by the Gateway for authentication)
   CREATE USER 'provesoft'@'localhost' IDENTIFIED BY 'Pr0v3$0ft';            (Used by the Resource component)
   CREATE USER 'provesoft'@'%' IDENTIFIED BY 'Pr0v3$0ft';            	    (Used for remote access)
 ```
-To segregate the user authentication and application components, the two users will have separate access rights to the database. Provesoft will need to retain read access to Authorities to determine the current user's role when returning Resource data. In order to allow read only external access, grant select permissions on the same tables as provesoft@localhost to provesoft@%
-Using this method, every subsequent table will need to manually have permissions added to the provesoft user.
+To segregate the user authentication and application components, the two users will have separate access rights to the databases. Provesoftauth will retain access to the provesoftauth database for authenticating users in Gateway, and provesoft will only access the provesoft database for the business login in Resource.
+In order to allow read only external access, grant select permissions on the same tables as provesoft@localhost to provesoft@%
 ```
-  GRANT ALL PRIVILEGES ON provesoft.Users TO 'provesoftauth'@'localhost';
-  GRANT ALL PRIVILEGES ON provesoft.Authorities TO 'provesoftauth'@'localhost';
-  GRANT SELECT PRIVILEGES ON provesoft.Authorities TO 'provesoft'@'localhost';
-  .
-  .
-  GRANT SELECT ON provesoft.<TABLE_NAME_1> TO 'provesoft'@'%';
-  .
-  .
+  GRANT ALL PRIVILEGES ON provesoftauth.* TO 'provesoftauth'@'localhost';
+  GRANT ALL PRIVILEGES ON provesoft.* TO 'provesoft'@'localhost';
+  GRANT SELECT ON provesoft.* TO 'provesoft'@'%';
   FLUSH PRIVILEGES;
 ```
 
