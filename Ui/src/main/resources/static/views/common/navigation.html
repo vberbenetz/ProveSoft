@@ -4,17 +4,17 @@
             <li class="nav-header">
 
                 <div class="dropdown profile-element" dropdown>
-                    <a class="dropdown-toggle" dropdown-toggle href>
-                            <span class="clear">
-                                <span class="block m-t-xs">
-                                    <strong class="font-bold">{{main.userName}}</strong>
-                             </span>
-                                <span class="text-muted text-xs block">Example menu<b class="caret"></b></span>
-                            </span>
-                    </a>
-                    <ul class="dropdown-menu animated fadeInRight m-t-xs">
-                        <li><a href="">Logout</a></li>
-                    </ul>
+                    <img alt="" class="img-circle" src="img/profile_small.jpg"/>
+                    <div class="btn btn-primary btn-circle btn-lg">
+                        <i class="fa fa-user"></i>
+                    </div>
+                    <span class="clear">
+                        <span class="block m-t-xs">
+                            <strong class="font-bold">{{ userDetails.name }}</strong>
+                        </span>
+                        <span class="text-muted text-xs block">{{ userDetails.title }}</span>
+                    </span>
+
                 </div>
                 <div class="logo-element">
                     IN+
@@ -23,11 +23,32 @@
             </li>
 
             <li ui-sref-active="active">
-                <a ui-sref="index.main"><i class="fa fa-laptop"></i> <span class="nav-label">Main page</span> </a>
+                <a ui-sref="home.news-feed"><i class="fa fa-rss-square"></i> <span class="nav-label">News Feed</span></a>
             </li>
             <li ui-sref-active="active">
-                <a ui-sref="index.minor"><i class="fa fa-desktop"></i> <span class="nav-label">Minor page</span></a>
+                <a ui-sref=""><i class="fa fa-desktop"></i> <span class="nav-label">Task Manager</span></a>
             </li>
+            <li ui-sref-active="active">
+                <a ui-sref=""><i class="fa fa-server"></i> <span class="nav-label">Process Viewer</span></a>
+            </li>
+            <li ui-sref-active="active">
+                <a ui-sref=""><i class="fa fa-line-chart"></i> <span class="nav-label">Reporting</span></a>
+            </li>
+            <li ng-class="{active: $state.includes('administration')}">
+                <a ui-sref=""><i class="fa fa-key"></i> <span class="nav-label">Administration</span></a>
+                <ul class="nav nav-second-level" ng-class="{in: $state.includes('administration')}">
+                    <li ui-sref-active="active"><a ui-sref="admin.manageUsers"><i class="fa fa-users"></i>Manage Users</a></li>
+                    <li ui-sref-active="active"><a ui-sref=""><i class="fa fa-cogs"></i>System Config</a></li>
+                    <li ui-sref-active="active"><a ui-sref=""><i class="fa fa-check"></i>Sign-off Paths</a></li>
+                </ul>
+            </li>
+            <li ui-sref-active="active">
+                <a ui-sref="home.profile"><i class="fa fa-user"></i> <span class="nav-label">Profile</span> </a>
+            </li>
+            <li ui-sref-active="active">
+                <a href="" ng-click="logout()"><i class="fa fa-sign-out"></i> <span class="nav-label">Logout</span> </a>
+            </li>
+
         </ul>
 
     </div>

@@ -15,7 +15,7 @@ function pageTitle($rootScope, $timeout) {
                 // Default title - load on Dashboard 1
                 var title = 'INSPINIA | Responsive Admin Theme';
                 // Create your own title pattern
-                if (toState.data && toState.data.pageTitle) title = 'INSPINIA | ' + toState.data.pageTitle;
+                if (toState.data && toState.data.pageTitle) title = toState.data.pageTitle;
                 $timeout(function() {
                     element.text(title);
                 });
@@ -105,6 +105,24 @@ function minimalizaSidebar($timeout) {
     };
 };
 
+/**
+ * fullScroll - Directive for slimScroll with 100%
+ */
+function fullScroll($timeout){
+    return {
+        restrict: 'A',
+        link: function(scope, element) {
+            $timeout(function(){
+                element.slimscroll({
+                    height: '100%',
+                    railOpacity: 0.9
+                });
+
+            });
+        }
+    };
+}
+
 
 
 /**
@@ -117,3 +135,4 @@ angular
     .directive('sideNavigation', sideNavigation)
     .directive('iboxTools', iboxTools)
     .directive('minimalizaSidebar', minimalizaSidebar)
+    .directive('fullScroll', fullScroll);

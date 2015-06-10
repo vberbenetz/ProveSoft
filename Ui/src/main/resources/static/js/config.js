@@ -8,7 +8,7 @@
  *
  */
 function config($stateProvider, $locationProvider, $urlRouterProvider, $ocLazyLoadProvider) {
-    $urlRouterProvider.otherwise("/index/main");
+    $urlRouterProvider.otherwise("/main");
 
     $ocLazyLoadProvider.config({
         // Set to true if you want to see what and when is dynamically loaded
@@ -17,21 +17,37 @@ function config($stateProvider, $locationProvider, $urlRouterProvider, $ocLazyLo
 
     $stateProvider
 
-        .state('index', {
+        .state('home', {
             abstract: true,
-            url: "/index",
-            templateUrl: "views/common/content.html",
+            url: "/",
+            templateUrl: "views/common/content.html"
         })
-        .state('index.main', {
-            url: "/main",
+        .state('home.main', {
+            url: "main",
             templateUrl: "views/main.html",
             data: { pageTitle: 'Example view' }
         })
-        .state('index.minor', {
-            url: "/minor",
-            templateUrl: "views/minor.html",
-            data: { pageTitle: 'Example view' }
+        .state('home.news-feed', {
+            url: "news-feed",
+            templateUrl: "views/news_feed.html",
+            data: { pageTitle: 'News Feed' }
+        })
+        .state('admin', {
+            abstract: true,
+            url: "/admin",
+            templateUrl: "views/common/content.html"
+        })
+        .state('admin.manageUsers', {
+            url: "/manage-users",
+            templateUrl: "views/manage_users.html",
+            data: { pageTitle: 'Admin | User Management' }
+        })
+        .state('home.profile', {
+            url: "profile",
+            templateUrl: "views/profile.html",
+            data: { pageTitle: 'My Profile' }
         });
+
 
     $locationProvider.html5Mode(true);
 
