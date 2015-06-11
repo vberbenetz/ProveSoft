@@ -40,7 +40,16 @@ function config($stateProvider, $locationProvider, $urlRouterProvider, $ocLazyLo
         .state('admin.manageUsers', {
             url: "/manage-users",
             templateUrl: "views/manage_users.html",
-            data: { pageTitle: 'Admin | User Management' }
+            data: { pageTitle: 'Admin | User Management' },
+            resolve: {
+                loadPlugin: function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        {
+                            files: ['css/plugins/iCheck/custom.css','js/plugins/iCheck/icheck.min.js']
+                        }
+                    ]);
+                }
+            }
         })
         .state('home.profile', {
             url: "profile",
