@@ -1,6 +1,6 @@
 logging:
   level:
-    org.springframework.security: INFO
+    org.springframework: INFO
 security:
   sessions: ALWAYS
 zuul:
