@@ -1051,7 +1051,7 @@ angular.mock.dump = function(object) {
 
          // Get hold of a scope (i.e. the root scope)
          $rootScope = $injector.get('$rootScope');
-         // The $controller service is used to create instances of controllers
+         // The $controller service is used to create instances of controller
          var $controller = $injector.get('$controller');
 
          createController = function() {

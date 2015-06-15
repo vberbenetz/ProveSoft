@@ -8,7 +8,7 @@
  *
  */
 function config($stateProvider, $locationProvider, $urlRouterProvider, $ocLazyLoadProvider) {
-    $urlRouterProvider.otherwise("/main");
+    $urlRouterProvider.otherwise("/news-feed");
 
     $ocLazyLoadProvider.config({
         // Set to true if you want to see what and when is dynamically loaded

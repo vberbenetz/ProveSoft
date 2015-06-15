@@ -2360,7 +2360,7 @@ function $StateProvider(   $urlRouterProvider,   $urlMatcherFactory) {
      *
      * @description
      * A method that force reloads the current state. All resolves are re-resolved, events are not re-fired, 
-     * and controllers reinstantiated (bug with controllers reinstantiating right now, fixing soon).
+     * and controller reinstantiated (bug with controller reinstantiating right now, fixing soon).
      *
      * @example
      * <pre>

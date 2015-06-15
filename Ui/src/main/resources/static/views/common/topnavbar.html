@@ -4,15 +4,116 @@
             <span minimaliza-sidebar></span>
             <form role="search" class="navbar-form-custom" method="post" action="">
                 <div class="form-group">
-                    <input type="text" placeholder="Search for something..." class="form-control" name="top-search" id="top-search">
+                    <input type="text" placeholder="Search For a Document..." class="form-control" name="top-search" id="top-search">
                 </div>
             </form>
         </div>
         <ul class="nav navbar-top-links navbar-right">
             <li>
-                <a href="" ng-click="logout()">
-                    <i class="fa fa-sign-out"></i> Log out
+                <h3 class="margin-right-20">Welcome To ProveSoft</h3>
+            </li>
+            <li class="dropdown" dropdown="">
+                <a href="" class="dropdown-toggle count-info" dropdown-toggle="" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-envelope"></i> Messages
+                    <span class="label label-warning">2</span>
                 </a>
+                <ul class="dropdown-menu dropdown-messages">
+                    <li>
+                        <div class="dropdown-message-box">
+                            <a class="pull-left">
+                                <img class="img-circle messages-avatar" src="img/profile_pic_placeholder.png">
+                            </a>
+                            <div>
+                                <strong>Peter Taller</strong>
+                                commented on your
+                                <strong> S00-P1 </strong>
+                                document.
+                                <br/>
+                                <small class="text-muted">
+                                    2 days ago
+                                </small>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="divider"></li>
+                    <li>
+                        <div class="dropdown-message-box">
+                            <a class="pull-left">
+                                <img class="img-circle messages-avatar" src="img/profile_pic_placeholder.png">
+                            </a>
+                            <div>
+                                <strong>Anthony Jackson</strong>
+                                sent you a private message.
+                                <br/>
+                                <small class="text-muted">
+                                    3 days ago
+                                </small>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="divider"></li>
+                    <li>
+                        <div class="text-center link-block">
+                            <a href="">
+                                <i class="fa fa-envelope"></i> <strong>Read All Messages</strong>
+                            </a>
+                        </div>
+                    </li>
+                </ul>
+            </li>
+            <li class="dropdown" dropdown="">
+                <a href="" class="dropdown-toggle count-info" dropdown-toggle="" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-bell"></i> Notifications
+                    <span class="label label-warning">5</span>
+                </a>
+                <ul class="dropdown-menu dropdown-alerts">
+                    <li>
+                        <a href="">
+                            <div>
+                                <i class="fa fa-envelope fa-fw"></i>
+                                You have 2 new messages
+                            </div>
+                        </a>
+                    </li>
+                    <li class="divider"></li>
+                    <li>
+                        <a href="">
+                            <div>
+                                <i class="fa fa-pencil fa-fw"></i>
+                                3 people edited your documents
+                            </div>
+                        </a>
+                    </li>
+                    <li class="divider"></li>
+                    <li>
+                        <a href="">
+                            <div>
+                                <i class="fa fa-check fa-fw"></i>
+                                2 document awaiting your approval
+                            </div>
+                        </a>
+                    </li>
+                    <li class="divider"></li>
+                    <li>
+                        <div class="text-center link-block">
+                            <a href="">
+                                <i class="fa fa-bell fa-fw"></i> <strong>See all alerts</strong>
+                            </a>
+                        </div>
+                    </li>
+                </ul>
+            </li>
+            <li class="dropdown" dropdown="">
+                <a class="dropdown-toggle count-info" dropdown-toggle="" href="" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-reorder"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-messages">
+                    <li>
+                        <a href="" ng-click="logout()">
+                            <i class="fa fa-sign-out"></i> Log out
+                        </a>
+                    </li>
+                </ul>
             </li>
         </ul>
     </nav>
