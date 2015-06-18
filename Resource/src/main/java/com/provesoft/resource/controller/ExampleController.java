@@ -1,4 +1,4 @@
-package com.provesoft.resource.controllers;
+package com.provesoft.resource.controller;
 
 
 import org.springframework.web.bind.annotation.RequestMapping;
