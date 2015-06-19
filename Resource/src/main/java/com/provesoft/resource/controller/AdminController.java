@@ -32,7 +32,7 @@ public class AdminController {
     // ---------- Organizations ----------- //
 
     @RequestMapping(
-            value = "/organizations/multiple",
+            value = "/organizations/all",
             method = RequestMethod.GET
     )
     public List<Organizations> findAllOrganizations(Authentication auth) {
@@ -81,7 +81,7 @@ public class AdminController {
     // ---------- Users ----------- //
 
     @RequestMapping(
-            value = "/users/multiple",
+            value = "/users/all",
             method = RequestMethod.GET
     )
     public List<UserDetails> findAllUsers(Authentication auth) {
@@ -94,6 +94,28 @@ public class AdminController {
 
             if (company != null) {
                 return userDetailsService.findAllByCompanyName(company);
+            }
+
+            throw new ResourceNotFoundException();
+        }
+
+        throw new ForbiddenException();
+    }
+
+    @RequestMapping(
+            value = "/users/first10",
+            method = RequestMethod.GET
+    )
+    public List<UserDetails> findFirst10ByCompanyName(Authentication auth) {
+
+        // Check if super admin
+        if (UserHelpers.isSuperAdmin(auth)) {
+
+            // Retrieve their company
+            String company = UserHelpers.getCompany(auth);
+
+            if (company != null) {
+                return userDetailsService.findFirst10ByCompanyName(company);
             }
 
             throw new ResourceNotFoundException();

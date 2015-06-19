@@ -1,12 +1,5 @@
-/**
- * INSPINIA - Responsive Admin Theme
- * Copyright 2015 Webapplayers.com
- *
- * Inspinia theme use AngularUI Router to manage routing and views
- * Each view are defined as state.
- * Initial there are written state for all view in theme.
- *
- */
+'use strict';
+
 function config($stateProvider, $locationProvider, $urlRouterProvider, $ocLazyLoadProvider) {
     $urlRouterProvider.otherwise("/news-feed");
 
@@ -40,6 +33,7 @@ function config($stateProvider, $locationProvider, $urlRouterProvider, $ocLazyLo
         .state('admin.manageUsers', {
             url: "/manage-users",
             templateUrl: "views/manage_users.html",
+            controller: manageUsersCtrl,
             data: { pageTitle: 'Admin | User Management' },
             resolve: {
                 loadPlugin: function ($ocLazyLoad) {
@@ -62,7 +56,7 @@ function config($stateProvider, $locationProvider, $urlRouterProvider, $ocLazyLo
 
 }
 angular
-    .module('inspinia')
+    .module('provesoft')
     .config(config)
     .run(function($rootScope, $state) {
         $rootScope.$state = $state;

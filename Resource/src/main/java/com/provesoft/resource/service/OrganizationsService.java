@@ -15,7 +15,7 @@ public class OrganizationsService {
     OrganizationsRepository organizationsRepository;
 
     public List<Organizations> findByCompany(String companyName) {
-        return organizationsRepository.findByCompanyName(companyName);
+        return organizationsRepository.findByCompanyNameOrderByOrganizationIdAsc(companyName);
     }
 
     public Organizations findByOrganizationIdAndCompanyName(Long organizationId, String companyName) {

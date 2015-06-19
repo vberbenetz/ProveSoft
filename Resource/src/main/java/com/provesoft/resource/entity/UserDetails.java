@@ -5,11 +5,18 @@ import javax.persistence.*;
 @Entity
 public class UserDetails {
 
-    public UserDetails(String companyName, String firstName, String lastName, String email, Long primaryOrgId) {
+    public UserDetails(String companyName,
+                       String firstName,
+                       String lastName,
+                       String email,
+                       String title,
+                       Long primaryOrgId)
+    {
         this.companyName = companyName;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
+        this.title = title;
         this.primaryOrgId = primaryOrgId;
     }
 
@@ -25,6 +32,7 @@ public class UserDetails {
     private String email;
     private String firstName;
     private String lastName;
+    private String title;
     private Long primaryOrgId;
 
     public Long getUserId() {
@@ -65,6 +73,14 @@ public class UserDetails {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public Long getPrimaryOrgId() {

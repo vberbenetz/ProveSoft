@@ -17,6 +17,10 @@ public class UserDetailsService {
         return userDetailsRepository.findAllByCompanyName(companyName);
     }
 
+    public List<UserDetails> findFirst10ByCompanyName(String companyName) {
+        return userDetailsRepository.findFirst10ByCompanyName(companyName);
+    }
+
     public String findCompanyByUserId(Long userId) {
         return userDetailsRepository.findCompanyNameByUserId(userId);
     }

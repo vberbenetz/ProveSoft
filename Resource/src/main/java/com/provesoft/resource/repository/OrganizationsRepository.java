@@ -13,7 +13,7 @@ import java.util.List;
 
 public interface OrganizationsRepository extends JpaRepository<Organizations, Long> {
 
-    List<Organizations> findByCompanyName(String companyName);
+    List<Organizations> findByCompanyNameOrderByOrganizationIdAsc(String companyName);
 
     Organizations findByOrganizationIdAndCompanyName(Long organizationId, String companyName);
 

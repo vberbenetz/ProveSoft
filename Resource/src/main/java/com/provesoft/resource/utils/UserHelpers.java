@@ -4,6 +4,7 @@ package com.provesoft.resource.utils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
+import java.security.Principal;
 import java.util.Collection;
 
 public final class UserHelpers {
@@ -43,4 +44,5 @@ public final class UserHelpers {
 
         return null;
     }
+
 }

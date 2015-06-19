@@ -1,13 +1,5 @@
-/**
- * INSPINIA - Responsive Admin Theme
- * Copyright 2015 Webapplayers.com
- *
- */
+'use strict';
 
-
-/**
- * pageTitle - Directive for set Page title - mata title
- */
 function pageTitle($rootScope, $timeout) {
     return {
         link: function(scope, element) {
@@ -167,7 +159,7 @@ function icheck($timeout) {
  * Pass all functions into module
  */
 angular
-    .module('inspinia')
+    .module('provesoft')
     .directive('pageTitle', pageTitle)
     .directive('sideNavigation', sideNavigation)
     .directive('iboxTools', iboxTools)

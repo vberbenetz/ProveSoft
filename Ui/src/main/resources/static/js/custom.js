@@ -1,9 +1,4 @@
-/**
- * INSPINIA - Responsive Admin Theme
- * 2.0
- *
- * Custom scripts
- */
+/* Custom Scripts */
 
 $(document).ready(function () {
 
@@ -30,7 +25,7 @@ $(document).ready(function () {
         if(!$("body").hasClass('body-small')) {
                 fix_height();
         }
-    })
+    });
 
     // Move right sidebar top after scroll
     $(window).scroll(function(){
@@ -56,4 +51,4 @@ $(function() {
             $('body').removeClass('body-small')
         }
     })
-})
+});
