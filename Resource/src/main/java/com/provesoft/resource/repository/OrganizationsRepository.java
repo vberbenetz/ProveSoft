@@ -15,7 +15,11 @@ public interface OrganizationsRepository extends JpaRepository<Organizations, Lo
 
     List<Organizations> findByCompanyNameOrderByOrganizationIdAsc(String companyName);
 
+    List<Organizations> findByCompanyNameAndOrganizationIdIn(String companyName, List<Long> organizationIds);
+
     Organizations findByOrganizationIdAndCompanyName(Long organizationId, String companyName);
+
+    Organizations findByNameAndCompanyName(String name, String companyName);
 
     // Update description
     @Query(

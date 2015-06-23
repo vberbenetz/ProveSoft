@@ -10,16 +10,16 @@
                 <div class="ibox-content">
                     <div class="clients-list">
                         <ul class="nav nav-tabs">
-                            <li ng-class="{'active' : tab == 1}"><a ng-click="tab = 1; rightPanelView = 'new-user'" ng-init="tab = 1"><i class="fa fa-users"></i> Users</a></li>
-                            <li ng-class="{'active' : tab == 2}"><a ng-click="tab = 2; rightPanelView = 'new-org'"><i class="fa fa-sitemap"></i> Organizations</a></li>
-                            <li ng-class="{'active' : tab == 3}"><a ng-click="tab = 3; rightPanelView = 'new-role'"><i class="fa fa-user-secret"></i> Roles</a></li>
+                            <li ng-class="{'active' : tab == 1}"><a ng-click="tab = 1; rightPanel.view = 'new-user'" ng-init="tab = 1"><i class="fa fa-users"></i> Users</a></li>
+                            <li ng-class="{'active' : tab == 2}"><a ng-click="tab = 2; rightPanel.view = 'new-org'"><i class="fa fa-sitemap"></i> Organizations</a></li>
+                            <li ng-class="{'active' : tab == 3}"><a ng-click="tab = 3; rightPanel.view = 'new-role'; loadOrgs();"><i class="fa fa-user-secret"></i> Roles</a></li>
                         </ul>
                         <div class="tab-content">
                             <div id="tab-1" class="tab-pane active" ng-show="tab == 1">
 
                                 <div class="margin-top-25 margin-bottom-20">
                                     <h3>
-                                        <a href="" ng-click="rightPanelView='new-user'">
+                                        <a href="" ng-click="rightPanel.view='new-user'">
                                             <button class="btn btn-primary">
                                                 <i class="fa fa-plus"></i>
                                             </button>
@@ -28,32 +28,47 @@
                                     </h3>
                                 </div>
 
+                                <div class="margin-top-25 margin-bottom-20">
+                                    <form role="search">
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <input type="text" placeholder="Start typing to find user..." class="form-control" name="userSearch" id="userSearch">
+                                                <span class="input-group-btn">
+                                                    <button class="btn btn-primary">
+                                                        <i class="fa fa-search"></i>
+                                                    </button>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+
                                 <div class="full-height-scroll" full-scroll>
                                     <div class="table-responsive">
                                         <table class="table table-striped table-hover">
                                             <thead>
                                             <tr>
-                                                <th></th>
                                                 <th>First Name</th>
                                                 <th>Last Name</th>
                                                 <th>Email</th>
                                                 <th>Primary Organization</th>
+                                                <th></th>
                                             </tr>
                                             </thead>
                                             <tbody>
-                                            <tr ng-repeat="n in usersToDisplay">
-                                                <td class="client-avatar"><a href="" ng-click="changeRightPanel('user', n)" class="client-link"><img alt="image" src="img/profile_pic_placeholder.png"></a></td>
+                                            <tr ng-repeat="n in users">
                                                 <td><a href="" ng-click="changeRightPanel('user', n)" class="client-link">{{ n.firstName }}</a></td>
                                                 <td><a href="" ng-click="changeRightPanel('user', n)" class="client-link">{{ n.lastName }}</a></td>
                                                 <td><a href="" ng-click="changeRightPanel('user', n)" class="client-link">{{ n.email }}</a></td>
                                                 <td>{{ n.primaryOrgName }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="client-avatar"><a ng-click="rightPanelView = 1" class="client-link"><img alt="image" src="img/profile_pic_placeholder.png"></a></td>
-                                                <td><a ng-click="rightPanelView = 1" class="client-link">Anthony</a></td>
-                                                <td><a ng-click="rightPanelView = 1" class="client-link">Jackson</a></td>
-                                                <td>a.jackson@company.com</td>
-                                                <td><a ng-click="rightPanelView = 5" class="client-link">Supply Chain</a></td>
+                                                <td>
+                                                    <button ng-click="changeRightPanel('user', n)" class="btn btn-xs btn-warning" type="button">
+                                                        <i class="fa fa-pencil"></i> Edit
+                                                    </button>
+                                                    <button class="btn btn-xs btn-danger" type="button">
+                                                        <i class="fa fa-times"></i> Delete
+                                                    </button>
+                                                </td>
                                             </tr>
                                             </tbody>
                                         </table>
@@ -64,7 +79,7 @@
 
                                 <div class="margin-top-25 margin-bottom-20">
                                     <h3>
-                                        <a href="" ng-click="rightPanelView='new-org'">
+                                        <a href="" ng-click="rightPanel.view='new-org'">
                                             <button class="btn btn-primary">
                                                 <i class="fa fa-plus"></i>
                                             </button>
@@ -79,25 +94,22 @@
                                             <thead>
                                             <tr>
                                                 <th>Organization</th>
-                                                <th>Owner</th>
                                                 <th>Description</th>
+                                                <th></th>
                                             </tr>
                                             </thead>
                                             <tbody>
-                                            <tr>
-                                                <td><a ng-click="rightPanelView = 5" class="client-link">Supply Chain</a></td>
-                                                <td><a ng-click="rightPanelView = 1" class="client-link">Anthony Jackson</a></td>
-                                                <td><p class="org-desc">Manages warehousing and distribution</p></td>
-                                            </tr>
-                                            <tr>
-                                                <td><a ng-click="rightPanelView = 6" class="client-link">Finance</a></td>
-                                                <td><a ng-click="rightPanelView = 2" class="client-link">Tom Brown</a></td>
-                                                <td><p class="org-desc">Manages company's financial obligations</p></td>
-                                            </tr>
-                                            <tr>
-                                                <td><a ng-click="rightPanelView = 7" class="client-link">Human Resources</a></td>
-                                                <td><a ng-click="rightPanelView = 3" class="client-link">Rick James</a></td>
-                                                <td><p class="org-desc">Manages employee relations and workplace conditions</p></td>
+                                            <tr ng-repeat="n in organizations">
+                                                <td><a ng-click="changeRightPanel('org', n)" class="client-link">{{ n.name }}</a></td>
+                                                <td><p class="org-desc">{{ n.description }}</p></td>
+                                                <td>
+                                                    <button ng-click="changeRightPanel('org', n)" class="btn btn-xs btn-warning" type="button">
+                                                        <i class="fa fa-pencil"></i> Edit
+                                                    </button>
+                                                    <button class="btn btn-xs btn-danger" type="button">
+                                                        <i class="fa fa-times"></i> Delete
+                                                    </button>
+                                                </td>
                                             </tr>
                                             </tbody>
                                         </table>
@@ -108,7 +120,7 @@
 
                                 <div class="margin-top-25 margin-bottom-20">
                                     <h3>
-                                        <a href="" ng-click="rightPanelView = 'new-role'">
+                                        <a href="" ng-click="rightPanel.view = 'new-role'">
                                             <button class="btn btn-primary">
                                                 <i class="fa fa-plus"></i>
                                             </button>
@@ -121,12 +133,20 @@
                                     <div class="ibox float-e-margins">
                                         <div class="ibox-content no-padding">
                                             <ul class="list-group">
-                                                <li class="list-group-item"><h4><a ng-click="rightPanelView = 9" class="client-link">Supply Chain User</a></h4></li>
-                                                <li class="list-group-item"><h4><a ng-click="rightPanelView = 10" class="client-link">Supply Chain Super User</a></h4></li>
-                                                <li class="list-group-item"><h4><a ng-click="rightPanelView = 11" class="client-link">Finance User</a></h4></li>
-                                                <li class="list-group-item"><h4><a ng-click="rightPanelView = 12" class="client-link">Finance Super User</a></h4></li>
-                                                <li class="list-group-item"><h4><a ng-click="rightPanelView = 13" class="client-link">Human Resources User</a></h4></li>
-                                                <li class="list-group-item"><h4><a ng-click="rightPanelView = 14" class="client-link">Human Resources Super User</a></h4></li>
+                                                <li ng-repeat="n in roles" class="list-group-item">
+                                                    <h4>
+                                                        <a ng-click="changeRightPanel('role', formatRole(n))" class="client-link">{{ n.name }}</a>
+                                                        <span class="pull-right">
+                                                            <button ng-click="changeRightPanel('role', formatRole(n))" class="btn btn-sm btn-warning" type="button">
+                                                                <i class="fa fa-pencil"></i> Edit
+                                                            </button>
+                                                            &nbsp;&nbsp;
+                                                            <button class="btn btn-sm btn-danger" type="button">
+                                                                <i class="fa fa-times"></i> Delete
+                                                            </button>
+                                                        </span>
+                                                    </h4>
+                                                </li>
                                             </ul>
                                         </div>
                                     </div>
@@ -144,7 +164,7 @@
                 <div class="ibox-content">
                     <div class="tab-content">
 
-                        <div id="new-user" class="tab-pane active" ng-show="rightPanelView == 'new-user'">
+                        <div id="new-user" class="tab-pane active" ng-show="rightPanel.view == 'new-user'">
                             <div class="row m-b-lg">
                                 <div class="col-lg-4">
                                     <h2>New User</h2>
@@ -167,21 +187,28 @@
                                             First Name
                                         </label>
                                         <div class="col-sm-10 margin-bottom-30">
-                                            <input class="form-control" type="text" />
+                                            <input ng-model="newUser.firstName" class="form-control" type="text" />
                                         </div>
 
                                         <label class="col-sm-2 control-label">
                                             Last Name
                                         </label>
                                         <div class="col-sm-10 margin-bottom-30">
-                                            <input class="form-control" type="text" />
+                                            <input ng-model="newUser.lastName" class="form-control" type="text" />
+                                        </div>
+
+                                        <label class="col-sm-2 control-label">
+                                            Title
+                                        </label>
+                                        <div class="col-sm-10 margin-bottom-30">
+                                            <input ng-model="newUser.title" class="form-control" type="text" />
                                         </div>
 
                                         <label class="col-sm-2 control-label">
                                             Email
                                         </label>
                                         <div class="col-sm-10 margin-bottom-30">
-                                            <input class="form-control" type="text" />
+                                            <input ng-model="newUser.email" class="form-control" type="text" />
                                         </div>
 
                                         <div class="row margin-bottom-30 padding-left-15">
@@ -189,19 +216,7 @@
                                                 User Roles
                                             </label>
                                             <div class="col-lg-6 m-l">
-                                                <select class="form-control m-l-n" multiple="multiple">
-                                                    <option value="role1">
-                                                        Role 1
-                                                    </option>
-                                                    <option value="role2">
-                                                        Role 2
-                                                    </option>
-                                                    <option value="role3">
-                                                        Role 3
-                                                    </option>
-                                                    <option value="role4">
-                                                        Role 4
-                                                    </option>
+                                                <select class="form-control m-l-n" multiple="multiple" ng-model="newUser.roles" ng-options="r.name for r in roles">
                                                 </select>
                                             </div>
                                         </div>
@@ -211,19 +226,7 @@
                                                 Primary Organization
                                             </label>
                                             <div class="col-lg-6">
-                                                <select class="form-control" name="organization">
-                                                    <option value="org1">
-                                                        Organization 1
-                                                    </option>
-                                                    <option value="org2">
-                                                        Organization 2
-                                                    </option>
-                                                    <option value="org3">
-                                                        Organization 3
-                                                    </option>
-                                                    <option value="org4">
-                                                        Organization 4
-                                                    </option>
+                                                <select class="form-control" name="organization" ng-model="newUser.primaryOrg" ng-options="o.name for o in organizations">
                                                 </select>
                                             </div>
                                         </div>
@@ -233,25 +236,13 @@
                                                 Additional Organizations
                                             </label>
                                             <div class="col-lg-6">
-                                                <select class="form-control" multiple="multiple">
-                                                    <option value="org1">
-                                                        Organization 1
-                                                    </option>
-                                                    <option value="org2">
-                                                        Organization 2
-                                                    </option>
-                                                    <option value="org3">
-                                                        Organization 3
-                                                    </option>
-                                                    <option value="org4">
-                                                        Organization 4
-                                                    </option>
+                                                <select class="form-control" multiple="multiple" ng-model="newUser.additionalOrgs" ng-options="o.name for o in organizations">
                                                 </select>
                                             </div>
                                         </div>
 
                                         <div class="col-sm-6 col-sm-offset-2 margin-top-20">
-                                            <button class="btn btn-block btn-primary" type="button">
+                                            <button ng-click="createNewUser()" class="btn btn-block btn-primary" type="button">
                                                 Add User
                                             </button>
                                         </div>
@@ -261,12 +252,12 @@
                             </div>
                         </div>
 
-                        <div id="user" class="tab-pane active" ng-show="rightPanelView == 'user'">
+                        <div id="user" class="tab-pane active" ng-show="rightPanel.view == 'user'">
                             <div class="row m-b-lg">
                                 <div class="col-xs-6">
-                                    <h2>{{ rightPanelData.firstName }}&nbsp;{{ rightPanelData.lastName }}</h2>
+                                    <h2>{{ rightPanel.data.firstName }}&nbsp;{{ rightPanel.data.lastName }}</h2>
 
-                                    <strong>{{ rightPanelData.title }}</strong>
+                                    <strong>{{ rightPanel.data.title }}</strong>
 
                                     <div class="m-b-sm margin-top-20">
                                         <img alt="image" class="img-circle admin-panel-avatar" src="img/profile_pic_placeholder.png"/>
@@ -319,7 +310,7 @@
                                                         <tbody>
                                                         <tr>
                                                             <td><h4><strong>Primary Organization:</strong></h4></td>
-                                                            <td>{{ rightPanelData.primaryOrgName }}</td>
+                                                            <td>{{ rightPanel.data.primaryOrgName }}</td>
                                                             <td>
                                                                 <button class="btn btn-sm btn-warning" type="button">
                                                                     <i class="fa fa-pencil"></i> Edit
@@ -330,7 +321,7 @@
                                                             <td><h4><strong>Alternate Organizations:</strong></h4></td>
                                                             <td>
                                                                 <ul>
-                                                                    <li></li>
+                                                                    <li ng-repeat="n in rightPanel.data.additionalOrgs">{{ n.name }}</li>
                                                                 </ul>
                                                             </td>
                                                             <td>
@@ -343,7 +334,7 @@
                                                             <td><h4><strong>Roles:</strong></h4></td>
                                                             <td>
                                                                 <ul>
-                                                                    <li></li>
+                                                                    <li ng-repeat="n in rightPanel.data.roles">{{ n.name }}</li>
                                                                 </ul>
                                                             </td>
                                                             <td>
@@ -369,43 +360,43 @@
                                                             <th class="text-center">View</th>
                                                             <th class="text-center">Revise</th>
                                                             <th class="text-center">Comment</th>
+                                                            <th class="text-center">Admin</th>
                                                         </tr>
                                                         </thead>
                                                         <tbody>
-                                                        <tr>
-                                                            <td>Supply Chain</td>
+                                                        <tr ng-repeat="n in rightPanel.data.roles">
+                                                            <td>{{ n.organizationName }}</td>
                                                             <td class="text-center">
-                                                                <input icheck type="checkbox" ng-model="org.sup1">
+                                                                <div ng-if="n.viewPerm" class="btn btn-primary">
+                                                                    <span class="fa fa-check"></span>
+                                                                </div>
+                                                                <div ng-if="!n.viewPerm" class="btn btn-danger">
+                                                                    <span class="fa fa-times"></span>
+                                                                </div>
                                                             </td>
                                                             <td class="text-center">
-                                                                <input icheck type="checkbox" ng-model="org.sup2">
+                                                                <div ng-if="n.revisePerm" class="btn btn-primary">
+                                                                    <span class="fa fa-check"></span>
+                                                                </div>
+                                                                <div ng-if="!n.revisePerm" class="btn btn-danger">
+                                                                    <span class="fa fa-times"></span>
+                                                                </div>
                                                             </td>
                                                             <td class="text-center">
-                                                                <input icheck type="checkbox" ng-model="org.sup3">
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>Finance</td>
-                                                            <td class="text-center">
-                                                                <input icheck type="checkbox" ng-model="org.fin1">
-                                                            </td>
-                                                            <td class="text-center">
-                                                                <input icheck type="checkbox" ng-model="org.fin2">
+                                                                <div ng-if="n.commentPerm" class="btn btn-primary">
+                                                                    <span class="fa fa-check"></span>
+                                                                </div>
+                                                                <div ng-if="!n.commentPerm" class="btn btn-danger">
+                                                                    <span class="fa fa-times"></span>
+                                                                </div>
                                                             </td>
                                                             <td class="text-center">
-                                                                <input icheck type="checkbox" ng-model="org.fin3">
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>Human Resources</td>
-                                                            <td class="text-center">
-                                                                <input icheck type="checkbox" ng-model="org.hr1">
-                                                            </td>
-                                                            <td class="text-center">
-                                                                <input icheck type="checkbox" ng-model="org.hr2">
-                                                            </td>
-                                                            <td class="text-center">
-                                                                <input icheck type="checkbox" ng-model="org.hr3">
+                                                                <div ng-if="n.adminPerm" class="btn btn-primary">
+                                                                    <span class="fa fa-check"></span>
+                                                                </div>
+                                                                <div ng-if="!n.adminPerm" class="btn btn-danger">
+                                                                    <span class="fa fa-times"></span>
+                                                                </div>
                                                             </td>
                                                         </tr>
                                                         </tbody>
@@ -419,168 +410,8 @@
                             </div>
                         </div>
 
-                        <div id="contact-1" class="tab-pane active" ng-show="rightPanelView == 1">
-                            <div class="row m-b-lg">
-                                <div class="col-xs-6">
-                                    <h2>Anthony Jackson</h2>
-
-                                    <strong>Se&ntilde;ior Vice President Of Mung&eacute;da Division</strong>
-
-                                    <div class="m-b-sm margin-top-20">
-                                        <img alt="image" class="img-circle admin-panel-avatar" src="img/profile_pic_placeholder.png"/>
-                                    </div>
-                                </div>
-                                <div class="col-xs-6 margin-top-20 text-center">
-                                    <strong>
-                                        Last Visited
-                                    </strong>
-                                    <p>
-                                        Yesterday at 12:31 pm
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="client-detail">
-                                <div class="full-height-scroll" full-scroll>
-
-                                    <strong>Last activity</strong>
-
-                                    <ul class="list-group clear-list">
-                                        <li class="list-group-item fist-item">
-                                            <span class="pull-right"> June 10th, 09:00 pm </span>
-                                            Edited process on banana manufacturing.
-                                        </li>
-                                        <li class="list-group-item">
-                                            <span class="pull-right"> June 10th, 10:16 am </span>
-                                            Signed-Off on bean counting process BC10-0021.
-                                        </li>
-                                        <li class="list-group-item">
-                                            <span class="pull-right"> June 7th, 11:06 pm </span>
-                                            Commented on status of Supply Chain organization.
-                                        </li>
-                                        <li class="list-group-item">
-                                            <span class="pull-right"> June 1st, 12:00 am </span>
-                                            Joined Provesoft.
-                                        </li>
-                                    </ul>
-                                    <hr/>
-
-                                    <div class="clients-list">
-                                        <ul class="nav nav-tabs">
-                                            <li ng-class="{'active' : usertab == 1}"><a ng-click="usertab = 1" ng-init="usertab = 1"><i class="fa fa-tasks"></i> Details</a></li>
-                                            <li ng-class="{'active' : usertab == 2}"><a ng-click="usertab = 2"><i class="fa fa-key"></i> Organization Permissions</a></li>
-                                        </ul>
-                                        <div class="tab-content">
-                                            <div id="usertab-1" class="tab-pane active" ng-show="usertab == 1">
-
-                                                <div class="table-responsive margin-top-30">
-                                                    <table class="table table-striped table-hover">
-                                                        <tbody>
-                                                        <tr>
-                                                            <td><h4><strong>Primary Organization:</strong></h4></td>
-                                                            <td>Supply Chain</td>
-                                                            <td>
-                                                                <button class="btn btn-sm btn-warning" type="button">
-                                                                    <i class="fa fa-pencil"></i> Edit
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td><h4><strong>Alternate Organizations:</strong></h4></td>
-                                                            <td>
-                                                                <ul>
-                                                                    <li>&bull; Finance</li>
-                                                                    <li>&bull; Human Resources</li>
-                                                                </ul>
-                                                            </td>
-                                                            <td>
-                                                                <button class="btn btn-sm btn-warning" type="button">
-                                                                    <i class="fa fa-pencil"></i> Edit
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td><h4><strong>Roles:</strong></h4></td>
-                                                            <td>
-                                                                <ul>
-                                                                    <li>&bull; User</li>
-                                                                    <li>&bull; Super User</li>
-                                                                </ul>
-                                                            </td>
-                                                            <td>
-                                                                <button class="btn btn-sm btn-warning" type="button">
-                                                                    <i class="fa fa-pencil"></i> Edit
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-
-                                            </div>
-                                        </div>
-                                        <div class="tab-content">
-                                            <div id="usertab-2" class="tab-pane active" ng-show="usertab == 2">
-
-                                                <div class="table-responsive margin-top-30">
-                                                    <table class="table table-hover">
-                                                        <thead>
-                                                        <tr>
-                                                            <th>Organization</th>
-                                                            <th class="text-center">View</th>
-                                                            <th class="text-center">Revise</th>
-                                                            <th class="text-center">Comment</th>
-                                                        </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                        <tr>
-                                                            <td>Supply Chain</td>
-                                                            <td class="text-center">
-                                                                <input icheck type="checkbox" ng-model="org.sup1">
-                                                            </td>
-                                                            <td class="text-center">
-                                                                <input icheck type="checkbox" ng-model="org.sup2">
-                                                            </td>
-                                                            <td class="text-center">
-                                                                <input icheck type="checkbox" ng-model="org.sup3">
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>Finance</td>
-                                                            <td class="text-center">
-                                                                <input icheck type="checkbox" ng-model="org.fin1">
-                                                            </td>
-                                                            <td class="text-center">
-                                                                <input icheck type="checkbox" ng-model="org.fin2">
-                                                            </td>
-                                                            <td class="text-center">
-                                                                <input icheck type="checkbox" ng-model="org.fin3">
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>Human Resources</td>
-                                                            <td class="text-center">
-                                                                <input icheck type="checkbox" ng-model="org.hr1">
-                                                            </td>
-                                                            <td class="text-center">
-                                                                <input icheck type="checkbox" ng-model="org.hr2">
-                                                            </td>
-                                                            <td class="text-center">
-                                                                <input icheck type="checkbox" ng-model="org.hr3">
-                                                            </td>
-                                                        </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-
-                        <div id="new-organization" class="tab-pane active" ng-show="rightPanelView == 'new-org'">
+                        <!-- New Organization panel -->
+                        <div id="new-organization" class="tab-pane active" ng-show="rightPanel.view == 'new-org'">
                             <div class="row m-b-lg">
                                 <div class="col-xs-12">
                                     <h2>New Organization</h2>
@@ -594,36 +425,20 @@
                                             Organization Name
                                         </label>
                                         <div class="col-sm-10 margin-bottom-30">
-                                            <input class="form-control" type="text" />
+                                            <input ng-model="newOrg.name" class="form-control" type="text" />
                                         </div>
 
                                         <div class="row margin-bottom-30 padding-left-15">
                                             <label class="col-sm-2 control-label">
-                                                Organization Owner
+                                                Organization Description
                                             </label>
-                                            <div class="col-sm-10 margin-bottom-20">
-                                                <input class="form-control" placeholder="Start typing to find user..." type="text" />
-                                                <div class="col-lg-8">
-                                                    <select class="form-control m-l-n" size="10" multiple="multiple">
-                                                        <option value="role1">
-                                                            Anthony Jackson
-                                                        </option>
-                                                        <option value="role2">
-                                                            Tom Brown
-                                                        </option>
-                                                        <option value="role3">
-                                                            Rick James
-                                                        </option>
-                                                        <option value="role4">
-                                                            Joe Devola
-                                                        </option>
-                                                    </select>
-                                                </div>
+                                            <div class="col-sm-9 margin-bottom-20">
+                                                <textarea ng-model="newOrg.description" rows="8"></textarea>
                                             </div>
                                         </div>
 
                                         <div class="col-sm-6 col-sm-offset-2">
-                                            <button class="btn btn-block btn-primary" type="button">
+                                            <button ng-click="createNewOrg()" class="btn btn-block btn-primary" type="button">
                                                 Create Organization
                                             </button>
                                         </div>
@@ -632,29 +447,36 @@
                                 </form>
                             </div>
                         </div>
+                        <!-- end new org -->
 
-                        <div id="company-1" class="tab-pane active" ng-show="rightPanelView == 5">
+                        <!-- Existing organization panel -->
+                        <div id="company-1" class="tab-pane active" ng-show="rightPanel.view == 'org'">
                             <div class="m-b-lg">
-                                <h2>Supply Chain</h2>
+                                <h2>{{ rightPanel.data.name }}</h2>
 
-                                <p>
-                                    Manages warehosing and distribution
+                                <p class="margin-top-20">
+                                    {{ rightPanel.data.description }}
                                 </p>
                             </div>
                             <div class="client-detail">
                                 <div class="full-height-scroll" full-scroll>
 
-                                    <p class="margin-bottom-30"><strong>Owner: &nbsp;&nbsp;</strong><a ng-click="rightPanelView = 1" class="client-link">Anthony Jackson</a></p>
-
                                     <div class="ibox float-e-margins">
                                         <div class="ibox-title">
-                                            <div class="col-sm-6 col-lg-3">
-                                                <h3><strong>Members</strong></h3>
-                                            </div>
-                                            <div class="col-sm-6 col-lg-2">
-                                                <button class="btn btn-sm btn-primary" type="button">
-                                                    <i class="fa fa-plus"> Add</i>
-                                                </button>
+                                            <h3><strong>Members</strong></h3>
+                                            <div>
+                                                <form role="search">
+                                                    <div class="form-group">
+                                                        <div class="input-group">
+                                                            <span class="input-group-btn">
+                                                                <button class="btn btn-primary" type="button">
+                                                                    <i class="fa fa-plus"> Add</i>
+                                                                </button>
+                                                            </span>
+                                                            <input type="text" placeholder="Start typing to find user..." class="form-control" name="userSearch2" id="userSearch2">
+                                                        </div>
+                                                    </div>
+                                                </form>
                                             </div>
                                         </div>
                                         <div class="ibox-content">
@@ -664,62 +486,22 @@
                                                     <tr>
                                                         <th>First Name</th>
                                                         <th>Last Name</th>
-                                                        <th class="text-center">View</th>
-                                                        <th class="text-center">Revise</th>
-                                                        <th class="text-center">Comment</th>
+                                                        <th class="text-center">Organizational Permission</th>
                                                         <th></th>
                                                     </tr>
                                                     </thead>
                                                     <tbody>
                                                     <tr>
-                                                        <td><a ng-click="rightPanelView = 1" class="client-link">Anthony</a></td>
-                                                        <td><a ng-click="rightPanelView = 1" class="client-link">Jackson</a></td>
+                                                        <td><a ng-click="rightPanel.view = 1" class="client-link">Anthony</a></td>
+                                                        <td><a ng-click="rightPanel.view = 1" class="client-link">Jackson</a></td>
                                                         <td class="text-center">
-                                                            <input icheck type="checkbox" ng-model="org.sup1">
-                                                        </td>
-                                                        <td class="text-center">
-                                                            <input icheck type="checkbox" ng-model="org.sup2">
-                                                        </td>
-                                                        <td class="text-center">
-                                                            <input icheck type="checkbox" ng-model="org.sup3">
+                                                            Supply Chain Admin
                                                         </td>
                                                         <td>
-                                                            <button class="btn btn-sm btn-danger" type="button">
-                                                                <i class="fa fa-times"></i> Remove
+                                                            <button class="btn btn-sm btn-warning" type="button">
+                                                                <i class="fa fa-pencil"></i> Edit
                                                             </button>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td><a ng-click="rightPanelView = 1" class="client-link">Lionel</a></td>
-                                                        <td><a ng-click="rightPanelView = 1" class="client-link">McMillan</a></td>
-                                                        <td class="text-center">
-                                                            <input icheck type="checkbox" ng-model="org.fin1">
-                                                        </td>
-                                                        <td class="text-center">
-                                                            <input icheck type="checkbox" ng-model="org.fin2">
-                                                        </td>
-                                                        <td class="text-center">
-                                                            <input icheck type="checkbox" ng-model="org.fin3">
-                                                        </td>
-                                                        <td>
-                                                            <button class="btn btn-sm btn-danger" type="button">
-                                                                <i class="fa fa-times"></i> Remove
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td><a ng-click="rightPanelView = 1" class="client-link">Rick</a></td>
-                                                        <td><a ng-click="rightPanelView = 1" class="client-link">Johnson</a></td>
-                                                        <td class="text-center">
-                                                            <input icheck type="checkbox" ng-model="org.hr1">
-                                                        </td>
-                                                        <td class="text-center">
-                                                            <input icheck type="checkbox" ng-model="org.hr2">
-                                                        </td>
-                                                        <td class="text-center">
-                                                            <input icheck type="checkbox" ng-model="org.hr3">
-                                                        </td>
-                                                        <td>
+                                                            &nbsp;&nbsp;
                                                             <button class="btn btn-sm btn-danger" type="button">
                                                                 <i class="fa fa-times"></i> Remove
                                                             </button>
@@ -734,88 +516,84 @@
                             </div>
                         </div>
 
-                        <div id="new-role" class="tab-pane active" ng-show="rightPanelView == 'new-role'">
+                        <div id="new-role" class="tab-pane active" ng-show="rightPanel.view == 'new-role'">
                             <div class="row m-b-lg">
                                 <div class="col-xs-12">
                                     <h2>New Role</h2>
                                 </div>
                             </div>
-                            <div class="full-height-scroll" full-scroll>
 
-                                <form class="form-horizontal">
-                                    <div class="form-group">
-
-                                        <label class="col-sm-2 control-label">
-                                            Role Name
-                                        </label>
-                                        <div class="col-sm-10 margin-bottom-30">
-                                            <input class="form-control" type="text" />
-                                        </div>
-
+                            <form class="form-horizontal">
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">
+                                        Role Name
+                                    </label>
+                                    <div class="col-sm-10 margin-bottom-30">
+                                        <input ng-model="newRole.name" class="form-control" type="text" />
                                     </div>
-                                </form>
-
-                                <div class="table-responsive margin-left-15">
-                                    <table class="table table-hover">
-                                        <thead>
-                                        <tr>
-                                            <th>Organization</th>
-                                            <th class="text-center">View</th>
-                                            <th class="text-center">Revise</th>
-                                            <th class="text-center">Comment</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <tr>
-                                            <td>Supply Chain</td>
-                                            <td class="text-center">
-                                                <input icheck type="checkbox" ng-model="org.sup1">
-                                            </td>
-                                            <td class="text-center">
-                                                <input icheck type="checkbox" ng-model="org.sup2">
-                                            </td>
-                                            <td class="text-center">
-                                                <input icheck type="checkbox" ng-model="org.sup3">
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>Finance</td>
-                                            <td class="text-center">
-                                                <input icheck type="checkbox" ng-model="org.fin1">
-                                            </td>
-                                            <td class="text-center">
-                                                <input icheck type="checkbox" ng-model="org.fin2">
-                                            </td>
-                                            <td class="text-center">
-                                                <input icheck type="checkbox" ng-model="org.fin3">
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>Human Resources</td>
-                                            <td class="text-center">
-                                                <input icheck type="checkbox" ng-model="org.hr1">
-                                            </td>
-                                            <td class="text-center">
-                                                <input icheck type="checkbox" ng-model="org.hr2">
-                                            </td>
-                                            <td class="text-center">
-                                                <input icheck type="checkbox" ng-model="org.hr3">
-                                            </td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
                                 </div>
-
-                                <div class="col-sm-6 margin-top-20">
-                                    <button class="btn btn-block btn-primary" type="button">
-                                        Create Role
-                                    </button>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">
+                                        Organization
+                                    </label>
+                                    <div class="col-sm-10 margin-bottom-30 padding-left-15 ">
+                                        <select chosen id="states" class="chosen-select" style="width:350px;" tabindex="4" ng-model="newRole.selectedOrg" ng-options="o.name for o in organizations">
+                                        </select>
+                                    </div>
                                 </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">
+                                        Permissions
+                                    </label>
+                                    <div class="col-sm-10">
+                                        <div class="col-md-8">
+                                            <div class="table-responsive margin-left-15">
+                                                <table class="table table-hover">
+                                                    <colgroup>
+                                                        <col style="width: 25%" />
+                                                        <col style="width: 25%" />
+                                                        <col style="width: 25%" />
+                                                        <col style="width: 25%" />
+                                                    </colgroup>
+                                                    <thead>
+                                                    <tr>
+                                                        <th class="text-center">View</th>
+                                                        <th class="text-center">Revise</th>
+                                                        <th class="text-center">Comment</th>
+                                                        <th class="text-center">Admin</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    <tr>
+                                                        <td class="text-center">
+                                                            <input icheck type="checkbox" ng-model="newRole.viewPerm">
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <input icheck type="checkbox" ng-model="newRole.revisePerm">
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <input icheck type="checkbox" ng-model="newRole.commentPerm">
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <input icheck type="checkbox" ng-model="newRole.adminPerm">
+                                                        </td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
 
+                            <div class="col-sm-6 col-sm-offset-2 margin-top-20">
+                                <button ng-click="createNewRole()" class="btn btn-block btn-primary" type="button">
+                                    Create Role
+                                </button>
                             </div>
                         </div>
 
-                        <div id="client9" class="tab-pane active" ng-show="rightPanelView == 9">
+                        <div id="client9" class="tab-pane active" ng-show="rightPanel.view == 'role'">
                             <div class="row m-b-lg">
                                 <div class="col-xs-12">
                                     <h2>Edit Role</h2>
@@ -825,54 +603,41 @@
 
                                 <div class="ibox float-e-margins">
                                     <div class="ibox-heading">
-                                        <h4><strong>Supply Chain User</strong></h4>
+                                        <h4><strong>{{ rightPanel.data.name }}</strong></h4>
                                     </div>
                                     <div class="ibox-content">
                                         <div class="table-responsive margin-left-15">
                                             <table class="table table-hover">
+                                                <colgroup>
+                                                    <col style="width: 40%" />
+                                                    <col style="width: 15%" />
+                                                    <col style="width: 15%" />
+                                                    <col style="width: 15%" />
+                                                    <col style="width: 15%" />
+                                                </colgroup>
                                                 <thead>
                                                 <tr>
                                                     <th>Organization</th>
                                                     <th class="text-center">View</th>
                                                     <th class="text-center">Revise</th>
                                                     <th class="text-center">Comment</th>
+                                                    <th class="text-center">Admin</th>
                                                 </tr>
                                                 </thead>
                                                 <tbody>
                                                 <tr>
-                                                    <td>Supply Chain</td>
+                                                    <td>{{ rightPanel.data.organizationName }}</td>
                                                     <td class="text-center">
-                                                        <input icheck type="checkbox" ng-model="org.sup1">
+                                                        <input icheck type="checkbox" ng-model="rightPanel.data.viewPerm">
                                                     </td>
                                                     <td class="text-center">
-                                                        <input icheck type="checkbox" ng-model="org.sup2">
+                                                        <input icheck type="checkbox" ng-model="rightPanel.data.revisePerm">
                                                     </td>
                                                     <td class="text-center">
-                                                        <input icheck type="checkbox" ng-model="org.sup3">
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Finance</td>
-                                                    <td class="text-center">
-                                                        <input icheck type="checkbox" ng-model="org.fin1">
+                                                        <input icheck type="checkbox" ng-model="rightPanel.data.commentPerm">
                                                     </td>
                                                     <td class="text-center">
-                                                        <input icheck type="checkbox" ng-model="org.fin2">
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <input icheck type="checkbox" ng-model="org.fin3">
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Human Resources</td>
-                                                    <td class="text-center">
-                                                        <input icheck type="checkbox" ng-model="org.hr1">
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <input icheck type="checkbox" ng-model="org.hr2">
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <input icheck type="checkbox" ng-model="org.hr3">
+                                                        <input icheck type="checkbox" ng-model="rightPanel.data.adminPerm">
                                                     </td>
                                                 </tr>
                                                 </tbody>

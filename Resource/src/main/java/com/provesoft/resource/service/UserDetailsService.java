@@ -14,18 +14,36 @@ public class UserDetailsService {
     UserDetailsRepository userDetailsRepository;
 
     public List<UserDetails> findAllByCompanyName(String companyName) {
-        return userDetailsRepository.findAllByCompanyName(companyName);
+        return userDetailsRepository.findAllByCompanyNameOrderByLastNameAsc(companyName);
     }
 
     public List<UserDetails> findFirst10ByCompanyName(String companyName) {
-        return userDetailsRepository.findFirst10ByCompanyName(companyName);
+        return userDetailsRepository.findFirst10ByCompanyNameOrderByLastNameAsc(companyName);
+    }
+
+    public List<UserDetails> findByCompanyNameAndUserIdList(String companyName, List<Long> userIds) {
+        return userDetailsRepository.findByCompanyNameAndUserIdIn(companyName, userIds);
+    }
+
+    public List<UserDetails> findByCompanyAndPartialName(String companyName, String name) {
+        List<UserDetails> results = userDetailsRepository.findByCompanyAndPartialName(companyName, name);
+        int upToIndex = 0;
+
+        if (results.size() < 20) {
+            upToIndex = results.size();
+        }
+        else {
+            upToIndex = 20;
+        }
+
+        return results.subList(0, upToIndex);
     }
 
     public String findCompanyByUserId(Long userId) {
         return userDetailsRepository.findCompanyNameByUserId(userId);
     }
 
-    public void addUser(UserDetails newUser) {
-        userDetailsRepository.save(newUser);
+    public UserDetails addUser(UserDetails newUser) {
+        return userDetailsRepository.saveAndFlush(newUser);
     }
 }
