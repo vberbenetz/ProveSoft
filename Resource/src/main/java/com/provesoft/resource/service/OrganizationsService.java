@@ -57,6 +57,14 @@ public class OrganizationsService {
         return orgUserRepository.findByKeyCompanyNameAndKeyOrganizationId(companyName, orgId);
     }
 
-    public void saveOrgUser(List<OrgUser> orgUser) { orgUserRepository.save(orgUser); }
+    public List<OrgUser> saveOrgUser(List<OrgUser> orgUser) { return orgUserRepository.save(orgUser); }
+
+    public void deleteOrgUser(Long orgId, Long userId, String companyName) {
+        orgUserRepository.deleteOrgUser(orgId, userId, companyName);
+    }
+
+    public void deleteAllOrgUserByUser(Long userId, String companyName) {
+        orgUserRepository.deleteAllOrgUserByUser(userId, companyName);
+    }
 
 }

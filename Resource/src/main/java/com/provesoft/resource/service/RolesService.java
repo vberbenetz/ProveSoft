@@ -31,7 +31,7 @@ public class RolesService {
     }
 
 
-    /* ---------------------- OrgUser -------------------- */
+    /* ---------------------- RoleUser -------------------- */
 
     public List<RoleUser> findByCompanyNameAndUserId (String companyName, Long userId) {
         return roleUserRepository.findByKeyCompanyNameAndKeyUserId(companyName, userId);
@@ -42,4 +42,20 @@ public class RolesService {
     }
 
     public void saveRoleUser(List<RoleUser> roleUser) { roleUserRepository.save(roleUser); }
+
+    public void deleteRoleUser(Long roleId, Long userId, String companyName) {
+        roleUserRepository.deleteRoleUser(roleId, userId, companyName);
+    }
+
+    public void deleteAllRoleUserByUser(Long userId, String companyName) {
+        roleUserRepository.deleteAllRoleUserByUser(userId, companyName);
+    }
+
+    public void deleteAllRoleUserByRoleId(Long roleId, String companyName) {
+        roleUserRepository.deleteAllRoleUserByRoleId(roleId, companyName);
+    }
+
+    public void deleteRole(Long roleId, String companyName) {
+        rolesRepository.deleteRoleByUserId(roleId, companyName);
+    }
 }

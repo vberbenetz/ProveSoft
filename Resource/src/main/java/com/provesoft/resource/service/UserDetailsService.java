@@ -46,4 +46,12 @@ public class UserDetailsService {
     public UserDetails addUser(UserDetails newUser) {
         return userDetailsRepository.saveAndFlush(newUser);
     }
+
+    public void updatePrimaryOrganization(Long primaryOrgId, Long userId, String companyName) {
+        userDetailsRepository.updatePrimaryOrganization(primaryOrgId, userId, companyName);
+    }
+
+    public void deleteByUserId(Long userId, String companyName) {
+        userDetailsRepository.deleteByUserId(userId, companyName);
+    }
 }

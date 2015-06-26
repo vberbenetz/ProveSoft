@@ -65,7 +65,7 @@
                                                     <button ng-click="changeRightPanel('user', n)" class="btn btn-xs btn-warning" type="button">
                                                         <i class="fa fa-pencil"></i> Edit
                                                     </button>
-                                                    <button class="btn btn-xs btn-danger" type="button">
+                                                    <button ng-click="deleteUser(n)" class="btn btn-xs btn-danger" type="button">
                                                         <i class="fa fa-times"></i> Delete
                                                     </button>
                                                 </td>
@@ -141,7 +141,7 @@
                                                                 <i class="fa fa-pencil"></i> Edit
                                                             </button>
                                                             &nbsp;&nbsp;
-                                                            <button class="btn btn-sm btn-danger" type="button">
+                                                            <button ng-click="deleteRole(n)" class="btn btn-sm btn-danger" type="button">
                                                                 <i class="fa fa-times"></i> Delete
                                                             </button>
                                                         </span>
@@ -275,78 +275,106 @@
                             <div class="client-detail">
                                 <div class="full-height-scroll" full-scroll>
 
-                                    <strong>Last activity</strong>
-
-                                    <ul class="list-group clear-list">
-                                        <li class="list-group-item fist-item">
-                                            <span class="pull-right"> June 10th, 09:00 pm </span>
-                                            Edited process on banana manufacturing.
-                                        </li>
-                                        <li class="list-group-item">
-                                            <span class="pull-right"> June 10th, 10:16 am </span>
-                                            Signed-Off on bean counting process BC10-0021.
-                                        </li>
-                                        <li class="list-group-item">
-                                            <span class="pull-right"> June 7th, 11:06 pm </span>
-                                            Commented on status of Supply Chain organization.
-                                        </li>
-                                        <li class="list-group-item">
-                                            <span class="pull-right"> June 1st, 12:00 am </span>
-                                            Joined Provesoft.
-                                        </li>
-                                    </ul>
-                                    <hr/>
-
                                     <div class="clients-list">
                                         <ul class="nav nav-tabs">
                                             <li ng-class="{'active' : usertab == 1}"><a ng-click="usertab = 1" ng-init="usertab = 1"><i class="fa fa-tasks"></i> Details</a></li>
-                                            <li ng-class="{'active' : usertab == 2}"><a ng-click="usertab = 2"><i class="fa fa-key"></i> Organization Permissions</a></li>
+                                            <li ng-class="{'active' : usertab == 2}"><a ng-click="usertab = 2"><i class="fa fa-key"></i> Organizational Permissions</a></li>
                                         </ul>
                                         <div class="tab-content">
                                             <div id="usertab-1" class="tab-pane active" ng-show="usertab == 1">
+                                                <ul class="list-group">
+                                                    <li class="list-item">
+                                                        <h4><strong>Primary Organization:</strong></h4>
+                                                        <table class="table table-striped table-hover">
+                                                            <colgroup>
+                                                                <col style="width: 20%" />
+                                                                <col style="width: 40%" />
+                                                                <col style="width: 30%" />
+                                                            </colgroup>
+                                                            <tbody>
+                                                            <tr>
+                                                                <td>
+                                                                    <p>{{ rightPanel.data.primaryOrgName }}</p>
+                                                                </td>
+                                                                <td>
+                                                                    <select chosen style="width:250px;" data-placeholder="Choose new primary organization" id="editUserPriOrg" class="chosen-select" tabindex="4" ng-model="editUser.primaryOrg" ng-options="o.name for o in organizations">
+                                                                    </select>
+                                                                </td>
+                                                                <td>
+                                                                    <button ng-click="updateUserPrimaryOrganization()" class="btn btn-sm btn-primary" type="button">
+                                                                        Save Changes&nbsp;<i class="fa fa-check"></i>
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </li>
 
-                                                <div class="table-responsive margin-top-30">
-                                                    <table class="table table-striped table-hover">
-                                                        <tbody>
-                                                        <tr>
-                                                            <td><h4><strong>Primary Organization:</strong></h4></td>
-                                                            <td>{{ rightPanel.data.primaryOrgName }}</td>
-                                                            <td>
-                                                                <button class="btn btn-sm btn-warning" type="button">
-                                                                    <i class="fa fa-pencil"></i> Edit
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td><h4><strong>Alternate Organizations:</strong></h4></td>
-                                                            <td>
-                                                                <ul>
-                                                                    <li ng-repeat="n in rightPanel.data.additionalOrgs">{{ n.name }}</li>
-                                                                </ul>
-                                                            </td>
-                                                            <td>
-                                                                <button class="btn btn-sm btn-warning" type="button">
-                                                                    <i class="fa fa-pencil"></i> Edit
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td><h4><strong>Roles:</strong></h4></td>
-                                                            <td>
-                                                                <ul>
-                                                                    <li ng-repeat="n in rightPanel.data.roles">{{ n.name }}</li>
-                                                                </ul>
-                                                            </td>
-                                                            <td>
-                                                                <button class="btn btn-sm btn-warning" type="button">
-                                                                    <i class="fa fa-pencil"></i> Edit
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
+                                                    <li class="list-item">
+                                                        <h4><strong>Alternate Organizations:</strong></h4>
+                                                        <table class="table table-striped table-hover">
+                                                            <colgroup>
+                                                                <col style="width: 20%" />
+                                                                <col style="width: 40%" />
+                                                                <col style="width: 30%" />
+                                                            </colgroup>
+                                                            <tbody>
+                                                            <tr>
+                                                                <td>
+                                                                    <ul class="list-group">
+                                                                        <li class="list-item margin-bottom-10" ng-repeat="n in rightPanel.data.additionalOrgs">
+                                                                            <button ng-click="deleteUserAlternateOrganization(n)" class="btn btn-xs btn-danger">
+                                                                                <i class="fa fa-times"></i>
+                                                                            </button>
+                                                                            &nbsp;&nbsp;{{ n.name }}
+                                                                        </li>
+                                                                    </ul>
+                                                                </td>
+                                                                <td>
+                                                                    <select chosen multiple style="width:250px;" data-placeholder="Choose alt organizations" id="editUserAltOrgs" class="chosen-select" tabindex="4" ng-model="editUser.altOrgs" ng-options="o.name for o in organizations">
+                                                                    </select>
+                                                                </td>
+                                                                <td>
+                                                                    <button ng-click="updateUserAlternateOrganizations()" class="btn btn-sm btn-primary" type="button">
+                                                                        Save Changes&nbsp;<i class="fa fa-check"></i>
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </li>
 
+                                                    <li class="list-item">
+                                                        <h4><strong>Roles:</strong></h4>
+                                                        <table class="table table-striped table-hover">
+                                                            <colgroup>
+                                                                <col style="width: 20%" />
+                                                                <col style="width: 40%" />
+                                                                <col style="width: 30%" />
+                                                            </colgroup>
+                                                            <tbody>
+                                                            <tr>
+                                                                <td>
+                                                                    <ul class="list-group">
+                                                                        <li class="list-item margin-bottom-10" ng-repeat="n in rightPanel.data.roles">
+                                                                            <button ng-click="deleteUserRole(n)" class="btn btn-xs btn-danger"><i class="fa fa-times"></i></button>&nbsp;&nbsp;{{ n.name }}
+                                                                        </li>
+                                                                    </ul>
+                                                                </td>
+                                                                <td>
+                                                                    <select chosen multiple style="width:250px;" data-placeholder="Choose roles" id="editUserRoles" class="chosen-select" tabindex="4" ng-model="editUser.roles" ng-options="r.name for r in roles">
+                                                                    </select>
+                                                                </td>
+                                                                <td>
+                                                                    <button ng-click="updateUserRoles()" class="btn btn-sm btn-primary" type="button">
+                                                                        Save Changes&nbsp;<i class="fa fa-check"></i>
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </li>
+                                                </ul>
                                             </div>
                                         </div>
                                         <div class="tab-content">
@@ -462,23 +490,35 @@
                                 <div class="full-height-scroll" full-scroll>
 
                                     <div class="ibox float-e-margins">
+
                                         <div class="ibox-title">
                                             <h3><strong>Members</strong></h3>
                                             <div>
                                                 <form role="search">
                                                     <div class="form-group">
                                                         <div class="input-group">
+
+                                                            <!--
                                                             <span class="input-group-btn">
                                                                 <button class="btn btn-primary" type="button">
                                                                     <i class="fa fa-plus"> Add</i>
                                                                 </button>
                                                             </span>
                                                             <input type="text" placeholder="Start typing to find user..." class="form-control" name="userSearch2" id="userSearch2">
+                                                            -->
+
+                                                            <select chosen style="width:250px;" data-placeholder="Choose member to add" id="addOrgMember" class="chosen-select" tabindex="6" ng-model="editOrg.newMember" ng-options="u.firstName + ' ' + u.lastName for u in users">
+                                                            </select>
+                                                            <button ng-click="addMember()" class="btn btn-primary" type="button">
+                                                                <i class="fa fa-plus"> Add</i>
+                                                            </button>
+
                                                         </div>
                                                     </div>
                                                 </form>
                                             </div>
                                         </div>
+
                                         <div class="ibox-content">
                                             <div class="table-responsive">
                                                 <table class="table table-hover">
@@ -486,24 +526,16 @@
                                                     <tr>
                                                         <th>First Name</th>
                                                         <th>Last Name</th>
-                                                        <th class="text-center">Organizational Permission</th>
                                                         <th></th>
                                                     </tr>
                                                     </thead>
                                                     <tbody>
-                                                    <tr>
-                                                        <td><a ng-click="rightPanel.view = 1" class="client-link">Anthony</a></td>
-                                                        <td><a ng-click="rightPanel.view = 1" class="client-link">Jackson</a></td>
-                                                        <td class="text-center">
-                                                            Supply Chain Admin
-                                                        </td>
+                                                    <tr ng-repeat="n in rightPanel.data.orgUsers">
+                                                        <td><a ng-click="changeRightPanel('user', n)" class="client-link">{{ n.firstName }}</a></td>
+                                                        <td><a ng-click="changeRightPanel('user', n)" class="client-link">{{ n.lastName }}</a></td>
                                                         <td>
-                                                            <button class="btn btn-sm btn-warning" type="button">
+                                                            <button ng-click="changeRightPanel('user', n)" class="btn btn-sm btn-warning" type="button">
                                                                 <i class="fa fa-pencil"></i> Edit
-                                                            </button>
-                                                            &nbsp;&nbsp;
-                                                            <button class="btn btn-sm btn-danger" type="button">
-                                                                <i class="fa fa-times"></i> Remove
                                                             </button>
                                                         </td>
                                                     </tr>
@@ -645,7 +677,7 @@
                                         </div>
 
                                         <div class="col-sm-6 margin-top-20">
-                                            <button class="btn btn-block btn-primary" type="button">
+                                            <button ng-click="updateRole()" class="btn btn-block btn-primary" type="button">
                                                 Save Changes
                                             </button>
                                         </div>

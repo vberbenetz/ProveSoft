@@ -4,7 +4,51 @@ function manageUsersService($resource) {
     return {
         allUsers: $resource('/resource/admin/users/all'),
 
-        user: $resource('/resource/admin/users/single'),
+        user: $resource('/resource/admin/users/single',
+            {},
+            {
+                updatePrimaryOrg: {
+                    method: 'PUT',
+                    params: {
+                        userId: '@userId',
+                        primaryOrgId: '@primaryOrgId'
+                    },
+                    isArray: false
+                },
+                updateAltOrgs: {
+                    method: 'PUT',
+                    params: {
+                        userId: '@userId',
+                        altOrgId: '@altOrgId'
+                    },
+                    isArray: false
+                },
+                updateRoles: {
+                    method: 'PUT',
+                    params: {
+                        userId: '@userId',
+                        roleId: '@roleId'
+                    },
+                    isArray: false
+                },
+                deleteAltOrg: {
+                    method: 'DELETE',
+                    params: {
+                        userId: '@userId',
+                        orgId: '@orgId'
+                    }
+                },
+                deleteRole: {
+                    method: 'DELETE',
+                    params: {
+                        userId: '@userId',
+                        roleId: '@orgId'
+                    }
+                }
+            }
+        ),
+
+        userDelete: $resource('/resource/admin/user/delete'),
 
         first10: $resource('/resource/admin/users/first10'),
 
@@ -14,7 +58,18 @@ function manageUsersService($resource) {
 
         allRoles: $resource('/resource/admin/roles/all'),
 
-        role: $resource('/resource/admin/roles/single'),
+        role: $resource('/resource/admin/roles/single',
+            {},
+            {
+                removeByRoleId: {
+                    method: 'DELETE',
+                    params: {
+                        roleId: '@roleId'
+                    },
+                    isArray: false
+                }
+            }
+        ),
 
         orgUser: $resource('/resource/admin/orgUser',
             {},

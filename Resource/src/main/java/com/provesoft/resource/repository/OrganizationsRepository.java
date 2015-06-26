@@ -33,5 +33,5 @@ public interface OrganizationsRepository extends JpaRepository<Organizations, Lo
     void updateDescription(@Param(value="organizationId") Long organizationId,
                            @Param(value="companyName") String companyName,
                            @Param(value="newDescription") String newDescription);
-
+    
 }

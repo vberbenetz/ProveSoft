@@ -10,15 +10,14 @@ import com.provesoft.resource.service.RolesService;
 import com.provesoft.resource.service.UserDetailsService;
 import com.provesoft.resource.utils.UserHelpers;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -189,9 +188,9 @@ public class AdminController {
             value = "/admin/orgUser",
             method = RequestMethod.GET
     )
-    public List<? extends Object> findOrgsByUserIdOrOrgId(@RequestParam(value = "userId", required = false) Long userId,
-                                                            @RequestParam(value = "orgId", required = false) Long orgId,
-                                                            Authentication auth) {
+    public List<? extends Object> findOrgsByUserIdOrOrgId (@RequestParam(value = "userId", required = false) Long userId,
+                                                           @RequestParam(value = "orgId", required = false) Long orgId,
+                                                           Authentication auth) {
 
         if ( (userId == null) && (orgId == null) ) {
             throw new ResourceNotFoundException();
@@ -450,7 +449,7 @@ public class AdminController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public String addAdditionalOrgs (@RequestBody String json,
+    public List<OrgUser> addAdditionalOrgs (@RequestBody String json,
                                         Authentication auth) {
 
         // Check if super admin
@@ -468,13 +467,12 @@ public class AdminController {
                     o.setKey(key);
                 }
 
-                organizationsService.saveOrgUser(orgUsersList);
+                return organizationsService.saveOrgUser(orgUsersList);
             }
             catch (IOException | NullPointerException ex) {
                 throw new ResourceNotFoundException();
             }
 
-            return json;
         }
 
         throw new ForbiddenException();
@@ -550,16 +548,51 @@ public class AdminController {
     @RequestMapping(value = "/admin/users/single",
             method = RequestMethod.PUT
     )
-    public void addOrganizationMember(@RequestParam("orgId") Long orgId,
-                                        @RequestParam("userId") Long userId,
-                                        Authentication auth) {
+    public ResponseEntity editUser ( @RequestParam(value = "userId", required = true) Long userId,
+                           @RequestParam(value = "primaryOrgId", required = false) Long primaryOrgId,
+                           @RequestParam(value = "altOrgId", required = false) Long[] alternateOrgIds,
+                           @RequestParam(value = "roleId", required = false) Long[] roleIds,
+                           Authentication auth
+    ) {
 
         // Check if super admin
         if (UserHelpers.isSuperAdmin(auth)) {
 
             String company = UserHelpers.getCompany(auth);
 
-            //organizationsService.updateDescription(orgId, company, newDescription);
+            if ( (primaryOrgId == null) && (alternateOrgIds == null) && (roleIds == null) ) {
+                throw new ResourceNotFoundException();
+            }
+
+            if (primaryOrgId != null) {
+                userDetailsService.updatePrimaryOrganization(primaryOrgId, userId, company);
+            }
+
+            // Generate new list of OrgUsers for new alternate organizations
+            if (alternateOrgIds != null) {
+                List<Long> altOrgIds = Arrays.asList(alternateOrgIds);
+                List<OrgUser> newAltOrgs = new ArrayList<>();
+
+                for (Long id : altOrgIds) {
+                    newAltOrgs.add(new OrgUser(id, userId, company));
+                }
+
+                organizationsService.saveOrgUser(newAltOrgs);
+            }
+
+            // Generate new list of RoleUsers for newly added roles
+            if (roleIds != null) {
+                List<Long> newRoleIds = Arrays.asList(roleIds);
+                List<RoleUser> newUserRoles = new ArrayList<>();
+
+                for (Long id : newRoleIds) {
+                    newUserRoles.add(new RoleUser(id, userId, company));
+                }
+
+                rolesService.saveRoleUser(newUserRoles);
+            }
+
+            return new ResponseEntity<>("{}", HttpStatus.OK);
         }
 
         throw new ForbiddenException();
@@ -569,6 +602,72 @@ public class AdminController {
     /* ----------------------------------------------------------- */
     /* ------------------------ DELETE --------------------------- */
     /* ----------------------------------------------------------- */
+
+    // ---------------- User Related ----------------- //
+
+    // Delete roles or alternate organizations
+    @RequestMapping(value = "/admin/users/single",
+                    method = RequestMethod.DELETE
+    )
+    public ResponseEntity deleteUserMulti (@RequestParam(value = "userId", required = true) Long userId,
+                                           @RequestParam(value = "orgId", required = false) Long orgId,
+                                           @RequestParam(value = "roleId", required = false) Long roleId,
+                                           Authentication auth
+    ) {
+
+        // Check if super admin
+        if (UserHelpers.isSuperAdmin(auth)) {
+
+            String company = UserHelpers.getCompany(auth);
+
+            if ( (orgId == null) && (roleId == null) ) {
+                return new ResponseEntity<>("{}", HttpStatus.NOT_FOUND);
+            }
+
+            if (orgId != null) {
+                organizationsService.deleteOrgUser(orgId, userId, company);
+            }
+
+            if (roleId != null) {
+                rolesService.deleteRoleUser(roleId, userId, company);
+            }
+
+            return new ResponseEntity<>("{}", HttpStatus.OK);
+        }
+
+        throw new ForbiddenException();
+    }
+
+    // Delete a user
+    @RequestMapping(value = "/admin/user/delete",
+                    method = RequestMethod.DELETE
+    )
+    public ResponseEntity deleteUser (@RequestParam(value = "userId", required = true) Long userId,
+                                      Authentication auth
+    ) {
+
+        // Check if super admin
+        if (UserHelpers.isSuperAdmin(auth)) {
+
+            String company = UserHelpers.getCompany(auth);
+
+            // Delete all OrgUser For User
+            organizationsService.deleteAllOrgUserByUser(userId, company);
+
+            // Delete all RoleUser For User
+            rolesService.deleteAllRoleUserByUser(userId, company);
+
+            // Delete UserDetails For User
+            userDetailsService.deleteByUserId(userId, company);
+
+            return new ResponseEntity<>("{}", HttpStatus.OK);
+        }
+
+        throw new ForbiddenException();
+    }
+
+
+    // ----------------- Organization Related --------------------- //
 
     @RequestMapping(value = "/admin/organizations/single",
                     method = RequestMethod.DELETE,
@@ -602,6 +701,29 @@ public class AdminController {
 
     }
 
+
+    // ------------------ Role Related ------------------ //
+
+    @RequestMapping(value = "/admin/roles/single",
+                    method = RequestMethod.DELETE
+    )
+    public ResponseEntity deleteRole (@RequestParam(value = "roleId", required = true) Long roleId,
+                                      Authentication auth) {
+
+        // Check if super admin
+        if (UserHelpers.isSuperAdmin(auth)) {
+
+            String company = UserHelpers.getCompany(auth);
+
+            rolesService.deleteAllRoleUserByRoleId(roleId, company);
+            rolesService.deleteRole(roleId, company);
+
+            return new ResponseEntity<>("{}", HttpStatus.OK);
+        }
+
+        throw new ForbiddenException();
+
+    }
 
 
 }
