@@ -49,6 +49,16 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
 
     // Initialize other variables
     $scope.organizations = [];
+    $scope.populatedUserDropdown = false;
+    $scope.populatedOrgDropdown = false;
+    $scope.populatedRoleDropdown = false;
+
+    // Initialize notification variables
+    $scope.successfullyAddedUser = false;
+    $scope.successfullyModifiedUser = false;
+    $scope.successfullyAddedOrg = false;
+    $scope.successfullyAddedRole = false;
+    $scope.successfullyModifiedRole = false;
 
 
     // Load all organizations
@@ -86,17 +96,9 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
         if (!$scope.populatedUserDropdown) {
             manageUsersService.allUsers.query(function(users) {
 
-                var orgs = $scope.organizations;
-
                 // Append organization name to user
                 for (var i = 0; i < users.length; i++) {
-                    for (var j = 0; j < orgs.length; j++) {
-
-                        if (users[i].primaryOrgId === orgs[j].organizationId) {
-                            $scope.users[i].primaryOrgName = orgs[j].name;
-                            break;
-                        }
-                    }
+                    users[i].primaryOrgName = $scope.getOrgNameById($scope.users[i].primaryOrgId);
                 }
 
                 $scope.users = users;
@@ -227,8 +229,16 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
                     $scope.newUser.lastName = '';
                     $scope.newUser.email = '';
                     $scope.newUser.roles = [];
-                    $scope.newUser.primaryOrganization = {};
+                    $scope.newUser.primaryOrg = {};
                     $scope.newUser.additionalOrgs = [];
+
+                    // Send out success alert notification
+                    $scope.successfullyAddedUser = true;
+                    setTimeout(function() {
+                        $scope.$apply(function() {
+                            $scope.successfullyAddedUser = false;
+                        });
+                    }, 2000);
 
                 }, function(data, status, headers, config) {
                     $scope.err = status;
@@ -238,7 +248,7 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
                     $scope.newUser.lastName = '';
                     $scope.newUser.email = '';
                     $scope.newUser.roles = [];
-                    $scope.newUser.primaryOrganization = {};
+                    $scope.newUser.primaryOrg = {};
                     $scope.newUser.additionalOrgs = [];
                 });
 
@@ -250,7 +260,7 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
                 $scope.newUser.lastName = '';
                 $scope.newUser.email = '';
                 $scope.newUser.roles = [];
-                $scope.newUser.primaryOrganization = {};
+                $scope.newUser.primaryOrg = {};
                 $scope.newUser.additionalOrgs = [];
             });
 
@@ -262,7 +272,7 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
             $scope.newUser.lastName = '';
             $scope.newUser.email = '';
             $scope.newUser.roles = [];
-            $scope.newUser.primaryOrganization = {};
+            $scope.newUser.primaryOrg = {};
             $scope.newUser.additionalOrgs = [];
         });
 
@@ -285,6 +295,14 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
                 // Refresh front end user data
                 $scope.rightPanel.data.primaryOrgId = primaryOrgId;
                 $scope.rightPanel.data.primaryOrgName = $scope.getOrgNameById(primaryOrgId);
+
+                // Send out success alert notification
+                $scope.successfullyModifiedUser = true;
+                setTimeout(function() {
+                    $scope.$apply(function() {
+                        $scope.successfullyModifiedUser = false;
+                    });
+                }, 2000);
 
             }, function(error) {
                 $scope.err = error;
@@ -310,6 +328,14 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
 
                 // Reset alternateOrg edit ng-model
                 $scope.editUser.altOrgs = [];
+
+                // Send out success alert notification
+                $scope.successfullyModifiedUser = true;
+                setTimeout(function() {
+                    $scope.$apply(function() {
+                        $scope.successfullyModifiedUser = false;
+                    });
+                }, 2000);
 
                 // Refresh front end user data
                 $scope.changeRightPanel('user', $scope.rightPanel.data);
@@ -338,6 +364,14 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
 
                 // Reset alternateRole edit ng-model
                 $scope.editUser.roles = [];
+
+                // Send out success alert notification
+                $scope.successfullyModifiedUser = true;
+                setTimeout(function() {
+                    $scope.$apply(function() {
+                        $scope.successfullyModifiedUser = false;
+                    });
+                }, 2000);
 
                 // Refresh front end user data
                 $scope.changeRightPanel('user', $scope.rightPanel.data);
@@ -400,7 +434,19 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
     $scope.createNewOrg = function() {
 
         manageUsersService.organization.save($scope.newOrg, function(data, status, headers, config) {
-            $scope.newOrg = {};
+            $scope.newOrg = {
+                name: '',
+                description: ''
+            };
+
+            // Send out success alert notification
+            $scope.successfullyAddedOrg = true;
+            setTimeout(function() {
+                $scope.$apply(function() {
+                    $scope.successfullyAddedOrg = false;
+                });
+            }, 2000);
+
         }, function(data, status, headers, config) {
             $scope.err = status;
         });
@@ -421,7 +467,7 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
         manageUsersService.orgUser.save(memberToAdd, function(data, status, headers, config) {
 
             // Add in newly added member
-            $scope.rightPanel.data.orgUsers.concat(data);
+            $scope.rightPanel.data.orgUsers.push($scope.editOrg.newMember);
 
             // Reset new member ng-model
             $scope.editOrg.newMember = {};
@@ -442,12 +488,22 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
         if (typeof $scope.newRole.organizationId !== 'undefined') {
 
             manageUsersService.role.save($scope.newRole, function(data, status, headers, config) {
+
                 $scope.newRole = {
                     viewPerm: true,
                     revisePerm: false,
                     commentPerm: false,
                     adminPerm: false
                 };
+
+                // Send out success alert notification
+                $scope.successfullyAddedRole = true;
+                setTimeout(function() {
+                    $scope.$apply(function() {
+                        $scope.successfullyAddedRole = false;
+                    });
+                }, 2000);
+
             }, function(data, status, headers, config) {
                 $scope.err = status;
             });
@@ -458,10 +514,22 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
 
         var updatedRole = $scope.rightPanel.data;
 
-        // Remove extra properties
+        // Remove extra properties for save
+        var tempOrgName = updatedRole.organizationName;
         delete updatedRole.organizationName;
 
         manageUsersService.role.save(updatedRole, function(data, status, headers, config) {
+
+            // Return removed organization name
+            $scope.rightPanel.data.organizationName = tempOrgName;
+
+            // Send out success alert notification
+            $scope.successfullyUpdatedRole = true;
+            setTimeout(function() {
+                $scope.$apply(function() {
+                    $scope.successfullyUpdatedRole = false;
+                });
+            }, 2000);
 
         }, function(data, status, headers, config) {
 

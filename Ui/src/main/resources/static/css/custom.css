@@ -106,3 +106,12 @@ textarea {
     width: auto;
     height: auto;
 }
+
+/* Ng-Animate classes */
+.show-hide-notifications {
+    -webkit-transition: all linear 0.5s;
+    transition: all linear 0.5s;
+}
+.show-hide-notifications.ng-hide {
+    opacity: 0;
+}

@@ -34,7 +34,9 @@ function config($stateProvider, $locationProvider, $urlRouterProvider, $ocLazyLo
             url: "/manage-users",
             templateUrl: "views/manage_users.html",
             controller: manageUsersCtrl,
-            data: { pageTitle: 'Admin | User Management' },
+            data: {
+                pageTitle: 'Admin | User Management'
+            },
             resolve: {
                 loadPlugin: function ($ocLazyLoad) {
                     return $ocLazyLoad.load([
