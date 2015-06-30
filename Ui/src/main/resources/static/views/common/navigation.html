@@ -23,20 +23,20 @@
                 <a ui-sref="home.news-feed"><i class="fa fa-rss-square"></i> <span class="nav-label">News Feed</span></a>
             </li>
             <li ui-sref-active="active">
-                <a ui-sref=""><i class="fa fa-desktop"></i> <span class="nav-label">Task Manager</span></a>
+                <a ><i class="fa fa-desktop"></i> <span class="nav-label">Task Manager</span></a>
             </li>
             <li ui-sref-active="active">
-                <a ui-sref=""><i class="fa fa-server"></i> <span class="nav-label">Process Viewer</span></a>
+                <a ><i class="fa fa-server"></i> <span class="nav-label">Process Viewer</span></a>
             </li>
             <li ui-sref-active="active">
-                <a ui-sref=""><i class="fa fa-line-chart"></i> <span class="nav-label">Reporting</span></a>
+                <a ><i class="fa fa-line-chart"></i> <span class="nav-label">Reporting</span></a>
             </li>
             <li ng-show="user.isSuperAdmin" ng-class="{active: $state.includes('administration')}">
-                <a ui-sref=""><i class="fa fa-key"></i> <span class="nav-label">Administration</span></a>
+                <a><i class="fa fa-key"></i> <span class="nav-label">Administration</span></a>
                 <ul class="nav nav-second-level" ng-class="{in: $state.includes('administration')}">
                     <li ui-sref-active="active"><a ui-sref="admin.manageUsers"><i class="fa fa-users"></i>Manage Users</a></li>
-                    <li ui-sref-active="active"><a ui-sref=""><i class="fa fa-cogs"></i>System Config</a></li>
-                    <li ui-sref-active="active"><a ui-sref=""><i class="fa fa-check"></i>Sign-off Paths</a></li>
+                    <li ui-sref-active="active"><a ui-sref="admin.documentTypeSetup"><i class="fa fa-file-text"></i>Document Type Setup</a></li>
+                    <li ui-sref-active="active"><a><i class="fa fa-check"></i>Sign-off Paths</a></li>
                 </ul>
             </li>
             <li ui-sref-active="active">

@@ -610,6 +610,53 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
 
 };
 
+function documentTypeSetupCtrl($scope, $rootScope, $window) {
+
+    if (!$rootScope.authenticated) {
+        $window.location.href = '/';
+    }
+
+    // ------------------ Initialize -------------------- //
+
+    // New document type creation variables
+    $scope.newDocumentType = {
+        name: '',
+        description: '',
+        documentPrefix: '',
+        maxDigits: 1,
+        startingNumber: 1
+    };
+    $scope.nextDocumentId = '';
+
+    // Update document id preview
+    $scope.$watch('newDocumentType',
+        function(newVal, oldVal) {
+            var prefix = newVal.documentPrefix;
+/*
+            if (
+                    (typeof newVal.startingNumber !== 'undefined') ||
+                    (typeof newVal.maxDigits !== 'undefined') ||
+                    (newVal.startingNumber.toString().length > newVal.maxDigits)
+            ) {
+
+                var str = newVal.startingNumber.toString();
+                $scope.startingNumber = parseInt( str.subString(0, str.length - 1) );
+            }
+
+*/
+            var suffix = newVal.startingNumber;
+
+            for (var z = newVal.startingNumber.toString().length; z < newVal.maxDigits; z++) {
+                suffix = '0' + suffix;
+            }
+            $scope.nextDocumentId = prefix + suffix;
+        },
+        true);
+
+
+};
+
 angular
     .module('provesoft')
-    .controller('manageUsersCtrl', manageUsersCtrl);
+    .controller('manageUsersCtrl', manageUsersCtrl)
+    .controller('documentTypeSetupCtrl', documentTypeSetupCtrl);

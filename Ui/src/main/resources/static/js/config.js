@@ -32,7 +32,7 @@ function config($stateProvider, $locationProvider, $urlRouterProvider, $ocLazyLo
         })
         .state('admin.manageUsers', {
             url: "/manage-users",
-            templateUrl: "views/manage_users.html",
+            templateUrl: "views/admin/manage_users.html",
             controller: manageUsersCtrl,
             data: {
                 pageTitle: 'Admin | User Management'
@@ -47,6 +47,24 @@ function config($stateProvider, $locationProvider, $urlRouterProvider, $ocLazyLo
                             insertBefore: '#loadBefore',
                             name: 'localytics.directives',
                             files: ['css/plugins/chosen/chosen.css','js/plugins/chosen/chosen.jquery.js','js/plugins/chosen/chosen.js']
+                        }
+                    ]);
+                }
+            }
+        })
+        .state('admin.documentTypeSetup', {
+            url: "/document-type-setup",
+            templateUrl: "views/admin/document_type_setup.html",
+            controller: documentTypeSetupCtrl,
+            data: {
+                pageTitle: 'Admin | Document Setup'
+            },
+            resolve: {
+                loadPlugin: function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        {
+                        },
+                        {
                         }
                     ]);
                 }
