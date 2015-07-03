@@ -610,7 +610,7 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
 
 };
 
-function documentTypeSetupCtrl($scope, $rootScope, $window) {
+function documentTypeSetupCtrl($scope, $rootScope, $window, documentTypeService) {
 
     if (!$rootScope.authenticated) {
         $window.location.href = '/';
@@ -623,36 +623,73 @@ function documentTypeSetupCtrl($scope, $rootScope, $window) {
         name: '',
         description: '',
         documentPrefix: '',
-        maxDigits: 1,
+        maxNumberOfDigits: 1,
         startingNumber: 1
     };
-    $scope.nextDocumentId = '';
+    $scope.newNextDocumentId = '';
+
+    // Hold generated next document Ids for document types
+    $scope.nextDocumentId = [];
+
+    // List of all existing document types
+    $scope.documentTypes = [];
+
+
+    // Get initial list of Document Types
+    documentTypeService.documentType.query({}, function(data) {
+        for (var i = 0; i < data.length; i++) {
+            $scope.nextDocumentId[ data[i].id ] = $scope.generateNextDocId(data[i].documentPrefix, data[i].startingNumber, data[i].maxNumberOfDigits);
+        }
+        $scope.documentTypes = data;
+    }, function(error) {
+        $scope.err = error;
+    });
 
     // Update document id preview
     $scope.$watch('newDocumentType',
         function(newVal, oldVal) {
-            var prefix = newVal.documentPrefix;
-/*
-            if (
-                    (typeof newVal.startingNumber !== 'undefined') ||
-                    (typeof newVal.maxDigits !== 'undefined') ||
-                    (newVal.startingNumber.toString().length > newVal.maxDigits)
-            ) {
-
-                var str = newVal.startingNumber.toString();
-                $scope.startingNumber = parseInt( str.subString(0, str.length - 1) );
-            }
-
-*/
-            var suffix = newVal.startingNumber;
-
-            for (var z = newVal.startingNumber.toString().length; z < newVal.maxDigits; z++) {
-                suffix = '0' + suffix;
-            }
-            $scope.nextDocumentId = prefix + suffix;
+            $scope.newNextDocumentId = $scope.generateNextDocId(newVal.documentPrefix, newVal.startingNumber, newVal.maxNumberOfDigits);
         },
         true);
 
+
+    // ------------------- Methods ------------------- //
+
+    $scope.createNewDocumentType = function() {
+        documentTypeService.documentType.save($scope.newDocumentType, function(data, status, headers, config) {
+
+            for (var i = 0; i < data.length; i++) {
+                $scope.nextDocumentId[ data[i].id ] = $scope.generateNextDocId(data[i].documentPrefix, data[i].startingNumber, data[i].maxNumberOfDigits);
+            }
+
+            $scope.documentTypes.push(data);
+
+            // Reset newDocumentType
+            $scope.newDocumentType = {
+                name: '',
+                description: '',
+                documentPrefix: '',
+                maxNumberOfDigits: '',
+                startingNumber: ''
+            }
+
+        }, function(data, status, headers, config) {
+            $scope.err = status;
+        });
+    };
+
+
+    // --------------- Helpers ---------------- //
+
+    $scope.generateNextDocId = function(documentPrefix, startingNumber, maxNumberOfDigits) {
+        var prefix = documentPrefix;
+        var suffix = startingNumber;
+
+        for (var z = startingNumber.toString().length; z < maxNumberOfDigits; z++) {
+            suffix = '0' + suffix;
+        }
+        return prefix + suffix;
+    }
 
 };
 

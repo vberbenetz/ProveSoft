@@ -124,6 +124,14 @@ function manageUsersService($resource) {
     }
 };
 
+function documentTypeService ($resource) {
+
+    return {
+        documentType: $resource('/resource/admin/documentType')
+    }
+};
+
 angular
     .module('provesoft')
-    .factory('manageUsersService', manageUsersService);
+    .factory('manageUsersService', manageUsersService)
+    .factory('documentTypeService', documentTypeService);

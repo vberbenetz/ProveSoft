@@ -48,7 +48,7 @@
 
                                         <label class="col-md-2 control-label">Max Number Of Digits</label>
                                         <div class="col-md-10 margin-bottom-30">
-                                            <input class="form-control" ng-model="newDocumentType.maxDigits" type="text" />
+                                            <input class="form-control" ng-model="newDocumentType.maxNumberOfDigits" type="text" />
                                         </div>
 
                                         <label class="col-md-2 control-label">Starting No.</label>
@@ -58,11 +58,11 @@
 
                                         <label class="col-md-2 control-label">Next Document ID</label>
                                         <div class="col-md-10 margin-bottom-30">
-                                            <pre class="col-lg-4 form-control">{{ nextDocumentId }}</pre>
+                                            <pre class="col-lg-4 form-control">{{ newNextDocumentId }}</pre>
                                         </div>
 
                                         <div class="col-lg-6 col-lg-offset-3">
-                                            <button class="btn btn-block btn-primary">
+                                            <button ng-click="createNewDocumentType()" class="btn btn-block btn-primary">
                                                 Create&nbsp;
                                                 <span class="fa fa-check"></span>
                                             </button>
@@ -76,39 +76,30 @@
                     <div class="col-lg-12">
                         <div class="table-responsive">
                             <table class="table table-hover issue-tracker">
-                                <tbody>
+                                <thead>
                                 <tr>
-                                    <td>
-
-                                    </td>
+                                    <td>Name</td>
+                                    <td>Description</td>
+                                    <td>Document Prefix</td>
+                                    <td>Max Number Of Digits</td>
+                                    <td>Starting No.</td>
+                                    <td>Next Document Id</td>
+                                    <td></td>
                                 </tr>
-                                <tr>
+                                </thead>
+                                <tbody>
+                                <tr ng-repeat="n in documentTypes">
+                                    <td>{{ n.name }}</td>
+                                    <td>{{ n.description }}</td>
+                                    <td>{{ n.documentPrefix }}</td>
+                                    <td>{{ n.maxNumberOfDigits }}</td>
+                                    <td>{{ n.startingNumber }}</td>
+                                    <td>{{ nextDocumentId[n.id] }}</td>
                                     <td>
-                                        <span class="label label-primary">Added</span>
-                                    </td>
-                                    <td class="issue-info">
-                                        <a href="#">
-                                            ISSUE-23
-                                        </a>
-
-                                        <small>
-                                            This is issue with the coresponding note
-                                        </small>
-                                    </td>
-                                    <td>
-                                        Adrian Novak
-                                    </td>
-                                    <td>
-                                        12.02.2015 10:00 am
-                                    </td>
-                                    <td>
-                                        <span class="pie">0.52,1.041</span>
-                                        2d
-                                    </td>
-                                    <td class="text-right">
-                                        <button class="btn btn-white btn-xs"> Tag</button>
-                                        <button class="btn btn-white btn-xs"> Mag</button>
-                                        <button class="btn btn-white btn-xs"> Rag</button>
+                                        <button class="btn btn-sm btn-danger">
+                                            <span class="fa fa-times"></span>
+                                            &nbsp;Delete
+                                        </button>
                                     </td>
                                 </tr>
                                 </tbody>

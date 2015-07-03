@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.provesoft.resource.entity.*;
 import com.provesoft.resource.exceptions.ForbiddenException;
 import com.provesoft.resource.exceptions.ResourceNotFoundException;
+import com.provesoft.resource.service.DocumentService;
 import com.provesoft.resource.service.OrganizationsService;
 import com.provesoft.resource.service.RolesService;
 import com.provesoft.resource.service.UserDetailsService;
@@ -30,6 +31,9 @@ public class AdminController {
 
     @Autowired
     RolesService rolesService;
+
+    @Autowired
+    DocumentService documentService;
 
 
     /* -------------------------------------------------------- */
@@ -321,6 +325,34 @@ public class AdminController {
     }
 
 
+    /* --------------- DocumentType ---------------- */
+
+    @RequestMapping(value = "/admin/documentType",
+            method = RequestMethod.GET
+    )
+    public List<DocumentType> getDocumentTypes (@RequestParam(value = "id", required = false) Long id,
+                                                Authentication auth) {
+
+        // Check if super admin
+        if (UserHelpers.isSuperAdmin(auth)) {
+
+            String companyName = UserHelpers.getCompany(auth);
+
+            // Fetch by Id
+            if (id != null) {
+
+            }
+
+            // Fetch all
+            else {
+                return documentService.findByCompanyName(companyName);
+            }
+        }
+
+        throw new ForbiddenException();
+    }
+
+
     /* --------------------------------------------------------- */
     /* ------------------------ POST --------------------------- */
     /* --------------------------------------------------------- */
@@ -511,6 +543,39 @@ public class AdminController {
             }
 
             return json;
+        }
+
+        throw new ForbiddenException();
+    }
+
+
+    /* --------------- DocumentType ---------------- */
+
+    /* Create new document type */
+    @RequestMapping(value = "/admin/documentType",
+            method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public DocumentType createNewDocumentType (@RequestBody String json,
+                                               Authentication auth) {
+
+        // Check if super admin
+        if (UserHelpers.isSuperAdmin(auth)) {
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                DocumentType documentType = mapper.readValue(json, DocumentType.class);
+
+                // Append company name
+                String companyName = UserHelpers.getCompany(auth);
+
+                documentType.setCompanyName(companyName);
+
+                return documentService.addDocumentType(documentType);
+            }
+            catch (IOException | NullPointerException ex) {
+                throw new ResourceNotFoundException();
+            }
         }
 
         throw new ForbiddenException();

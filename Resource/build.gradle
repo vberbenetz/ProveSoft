@@ -33,8 +33,10 @@ repositories {
 dependencies {
     compile("mysql:mysql-connector-java")
     compile("commons-dbcp:commons-dbcp")
-    compile("org.springframework.boot:spring-boot-starter-data-jpa")
-    compile("org.springframework.boot:spring-boot-starter-web")
+    compile("junit:junit")
+    compile("org.springframework:spring-test")
+    compile("org.springframework.boot:spring-boot-starter-data-jpa:1.8.1.RELEASE")
+    compile("org.springframework.boot:spring-boot-starter-web:1.2.5.RELEASE")
     compile("org.springframework.boot:spring-boot-starter-security")
     compile("org.springframework.boot:spring-boot-starter-redis")
     compile("org.springframework.session:spring-session:1.0.1.RELEASE")

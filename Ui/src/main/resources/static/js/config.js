@@ -25,6 +25,19 @@ function config($stateProvider, $locationProvider, $urlRouterProvider, $ocLazyLo
             templateUrl: "views/news_feed.html",
             data: { pageTitle: 'News Feed' }
         })
+
+        .state('process-viewer', {
+            abstract: true,
+            url: "/process-viewer",
+            templateUrl: "views/common/content.html"
+        })
+        .state('process-viewer.document-lookup', {
+            url: "/document-lookup",
+            templateUrl: "views/process-viewer/document_lookup.html",
+            controller: 'documentLookupCtrl',
+            data: { pageTitle: 'Document Lookup' }
+        })
+
         .state('admin', {
             abstract: true,
             url: "/admin",
@@ -70,6 +83,7 @@ function config($stateProvider, $locationProvider, $urlRouterProvider, $ocLazyLo
                 }
             }
         })
+
         .state('home.profile', {
             url: "profile",
             templateUrl: "views/profile.html",
