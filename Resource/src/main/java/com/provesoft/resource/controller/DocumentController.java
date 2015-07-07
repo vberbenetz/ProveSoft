@@ -2,6 +2,7 @@ package com.provesoft.resource.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.provesoft.resource.entity.Document;
+import com.provesoft.resource.entity.DocumentType;
 import com.provesoft.resource.exceptions.InternalServerErrorException;
 import com.provesoft.resource.exceptions.ResourceNotFoundException;
 import com.provesoft.resource.service.DocumentService;
@@ -11,13 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.TransactionRolledbackException;
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @RestController
@@ -26,8 +25,57 @@ public class DocumentController {
     @Autowired
     DocumentService documentService;
 
+
+    /* -------------------------------------------------------- */
+    /* ------------------------ GET --------------------------- */
+    /* -------------------------------------------------------- */
+
+    /* ------ Document ------ */
+
+    // Find all documents by the user's company, and join the like list of Id's and Titles
+    @RequestMapping(value = "/document/lookup",
+            method = RequestMethod.GET
+    )
+    public List<Document> documentLookup (@RequestParam("searchString") String searchString,
+                                          Authentication auth)
+    {
+
+// TODO: (MAYBE) ONLY RETRIEVE RESULTS WHICH THE USER HAS PERMISSIONS FOR
+        String companyName = UserHelpers.getCompany(auth);
+
+        // Add wildcard characters
+        searchString = "%" + searchString + "%";
+
+        // Join results
+        List<Document> documentsByTitle = documentService.findByTitle(companyName, searchString);
+        List<Document> documentsById = documentService.findById(companyName, searchString);
+
+        documentsByTitle.addAll(documentsById);
+
+        return documentsByTitle;
+    }
+
+    /* ------ DocumentType ------ */
+
+    @RequestMapping(value = "/documentType",
+            method = RequestMethod.GET
+    )
+    public List<DocumentType> getDocumentTypes (Authentication auth) {
+
+        // Get all document types by the user's company
+// TODO: ONLY RETRIEVE RESULTS WHICH THE USER HAS PERMISSIONS FOR
+        String companyName = UserHelpers.getCompany(auth);
+
+        return documentService.findByCompanyName(companyName);
+    }
+
+
+    /* --------------------------------------------------------- */
+    /* ------------------------ POST --------------------------- */
+    /* --------------------------------------------------------- */
+
     @RequestMapping(
-            value = "/admin/users/all",
+            value = "/document",
             method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE

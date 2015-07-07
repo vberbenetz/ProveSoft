@@ -1,0 +1,95 @@
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-xs-12">
+        <h1>Document Creation</h1>
+    </div>
+</div>
+<div class="wrapper wrapper-content  animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox">
+                <div class="ibox-content">
+                    <div class="col-xs-4">
+                        <div class="panel panel-default" ng-class="{'panel-primary': newDocumentForm==1}">
+                            <div class="panel-heading">
+                                Document Upload
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-4">
+                        <div class="panel panel-default" ng-class="{'panel-primary': newDocumentForm==2}">
+                            <div class="panel-heading">
+                                Signoff Paths
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-4">
+                        <div class="panel panel-default" ng-class="{'panel-primary': newDocumentForm==3}">
+                            <div class="panel-heading">
+                                Security Exceptions
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div ng-show="newDocumentForm==1">
+                    <form class="form-horizontal">
+                        <div class="row">
+                            <label class="col-md-2 control-label margin-left-10">Title</label>
+                            <div class="col-lg-4 margin-bottom-30">
+                                <input ng-model="newDocument.title" type="text" placeholder="Document Name" class="form-control">
+                            </div>
+                        </div>
+
+                        <label class="col-md-2 control-label">Type</label>
+                        <div class="col-md-10 margin-bottom-30">
+                            <select chosen style="width:250px;" data-placeholder="Choose Document Type.." id="docTypeSelect" size="6" class="chosen-select" ng-model="newDocument.documentType" ng-options="d.name for d in documentTypes">
+                            </select>
+                        </div>
+
+                        <label class="col-md-2 control-label">Organization</label>
+                        <div class="col-md-10 margin-bottom-30">
+                            <select chosen style="width:250px;" data-placeholder="Choose Owning Organization.." id="orgSelect" size="6" class="chosen-select" ng-model="newDocument.organization" ng-options="o.name for o in organizations">
+                            </select>
+                        </div>
+                    </form>
+
+                    <div class="col-md-8 col-md-offset-2">
+                        <div class="ibox ibox-border">
+                            <div class="ibox-title">
+                                <h5>Document Upload Area</h5>
+                            </div>
+                            <div class="ibox-content">
+                                <form action="" class="dropzone" dropzone="" id="dropzone">
+                                    <div class="dz-default dz-message">
+                                    </div>
+                                    <!-- <button ng-click="createNewDocument()" class="btn btn-primary pull-right">Submit this form!</button> -->
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="pull-right">
+                            <button ui-sref="process-viewer.document-lookup" class="btn btn-danger margin-right-20">Cancel</button>
+                        </div>
+                        <div class="pull-right">
+                            <button ng-click="createNewDocument()" class="btn btn-primary margin-right-20">Next</button>
+                        </div>
+                        <div class="pull-right">
+                            <button class="btn btn-warning margin-right-20">Previous</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div ng-show="newDocumentForm==2">
+
+                </div>
+
+                <div ng-show="newDocumentForm==3">
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

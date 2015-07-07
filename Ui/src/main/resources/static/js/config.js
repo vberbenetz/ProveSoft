@@ -37,6 +37,34 @@ function config($stateProvider, $locationProvider, $urlRouterProvider, $ocLazyLo
             controller: 'documentLookupCtrl',
             data: { pageTitle: 'Document Lookup' }
         })
+        .state('process-viewer.document-creation', {
+            url: "/document-creation",
+            templateUrl: "views/process-viewer/document_creation.html",
+            controller: 'documentCreationCtrl',
+            data: { pageTitle: 'Document Creation' },
+            resolve: {
+                loadPlugin: function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        {
+                            files: [
+                                'css/plugins/dropzone/basic.css',
+                                'css/plugins/dropzone/dropzone.css',
+                                'js/plugins/dropzone/dropzone.js'
+                            ]
+                        },
+                        {
+                            insertBefore: '#loadBefore',
+                            name: 'localytics.directives',
+                            files: [
+                                'css/plugins/chosen/chosen.css',
+                                'js/plugins/chosen/chosen.jquery.js',
+                                'js/plugins/chosen/chosen.js'
+                            ]
+                        }
+                    ]);
+                }
+            }
+        })
 
         .state('admin', {
             abstract: true,

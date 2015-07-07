@@ -8,10 +8,11 @@ import javax.persistence.JoinColumn;
 @Entity
 public class Document {
 
-    public Document(String companyName, DocumentType documentType, Long organizationId) {
+    public Document(String companyName, String title, DocumentType documentType, Organizations organization) {
         this.companyName = companyName;
+        this.title = title;
         this.documentType = documentType;
-        this.organizationId = organizationId;
+        this.organization = organization;
     }
 
     public Document() {
@@ -27,7 +28,11 @@ public class Document {
     @JoinColumn
     private DocumentType documentType;
 
-    private Long organizationId;
+    @ManyToOne
+    @JoinColumn
+    private Organizations organization;
+
+    private String title;
 
     public String getId() {
         return id;
@@ -53,11 +58,19 @@ public class Document {
         this.documentType = documentType;
     }
 
-    public Long getOrganizationId() {
-        return organizationId;
+    public Organizations getOrganization() {
+        return organization;
     }
 
-    public void setOrganizationId(Long organizationId) {
-        this.organizationId = organizationId;
+    public void setOrganization(Organizations organization) {
+        this.organization = organization;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 }

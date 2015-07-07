@@ -115,3 +115,16 @@ textarea {
 .show-hide-notifications.ng-hide {
     opacity: 0;
 }
+
+/* iBox addons */
+.ibox-border {
+    -moz-border-bottom-colors: #e7eaec;
+    -moz-border-left-colors: #e7eaec;
+    -moz-border-right-colors: #e7eaec;
+    -moz-border-top-colors: #e7eaec;
+    border: 2px solid #e7eaec;
+    color: inherit;
+    margin-bottom: 0;
+    padding: 14px 15px 7px;
+    min-height: 48px;
+}

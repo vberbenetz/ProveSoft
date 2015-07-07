@@ -152,6 +152,49 @@ function icheck($timeout) {
     };
 }
 
+/**
+ * dropZone - Directive for Drag and drop zone file upload plugin
+ */
+function dropzone($cookies) {
+
+    var xsrfToken = $cookies['XSRF-TOKEN'];
+
+    return function(scope, element, attrs) {
+         element.dropzone({
+            url: '/resource/upload',
+            maxFilesize: 100,
+            paramName: "uploadfile",
+            maxThumbnailFilesize: 10,
+            //autoProcessQueue: false,
+            headers: {
+                "X-XSRF-TOKEN": xsrfToken
+            },
+            init: function() {
+                scope.files.push({file: 'added'});
+                this.on('success', function(file, json) {
+                });
+                this.on('addedfile', function(file) {
+                    scope.$apply(function(){
+                        scope.files.push({file: 'added'});
+                    });
+                });
+                this.on('drop', function(file) {
+                });
+                /*
+                scope.$watch(function() {
+                    return scope.submitClicked;
+                }, function (newVal, oldVal) {
+                    this.processQueue();
+                });
+                */
+
+            }
+        });
+
+    }
+}
+
+
 
 
 /**
@@ -165,4 +208,5 @@ angular
     .directive('iboxTools', iboxTools)
     .directive('minimalizaSidebar', minimalizaSidebar)
     .directive('fullScroll', fullScroll)
-    .directive('icheck', icheck);
+    .directive('icheck', icheck)
+    .directive('dropzone', dropzone);

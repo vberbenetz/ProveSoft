@@ -1,66 +1,247 @@
 <div class="row wrapper border-bottom white-bg page-heading">
-    <div class="col-xs-12">
-        <h1>Document Lookup</h1>
+    <div class="col-lg-9">
+        <h1> All Processes</h1>
     </div>
 </div>
-<div class="wrapper wrapper-content  animated fadeInRight">
+<div class="wrapper wrapper-content animated fadeInRight">
     <div class="row">
         <div class="col-lg-12">
-            <div class="ibox">
+            <div class="ibox float-e-margins">
                 <div class="ibox-content">
-                    <div class="col-xs-4">
-                        <div class="panel panel-primary">
-                            <div class="panel-heading">
-                                Document Upload
+                    <div class="col-md-12 margin-bottom-30">
+                        <button ui-sref="process-viewer.document-creation" class="btn btn-lg btn-primary">New Document +</button>
+                    </div>
+
+                    <h4 class="margin-left-20">
+                        <!-- 2,160 results found for: <span class="text-navy">“Admin Theme”</span> -->
+                    </h4>
+
+                    <!-- Search results table -->
+                    <div class="col-md-8">
+                        <div class="search-form">
+                            <form action="">
+                                <div class="input-group">
+                                    <input ng-model="searchString" type="text" placeholder="Search All Documents.." name="search" class="form-control input-lg">
+
+                                    <div class="input-group-btn">
+                                        <button class="btn btn-lg btn-primary" type="submit">
+                                            Search
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover issue-tracker">
+                                <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>ID</th>
+                                    <th>Title</th>
+                                    <th>Owner</th>
+                                    <th>Revision</th>
+                                    <th>State</th>
+                                    <th>Release Date</th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr ng-repeat="n in documentSearchResults">
+                                    <td></td>
+                                    <td>{{ n.id }}</td>
+                                    <td>{{ n.title }}</td>
+                                    <td>{{ n.organization.name }}</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-warning">
+                                            <span class="fa fa-pencil"></span>
+                                            &nbsp;Edit
+                                        </button>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="hr-line-dashed"></div>
+                        <div class="text-center">
+                            <div class="btn-group">
+                                <button class="btn btn-white" type="button"><i class="fa fa-chevron-left"></i></button>
+                                <button class="btn btn-white">1</button>
+                                <button class="btn btn-white">2</button>
+                                <button class="btn btn-white">3</button>
+                                <button class="btn btn-white">4</button>
+                                <button class="btn btn-white">5</button>
+                                <button class="btn btn-white">6</button>
+                                <button class="btn btn-white">7</button>
+                                <button class="btn btn-white" type="button"><i class="fa fa-chevron-right"></i></button>
                             </div>
                         </div>
                     </div>
-                    <div class="col-xs-4">
-                        <div class="panel panel-primary">
-                            <div class="panel-heading">
-                                Signoff Paths
+                    <!-- End search results table -->
+
+                    <!-- Timeline -->
+                    <div class="col-md-4">
+                        <div class="ibox-content inspinia-timeline">
+                            <div class="timeline-item">
+                                <div class="row">
+                                    <div class="col-xs-3 date">
+                                        <i class="fa fa-briefcase"></i>
+                                        6:00 am
+                                        <br/>
+                                        <small class="text-navy">2 hour ago</small>
+                                    </div>
+                                    <div class="col-xs-7 content no-top-border">
+                                        <p class="m-b-xs"><strong>Meeting</strong></p>
+
+                                        <p>Conference on the sales results for the previous year. Monica please examine sales trends in marketing and products. Below please find the current status of the
+                                            sale.</p>
+
+                                        <p>
+                                            <bar-chart data="main.BarChart2.data" options="main.BarChart2.options"></bar-chart>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="row">
+                                    <div class="col-xs-3 date">
+                                        <i class="fa fa-file-text"></i>
+                                        7:00 am
+                                        <br/>
+                                        <small class="text-navy">3 hour ago</small>
+                                    </div>
+                                    <div class="col-xs-7 content">
+                                        <p class="m-b-xs"><strong>Send documents to Mike</strong></p>
+
+                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="row">
+                                    <div class="col-xs-3 date">
+                                        <i class="fa fa-coffee"></i>
+                                        8:00 am
+                                        <br/>
+                                    </div>
+                                    <div class="col-xs-7 content">
+                                        <p class="m-b-xs"><strong>Coffee Break</strong></p>
+
+                                        <p>
+                                            Go to shop and find some products.
+                                            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="row">
+                                    <div class="col-xs-3 date">
+                                        <i class="fa fa-phone"></i>
+                                        11:00 am
+                                        <br/>
+                                        <small class="text-navy">21 hour ago</small>
+                                    </div>
+                                    <div class="col-xs-7 content">
+                                        <p class="m-b-xs"><strong>Phone with Jeronimo</strong></p>
+
+                                        <p>
+                                            Lorem Ipsum has been the industry's standard dummy text ever since.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="row">
+                                    <div class="col-xs-3 date">
+                                        <i class="fa fa-user-md"></i>
+                                        09:00 pm
+                                        <br/>
+                                        <small>21 hour ago</small>
+                                    </div>
+                                    <div class="col-xs-7 content">
+                                        <p class="m-b-xs"><strong>Go to the doctor dr Smith</strong></p>
+
+                                        <p>
+                                            Find some issue and go to doctor.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="row">
+                                    <div class="col-xs-3 date">
+                                        <i class="fa fa-user-md"></i>
+                                        11:10 pm
+                                    </div>
+                                    <div class="col-xs-7 content">
+                                        <p class="m-b-xs"><strong>Chat with Sandra</strong></p>
+
+                                        <p>
+                                            Lorem Ipsum has been the industry's standard dummy text ever since.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="row">
+                                    <div class="col-xs-3 date">
+                                        <i class="fa fa-comments"></i>
+                                        12:50 pm
+                                        <br/>
+                                        <small class="text-navy">48 hour ago</small>
+                                    </div>
+                                    <div class="col-xs-7 content">
+                                        <p class="m-b-xs"><strong>Chat with Monica and Sandra</strong></p>
+
+                                        <p>
+                                            Web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="row">
+                                    <div class="col-xs-3 date">
+                                        <i class="fa fa-phone"></i>
+                                        08:50 pm
+                                        <br/>
+                                        <small class="text-navy">68 hour ago</small>
+                                    </div>
+                                    <div class="col-xs-7 content">
+                                        <p class="m-b-xs"><strong>Phone to James</strong></p>
+
+                                        <p>
+                                            Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="row">
+                                    <div class="col-xs-3 date">
+                                        <i class="fa fa-file-text"></i>
+                                        7:00 am
+                                        <br/>
+                                        <small class="text-navy">3 hour ago</small>
+                                    </div>
+                                    <div class="col-xs-7 content">
+                                        <p class="m-b-xs"><strong>Send documents to Mike</strong></p>
+
+                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since.</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+
                     </div>
-                    <div class="col-xs-4">
-                        <div class="panel panel-primary">
-                            <div class="panel-heading">
-                                Security Exceptions
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div ng-show="newDocumentForm==1">
-                    <form class="form-horizontal">
-                        <label class="col-md-2 control-label">Type</label>
-                        <div class="col-md-10 margin-bottom-30">
-                            <input class="form-control" ng-model="newDocumentType.name" type="text" />
-                        </div>
-
-                        <label class="col-md-2 control-label">Organization</label>
-                        <div class="col-md-10 margin-bottom-30">
-                            <input class="form-control" ng-model="newDocumentType.name" type="text" />
-                        </div>
-
-                        <label class="col-md-2 control-label">Upload Document</label>
-                        <div class="col-md-10 margin-bottom-30">
-                            <input class="form-control" ng-model="newDocumentType.name" type="text" />
-                        </div>
-                    </form>
-                    <button class="btn btn-danger pull-right">Cancel</button>
-                    <button class="btn btn-primary pull-right">Next</button>
-                    <button class="btn btn-warning pull-right">Previous</button>
-                </div>
-
-                <div ng-show="newDocumentForm==2">
+                    <!-- End timeline -->
 
                 </div>
-
-                <div ng-show="newDocumentForm==3">
-
-                </div>
-
             </div>
         </div>
     </div>

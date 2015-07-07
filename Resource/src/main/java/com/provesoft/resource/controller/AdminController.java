@@ -569,8 +569,13 @@ public class AdminController {
                 // Append company name
                 String companyName = UserHelpers.getCompany(auth);
 
+                // Append current suffix
+                documentType.setCurrentSuffix( documentType.getStartingNumber() );
+
                 documentType.setCompanyName(companyName);
 
+                // Generate new document type.
+                // Automatically generate new entry to maintain Id in DocumentTypeId table (done within the service)
                 return documentService.addDocumentType(documentType);
             }
             catch (IOException | NullPointerException ex) {

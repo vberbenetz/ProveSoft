@@ -648,7 +648,27 @@ function documentTypeSetupCtrl($scope, $rootScope, $window, documentTypeService)
     // Update document id preview
     $scope.$watch('newDocumentType',
         function(newVal, oldVal) {
+
+            // Prevent overflowing of prefix string
+            if (newVal.documentPrefix.length > 100) {
+                newVal.documentPrefix = newVal.documentPrefix.substring(0, 99);
+                $scope.documentPrefix = newVal.documentPrefix;
+            }
+
+            // Prevent overflowing the number
+            if (newVal.maxNumberOfDigits > 15) {
+                newVal.maxNumberOfDigits = 15;
+                $scope.maxNumberOfDigits = newVal.maxNumberOfDigits;
+            }
+
+            // Prevent exceeding max digits
+            if (newVal.startingNumber.toString().length > newVal.maxNumberOfDigits) {
+                newVal.startingNumber = parseInt( newVal.startingNumber.toString().substring(0, newVal.maxNumberOfDigits - 1) );
+                $scope.startingNumber = newVal.startingNumber;
+            }
+
             $scope.newNextDocumentId = $scope.generateNextDocId(newVal.documentPrefix, newVal.startingNumber, newVal.maxNumberOfDigits);
+
         },
         true);
 

@@ -30,6 +30,16 @@ public class DocumentService {
         return documentTypeRepository.findByCompanyName(companyName);
     }
 
+    // Search method will use wildcards for the title
+    public List<Document> findByTitle(String companyName, String title) {
+        return documentRepository.searchByTitle(companyName, title);
+    }
+
+    // Search method will use wildcards for the title
+    public List<Document> findById(String companyName, String id) {
+        return documentRepository.searchById(companyName, id);
+    }
+
     /*
         Generate new unique id for document of documentType
      */
@@ -50,8 +60,15 @@ public class DocumentService {
         return documentRepository.saveAndFlush(document);
     }
 
+    /*
+        Add new DocumentType.
+        Insert new DocumentTypeId to maintain Id generation
+     */
     public DocumentType addDocumentType(DocumentType documentType) {
-        return documentTypeRepository.saveAndFlush(documentType);
+        DocumentType newDocumentType = documentTypeRepository.saveAndFlush(documentType);
+        DocumentTypeId newDocumentTypeId = new DocumentTypeId( newDocumentType.getId(), newDocumentType.getCurrentSuffix() );
+        documentTypeIdRepository.saveAndFlush(newDocumentTypeId);
+        return newDocumentType;
     }
 
     public void deleteDocumentTypeById(Long id, String companyName) {

@@ -3,8 +3,10 @@ package test;
 import com.provesoft.resource.ResourceApplication;
 import com.provesoft.resource.entity.Document;
 import com.provesoft.resource.entity.DocumentType;
+import com.provesoft.resource.entity.Organizations;
 import com.provesoft.resource.exceptions.ResourceNotFoundException;
 import com.provesoft.resource.service.DocumentService;
+import com.provesoft.resource.service.OrganizationsService;
 import org.hibernate.exception.LockAcquisitionException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,6 +31,9 @@ public class DocumentControllerTests {
     @Autowired
     DocumentService documentService;
 
+    @Autowired
+    OrganizationsService organizationsService;
+
     public class DocumentIdTestRunnable implements Runnable {
 
         @Override
@@ -37,7 +42,9 @@ public class DocumentControllerTests {
             DocumentType documentType = new DocumentType("Company", "name", "desc", "SU", new Integer(6), new Long(1));
             documentType.setId(1L);
 
-            Document newDocument = new Document("Company", documentType, 1L);
+            Organizations organization = organizationsService.findByOrganizationIdAndCompanyName(1L, "Company");
+
+            Document newDocument = new Document("Company", "Title", documentType, organization);
 
             // Retry if deadlock occurs until the resource becomes free or timeout occurs
             for (long stop=System.currentTimeMillis()+ TimeUnit.SECONDS.toMillis(30L); stop > System.currentTimeMillis();) {

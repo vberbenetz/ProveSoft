@@ -7,7 +7,8 @@
         'oc.lazyLoad',                  // ocLazyLoad
         'ui.bootstrap',                 // Ui Bootstrap
         'ngResource',
-        'ngAnimate'
+        'ngAnimate',
+        'ngCookies'
     ])
 })();
 
