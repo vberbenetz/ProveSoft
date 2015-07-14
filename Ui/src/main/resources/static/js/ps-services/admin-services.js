@@ -2,9 +2,24 @@
 
 function manageUsersService($resource) {
     return {
-        allUsers: $resource('/resource/admin/users/all'),
+        user: $resource('/resource/admin/user',
+            {},
+            {
+                remove: {
+                    method: 'DELETE',
+                    params: {
+                        userId: '@userId'
+                    },
+                    isArray: false
+                }
+            }
+        ),
 
-        user: $resource('/resource/admin/users/single',
+        allUsers: $resource('/resource/admin/user/all'),
+
+        first10: $resource('/resource/admin/users/first10'),
+
+        userProperties: $resource('/resource/admin/user/properties',
             {},
             {
                 updatePrimaryOrg: {
@@ -27,7 +42,7 @@ function manageUsersService($resource) {
                     method: 'PUT',
                     params: {
                         userId: '@userId',
-                        roleId: '@roleId'
+                        roleIds: '@roleIds'
                     },
                     isArray: false
                 },
@@ -42,23 +57,41 @@ function manageUsersService($resource) {
                     method: 'DELETE',
                     params: {
                         userId: '@userId',
-                        roleId: '@orgId'
+                        roleId: '@roleId'
                     }
                 }
             }
         ),
 
-        userDelete: $resource('/resource/admin/user/delete'),
+        userPermissions: $resource('/resource/admin/user/permissions',
+            {},
+            {
+                save: {
+                    method: 'POST',
+                    params: {
+                        userId: '@userId',
+                        roleIds: '@roleIds'
+                    },
+                    isArray: true
+                },
+                remove: {
+                    method: 'DELETE',
+                    params: {
+                        userId: '@userId',
+                        roleId: '@roleId'
+                    },
+                    isArray: false
+                }
+            }
+        ),
 
-        first10: $resource('/resource/admin/users/first10'),
+        allOrganizations: $resource('/resource/admin/organization/all'),
 
-        allOrganizations: $resource('/resource/admin/organizations/all'),
+        organization: $resource('/resource/admin/organization'),
 
-        organization: $resource('/resource/admin/organizations/single'),
+        allRoles: $resource('/resource/admin/role/all'),
 
-        allRoles: $resource('/resource/admin/roles/all'),
-
-        role: $resource('/resource/admin/roles/single',
+        role: $resource('/resource/admin/role',
             {},
             {
                 removeByRoleId: {
@@ -67,6 +100,17 @@ function manageUsersService($resource) {
                         roleId: '@roleId'
                     },
                     isArray: false
+                }
+            }
+        ),
+
+        rolePermissions: $resource('/resource/admin/role/permissions',
+            {},
+            {
+                save: {
+                    method: 'POST',
+                    params: {},
+                    isArray: true
                 }
             }
         ),
@@ -104,6 +148,29 @@ function manageUsersService($resource) {
                     params: {},
                     isArray: true
                 },
+                queryByUserId: {
+                    method: 'GET',
+                    params: {
+                        userId: '@userId'
+                    },
+                    isArray: true
+                },
+                queryByRoleId: {
+                    method: 'GET',
+                    params: {
+                        roleId: '@roleId'
+                    },
+                    isArray: true
+                }
+            }
+        ),
+
+        /*
+            Retrieve permissions by id
+         */
+        permissions: $resource('/resource/admin/permissions',
+            {},
+            {
                 queryByUserId: {
                     method: 'GET',
                     params: {

@@ -6,12 +6,12 @@ import javax.persistence.Entity;
 @Entity
 public class RoleUser {
 
-    public RoleUser (Long roleId, Long userId, String companyName) {
-        this.key = new RoleUserKey(roleId, userId, companyName);
+    public RoleUser (String companyName, Long userId, Long roleId) {
+        this.key = new RoleUserKey(companyName, userId, roleId);
     }
 
     public RoleUser() {
-        // Public constructor
+        // Default Constructor
     }
 
     @EmbeddedId

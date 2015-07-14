@@ -14,6 +14,8 @@ public interface RolesRepository extends JpaRepository<Roles, Long> {
 
     List<Roles> findByCompanyName(String companyName);
 
+    Roles findByCompanyNameAndRoleId(String companyName, Long roleId);
+
     List<Roles> findByCompanyNameAndRoleIdIn(String company, List<Long> roleIds);
 
     @Query(
@@ -23,5 +25,5 @@ public interface RolesRepository extends JpaRepository<Roles, Long> {
     )
     @Modifying
     @Transactional
-    void deleteRoleByUserId(@Param("roleId") Long roleId, @Param("companyName") String companyName);
+    void deleteRoleByRoleId(@Param("roleId") Long roleId, @Param("companyName") String companyName);
 }

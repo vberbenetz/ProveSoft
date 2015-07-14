@@ -1,37 +1,31 @@
 package com.provesoft.resource.entity;
 
-import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import java.io.Serializable;
 
 @Embeddable
 public class RoleUserKey implements Serializable {
 
-    public RoleUserKey (Long roleId, Long userId, String companyName) {
-        this.roleId = roleId;
-        this.userId = userId;
+    public RoleUserKey (String companyName, Long userId, Long roleId) {
         this.companyName = companyName;
+        this.userId = userId;
+        this.roleId = roleId;
     }
 
     public RoleUserKey() {
         // Public constructor
     }
 
-    @Column(name = "roleId", nullable = false)
+    private String companyName;
+    private Long userId;
     private Long roleId;
 
-    @Column(name = "userId", nullable = false)
-    private Long userId;
-
-    @Column(name = "companyName", nullable = false)
-    private String companyName;
-
-    public Long getRoleId() {
-        return roleId;
+    public String getCompanyName() {
+        return companyName;
     }
 
-    public void setRoleId(Long roleId) {
-        this.roleId = roleId;
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
     }
 
     public Long getUserId() {
@@ -42,11 +36,11 @@ public class RoleUserKey implements Serializable {
         this.userId = userId;
     }
 
-    public String getCompanyName() {
-        return companyName;
+    public Long getRoleId() {
+        return roleId;
     }
 
-    public void setCompanyName(String companyName) {
-        this.companyName = companyName;
+    public void setRoleId(Long roleId) {
+        this.roleId = roleId;
     }
 }

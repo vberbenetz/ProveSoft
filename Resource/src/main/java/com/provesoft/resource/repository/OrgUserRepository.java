@@ -30,7 +30,7 @@ public interface OrgUserRepository extends JpaRepository<OrgUser, OrgUserKey> {
                        @Param(value="userId") Long userId,
                        @Param(value="companyName") String companyName);
 
-    // Delete all OrgUser by User
+    // Delete all OrgUser by UserId
     @Query(
             "DELETE FROM OrgUser ou " +
             "WHERE ou.key.companyName=:companyName " +
@@ -38,6 +38,6 @@ public interface OrgUserRepository extends JpaRepository<OrgUser, OrgUserKey> {
     )
     @Modifying
     @Transactional
-    void deleteAllOrgUserByUser(@Param(value="userId") Long userId,
-                                @Param(value="companyName") String companyName);
+    void deleteAllOrgUserByUserId(@Param(value="companyName") String companyName,
+                                  @Param(value="userId") Long userId);
 }

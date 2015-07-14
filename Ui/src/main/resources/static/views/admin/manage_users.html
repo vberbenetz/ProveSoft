@@ -135,9 +135,9 @@
                                             <ul class="list-group">
                                                 <li ng-repeat="n in roles" class="list-group-item">
                                                     <h4>
-                                                        <a ng-click="changeRightPanel('role', formatRole(n))" class="client-link">{{ n.name }}</a>
+                                                        <a ng-click="changeRightPanel('role', n)" class="client-link">{{ n.name }}</a>
                                                         <span class="pull-right">
-                                                            <button ng-click="changeRightPanel('role', formatRole(n))" class="btn btn-sm btn-warning" type="button">
+                                                            <button ng-click="changeRightPanel('role', n)" class="btn btn-sm btn-warning" type="button">
                                                                 <i class="fa fa-pencil"></i> Edit
                                                             </button>
                                                             &nbsp;&nbsp;
@@ -257,22 +257,21 @@
 
                         <div id="user" class="tab-pane active" ng-show="rightPanel.view == 'user'">
                             <div class="row m-b-lg">
-                                <div class="col-xs-6">
+                                <div class="col-xs-12">
                                     <h2>{{ rightPanel.data.firstName }}&nbsp;{{ rightPanel.data.lastName }}</h2>
 
                                     <strong>{{ rightPanel.data.title }}</strong>
 
-                                    <div class="m-b-sm margin-top-20">
-                                        <img alt="image" class="img-circle admin-panel-avatar" src="img/profile_pic_placeholder.png"/>
+                                    <div class="row margin-top-20">
+                                        <div class="col-md-3">
+                                            <img alt="image" class="img-circle admin-panel-avatar" src="img/profile_pic_placeholder.png"/>
+                                        </div>
+
+                                        <!-- Notification of save change -->
+                                        <div ng-show="successfullyModifiedUser" class="show-hide-notifications col-md-9 text-center alert alert-success">
+                                            <h3>Successfully Modified User</h3>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-xs-6 margin-top-20 text-center">
-                                    <strong>
-                                        Last Visited
-                                    </strong>
-                                    <p>
-                                        Yesterday at 12:31 pm
-                                    </p>
                                 </div>
                             </div>
                             <div class="client-detail">
@@ -389,11 +388,6 @@
                                                     </div>
                                                 </div>
 
-                                                <!-- Notification of save change -->
-                                                <div ng-show="successfullyModifiedUser" class="show-hide-notifications text-center alert alert-success margin-top-20">
-                                                    <h3>Successfully Modified User</h3>
-                                                </div>
-
                                             </div>
                                         </div>
                                         <div class="tab-content">
@@ -411,7 +405,7 @@
                                                         </tr>
                                                         </thead>
                                                         <tbody>
-                                                        <tr ng-repeat="n in rightPanel.data.roles">
+                                                        <tr ng-repeat="n in rightPanel.data.userPermissions">
                                                             <td>{{ n.organizationName }}</td>
                                                             <td class="text-center">
                                                                 <div ng-if="n.viewPerm" class="btn btn-primary">
@@ -592,11 +586,18 @@
                                     <label class="col-sm-2 control-label">
                                         Organization
                                     </label>
-                                    <div class="col-sm-10 margin-bottom-30 padding-left-15 ">
-                                        <select chosen id="states" class="chosen-select" style="width:350px;" size="6" ng-model="newRole.selectedOrg" ng-options="o.name for o in organizations">
+                                    <div class="col-sm-10 margin-bottom-20 padding-left-15 ">
+                                        <select chosen id="states" class="chosen-select" style="width:350px;" size="6" ng-model="permission.organization" ng-options="o.name for o in organizations">
                                         </select>
                                     </div>
+                                    <button ng-click="addOrgToRole()" class="btn btn-primary">
+                                        <span class="fa fa-plus"></span>
+                                        &nbsp;Include In Role
+                                    </button>
                                 </div>
+                            </form>
+
+                            <form class="form-horizontal">
                                 <div class="form-group">
                                     <label class="col-sm-2 control-label">
                                         Permissions
@@ -606,13 +607,17 @@
                                             <div class="table-responsive margin-left-15">
                                                 <table class="table table-hover">
                                                     <colgroup>
-                                                        <col style="width: 25%" />
-                                                        <col style="width: 25%" />
-                                                        <col style="width: 25%" />
-                                                        <col style="width: 25%" />
+                                                        <col style="width: 10%" />
+                                                        <col style="width: 30%" />
+                                                        <col style="width: 15%" />
+                                                        <col style="width: 15%" />
+                                                        <col style="width: 15%" />
+                                                        <col style="width: 15%" />
                                                     </colgroup>
                                                     <thead>
                                                     <tr>
+                                                        <th></th>
+                                                        <th class="text-center">Organization</th>
                                                         <th class="text-center">View</th>
                                                         <th class="text-center">Revise</th>
                                                         <th class="text-center">Comment</th>
@@ -620,18 +625,24 @@
                                                     </tr>
                                                     </thead>
                                                     <tbody>
-                                                    <tr>
+                                                    <tr ng-repeat="p in newRolePermissions">
+                                                        <td>
+                                                            <button ng-click="removeOrgFromRole($index)" class="btn btn-danger">
+                                                                <span class="fa fa-times"></span>
+                                                            </button>
+                                                        </td>
+                                                        <td>{{ p.organizationName }}</td>
                                                         <td class="text-center">
-                                                            <input icheck type="checkbox" ng-model="newRole.viewPerm">
+                                                            <input icheck type="checkbox" ng-model="newRolePermissions[$index].viewPerm">
                                                         </td>
                                                         <td class="text-center">
-                                                            <input icheck type="checkbox" ng-model="newRole.revisePerm">
+                                                            <input icheck type="checkbox" ng-model="newRolePermissions[$index].revisePerm">
                                                         </td>
                                                         <td class="text-center">
-                                                            <input icheck type="checkbox" ng-model="newRole.commentPerm">
+                                                            <input icheck type="checkbox" ng-model="newRolePermissions[$index].commentPerm">
                                                         </td>
                                                         <td class="text-center">
-                                                            <input icheck type="checkbox" ng-model="newRole.adminPerm">
+                                                            <input icheck type="checkbox" ng-model="newRolePermissions[$index].adminPerm">
                                                         </td>
                                                     </tr>
                                                     </tbody>
@@ -666,7 +677,7 @@
 
                                 <div class="ibox float-e-margins">
                                     <div class="ibox-heading">
-                                        <h4><strong>{{ rightPanel.data.name }}</strong></h4>
+                                        <h4><strong>{{ rightPanel.data.role.name }}</strong></h4>
                                     </div>
                                     <div class="ibox-content">
                                         <div class="table-responsive margin-left-15">
@@ -688,19 +699,19 @@
                                                 </tr>
                                                 </thead>
                                                 <tbody>
-                                                <tr>
-                                                    <td>{{ rightPanel.data.organizationName }}</td>
+                                                <tr ng-repeat="rp in rightPanel.data.rolePermissions">
+                                                    <td>{{ getOrgNameById(rp.key.organizationId) }}</td>
                                                     <td class="text-center">
-                                                        <input icheck type="checkbox" ng-model="rightPanel.data.viewPerm">
+                                                        <input icheck type="checkbox" ng-model="rp.viewPerm">
                                                     </td>
                                                     <td class="text-center">
-                                                        <input icheck type="checkbox" ng-model="rightPanel.data.revisePerm">
+                                                        <input icheck type="checkbox" ng-model="rp.revisePerm">
                                                     </td>
                                                     <td class="text-center">
-                                                        <input icheck type="checkbox" ng-model="rightPanel.data.commentPerm">
+                                                        <input icheck type="checkbox" ng-model="rp.commentPerm">
                                                     </td>
                                                     <td class="text-center">
-                                                        <input icheck type="checkbox" ng-model="rightPanel.data.adminPerm">
+                                                        <input icheck type="checkbox" ng-model="rp.adminPerm">
                                                     </td>
                                                 </tr>
                                                 </tbody>
@@ -708,13 +719,13 @@
                                         </div>
 
                                         <div class="col-sm-6 margin-top-20">
-                                            <button ng-click="updateRole()" class="btn btn-block btn-primary" type="button">
+                                            <button ng-click="updateRolePermissions()" class="btn btn-block btn-primary" type="button">
                                                 Save Changes
                                             </button>
                                         </div>
 
                                         <div class="col-xs-12">
-                                            <div ng-show="successfullyModifiedRole" class="show-hide-notifications text-center alert alert-success margin-top-20">
+                                            <div ng-show="successfullyUpdatedRole" class="show-hide-notifications text-center alert alert-success margin-top-20">
                                                 <h3>Successfully Modified Role</h3>
                                             </div>
                                         </div>

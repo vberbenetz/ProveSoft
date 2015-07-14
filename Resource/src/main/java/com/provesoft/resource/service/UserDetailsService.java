@@ -1,7 +1,9 @@
 package com.provesoft.resource.service;
 
 import com.provesoft.resource.entity.UserDetails;
+import com.provesoft.resource.entity.UserPermissions;
 import com.provesoft.resource.repository.UserDetailsRepository;
+import com.provesoft.resource.repository.UserPermissionsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,12 +15,20 @@ public class UserDetailsService {
     @Autowired
     UserDetailsRepository userDetailsRepository;
 
+    @Autowired
+    UserPermissionsRepository userPermissionsRepository;
+
+
     public List<UserDetails> findAllByCompanyName(String companyName) {
         return userDetailsRepository.findAllByCompanyNameOrderByLastNameAsc(companyName);
     }
 
     public List<UserDetails> findFirst10ByCompanyName(String companyName) {
         return userDetailsRepository.findFirst10ByCompanyNameOrderByLastNameAsc(companyName);
+    }
+
+    public UserDetails findByCompanyNameAndUserId(String companyName, Long userId) {
+        return userDetailsRepository.findByCompanyNameAndUserId(companyName, userId);
     }
 
     public List<UserDetails> findByCompanyNameAndUserIdList(String companyName, List<Long> userIds) {
@@ -51,7 +61,29 @@ public class UserDetailsService {
         userDetailsRepository.updatePrimaryOrganization(primaryOrgId, userId, companyName);
     }
 
-    public void deleteByUserId(Long userId, String companyName) {
-        userDetailsRepository.deleteByUserId(userId, companyName);
+    public void deleteByUserId(String companyName, Long userId) {
+        userDetailsRepository.deleteByUserId(companyName, userId);
+    }
+
+
+    /* ---------------------- UserPermissions -------------------- */
+
+    public List<UserPermissions> findUserPermissionsByUserId(Long userId) {
+        return userPermissionsRepository.findByKeyUserId(userId);
+    }
+
+    public List<UserPermissions> addUserPermissions(List<UserPermissions> userPermissions) {
+        List<UserPermissions> savedUserPermissions = userPermissionsRepository.save(userPermissions);
+        userPermissionsRepository.flush();
+        return savedUserPermissions;
+    }
+
+    public void deleteList(List<UserPermissions> userPermissions) {
+        userPermissionsRepository.deleteInBatch(userPermissions);
+        userPermissionsRepository.flush();
+    }
+
+    public void deleteAllPermissions(Long userId) {
+        userPermissionsRepository.deleteByUserId(userId);
     }
 }

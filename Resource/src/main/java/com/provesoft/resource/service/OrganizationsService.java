@@ -63,8 +63,8 @@ public class OrganizationsService {
         orgUserRepository.deleteOrgUser(orgId, userId, companyName);
     }
 
-    public void deleteAllOrgUserByUser(Long userId, String companyName) {
-        orgUserRepository.deleteAllOrgUserByUser(userId, companyName);
+    public void deleteAllOrgUserByUserId(String companyName, Long userId) {
+        orgUserRepository.deleteAllOrgUserByUserId(companyName, userId);
     }
 
 }

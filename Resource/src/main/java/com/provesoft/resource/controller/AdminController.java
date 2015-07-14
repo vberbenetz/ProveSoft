@@ -42,8 +42,11 @@ public class AdminController {
 
     // ---------- Users ----------- //
 
+    /*
+        Retrieve all users part of the admin's company
+     */
     @RequestMapping(
-            value = "/admin/users/all",
+            value = "/admin/user/all",
             method = RequestMethod.GET
     )
     public List<UserDetails> findAllUsers(Authentication auth) {
@@ -64,8 +67,11 @@ public class AdminController {
         throw new ForbiddenException();
     }
 
+    /*
+        Retrieve first 10 users sorted alphabetically
+     */
     @RequestMapping(
-            value = "/admin/users/first10",
+            value = "/admin/user/first10",
             method = RequestMethod.GET
     )
     public List<UserDetails> findFirst10ByCompanyName(Authentication auth) {
@@ -86,8 +92,12 @@ public class AdminController {
         throw new ForbiddenException();
     }
 
+    /*
+        Retrieve user by partial first or last name.
+        User for wild-card search of users.
+     */
     @RequestMapping(
-            value = "/admin/users/wild-search",
+            value = "/admin/user/wildSearch",
             method = RequestMethod.GET
     )
     public List<UserDetails> findUserByPartialName(@RequestParam("name") String name,
@@ -113,8 +123,11 @@ public class AdminController {
 
     // ---------- Organizations ----------- //
 
+    /*
+        Retrieve all organizations by the admin's company
+     */
     @RequestMapping(
-            value = "/admin/organizations/all",
+            value = "/admin/organization/all",
             method = RequestMethod.GET
     )
     public List<Organizations> findAllOrganizations(Authentication auth) {
@@ -135,9 +148,11 @@ public class AdminController {
         throw new ForbiddenException();
     }
 
-    /* Get organization by Id */
+    /*
+        Retrieve single organization by organizationId
+     */
     @RequestMapping(
-            value = "/admin/organizations/single",
+            value = "/admin/organization",
             method = RequestMethod.GET
     )
     public Organizations findOrganizationById(@RequestParam("orgId") Long orgId,
@@ -162,8 +177,11 @@ public class AdminController {
 
     // ---------- Roles ----------- //
 
+    /*
+        Retrieve all roles by admin's company
+     */
     @RequestMapping(
-            value = "/admin/roles/all",
+            value = "/admin/role/all",
             method = RequestMethod.GET
     )
     public List<Roles> findAllRoles(Authentication auth) {
@@ -187,6 +205,9 @@ public class AdminController {
 
     // ------------- OrgUser -------------- //
 
+    /*
+        Retrieve either Users by organizationId or Organizations by userId
+     */
     @RequestMapping(
             value = "/admin/orgUser",
             method = RequestMethod.GET
@@ -255,70 +276,101 @@ public class AdminController {
     }
 
 
-    // --------------- RoleUser --------------- //
+    // --------------- Permissions --------------- //
 
+    /*
+        Retrieve either list of UserPermissions by userId or RolePermissions by roleId
+     */
     @RequestMapping(
-            value = "/admin/roleUser",
+            value = "/admin/permissions",
             method = RequestMethod.GET
     )
-    public List<? extends Object> findAllRolesByUserIdOrRoleId(@RequestParam(value = "userId", required = false) Long userId,
-                                                               @RequestParam(value = "roleId", required = false) Long roleId,
-                                                               Authentication auth) {
-
-        if ( (userId == null) && (roleId == null) ) {
-            throw new ResourceNotFoundException();
-        }
+    public List<? extends Object> getPermissionsById (@RequestParam(value = "userId", required = false) Long userId,
+                                                      @RequestParam(value = "roleId", required = false) Long roleId,
+                                                      Authentication auth) {
 
         // Check if super admin
         if (UserHelpers.isSuperAdmin(auth)) {
 
-            // Retrieve their company
-            String company = UserHelpers.getCompany(auth);
-
-            if (company != null) {
-
-                if ( (userId != null) && (roleId != null) ) {
-                    throw new ResourceNotFoundException();
-                }
-
-                else if (userId != null) {
-
-                    // Get userId to roleId mapping
-                    List<RoleUser> roleUsers = rolesService.findByCompanyNameAndUserId(company, userId);
-                    List<Long> roleIds = new ArrayList<>();
-
-                    for (RoleUser r : roleUsers) {
-                        roleIds.add(r.getKey().getRoleId());
-                    }
-
-                    if (roleIds.size() == 0) {
-                        return roleIds;
-                    }
-
-                    // Get list of roles belonging to the user
-                    return rolesService.findByCompanyNameAndRoleIdList(company, roleIds);
-                }
-
-                else {
-
-                    // Get userId to roleId mapping
-                    List<RoleUser> roleUsers = rolesService.findByCompanyNameAndRoleId(company, roleId);
-                    List<Long> userIds = new ArrayList<>();
-
-                    for (RoleUser r : roleUsers) {
-                        userIds.add(r.getKey().getUserId());
-                    }
-
-                    if (userIds.size() == 0) {
-                        return userIds;
-                    }
-
-                    // Get list of users belonging to the role
-                    return userDetailsService.findByCompanyNameAndUserIdList(company, userIds);
-                }
+            if ( (userId == null) && (roleId == null) ) {
+                throw new ResourceNotFoundException();
             }
 
-            throw new ResourceNotFoundException();
+            String companyName = UserHelpers.getCompany(auth);
+
+            if (userId != null) {
+                UserDetails userDetails = userDetailsService.findByCompanyNameAndUserId(companyName, userId);
+
+                // Use the returned userId from the userDetails instead of the passed in parameter.
+                // The returned user is guaranteed to be part of the admin's company due to the fetch by company and userId.
+                // If null if returned for userDetails, then it indicates user doesn't exist or not part of the company.
+                if (userDetails != null) {
+                    return userDetailsService.findUserPermissionsByUserId(userDetails.getUserId());
+                }
+
+                throw new ResourceNotFoundException();
+            }
+
+            // RoleId has a value only
+            else {
+                Roles role = rolesService.findByCompanyNameAndRoleId(companyName, roleId);
+
+                // Use the returned roleId from the role instead of the passed in parameter.
+                // The returned role is guaranteed to be part of the admin's company due to the fetch by company and roleId.
+                // If null if returned for role, then it indicates user doesn't exist or not part of the company.
+                if (role != null) {
+                    return rolesService.findRolePermissionsByRoleId(role.getRoleId());
+                }
+
+                throw new ResourceNotFoundException();
+            }
+        }
+
+        throw new ForbiddenException();
+    }
+
+
+    // --------------- RoleUser --------------- //
+
+    /*
+        Retrieve list of RoleUsers by userId or roleId
+     */
+    @RequestMapping(
+            value = "/admin/roleUser",
+            method = RequestMethod.GET
+    )
+    public List<? extends Object> getRoleUserById (@RequestParam(value = "userId", required = false) Long userId,
+                                                      @RequestParam(value = "roleId", required = false) Long roleId,
+                                                      Authentication auth) {
+        // Check if super admin
+        if (UserHelpers.isSuperAdmin(auth)) {
+
+            if ( (userId == null) && (roleId == null) ) {
+                throw new ResourceNotFoundException();
+            }
+
+            String companyName = UserHelpers.getCompany(auth);
+
+            if (userId != null) {
+                UserDetails userDetails = userDetailsService.findByCompanyNameAndUserId(companyName, userId);
+
+                if (userDetails != null) {
+                    return rolesService.findRoleUserByUserId(userDetails.getUserId());
+                }
+
+                throw new ResourceNotFoundException();
+            }
+
+            // RoleId has a value only
+            else {
+                Roles role = rolesService.findByCompanyNameAndRoleId(companyName, roleId);
+
+                if (role != null) {
+                    return rolesService.findRoleUserByRoleId(role.getRoleId());
+                }
+
+                throw new ResourceNotFoundException();
+            }
         }
 
         throw new ForbiddenException();
@@ -327,6 +379,9 @@ public class AdminController {
 
     /* --------------- DocumentType ---------------- */
 
+    /*
+        Retrieve DocumentType object by documentTypeId
+     */
     @RequestMapping(value = "/admin/documentType",
             method = RequestMethod.GET
     )
@@ -359,8 +414,11 @@ public class AdminController {
 
     // ---------- Users ----------- //
 
-    /* Create a new user */
-    @RequestMapping(value = "/admin/users/single",
+
+    /*
+        Create a new user. Only generates UserDetails and not actual login credentials.
+     */
+    @RequestMapping(value = "/admin/user",
             method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
@@ -392,11 +450,86 @@ public class AdminController {
         throw new ForbiddenException();
     }
 
+    /*
+        Add UserPermissions to user with userId, based on rolePermissions of roleId.
+     */
+    @RequestMapping(value = "/admin/user/permissions",
+            method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public List<UserPermissions> addUserPermissions (@RequestParam("userId") Long userId,
+                                                     @RequestParam("roleIds") Long[] roleIds,
+                                                     Authentication auth) {
+
+        // Check if super admin
+        if (UserHelpers.isSuperAdmin(auth)) {
+
+            List<Long> roleIdsToAdd = Arrays.asList(roleIds);
+            List<Roles> rolesToAdd = new ArrayList<>();
+
+            /* ------ Verify roles and user belong to this company and/or exist ------- */
+            String companyName = UserHelpers.getCompany(auth);
+
+            UserDetails userDetails = userDetailsService.findByCompanyNameAndUserId(companyName, userId);
+
+            if (userDetails == null) {
+                throw new ResourceNotFoundException();
+            }
+
+            for (Long roleId : roleIdsToAdd) {
+                Roles role = rolesService.findByCompanyNameAndRoleId(companyName, roleId);
+
+                if (role == null) {
+                    throw new ResourceNotFoundException();
+                }
+                else {
+                    rolesToAdd.add(role);
+                }
+            }
+            /* ------------------------------------------ */
+
+            // Fetch all permissions by role
+            List<RolePermissions> rolePermissions = new ArrayList<>();
+
+            for (Roles r : rolesToAdd) {
+                rolePermissions.addAll(rolesService.findRolePermissionsByRoleId(r.getRoleId()));
+            }
+
+            // Generate UserPermission objs
+            List<UserPermissions> newUserPermissions = new ArrayList<>();
+
+            for (RolePermissions rp : rolePermissions) {
+                UserPermissions newUserPermission = new UserPermissions(userId,
+                                                                        rp.getKey().getOrganizationId(),
+                                                                        rp.getViewPerm(),
+                                                                        rp.getRevisePerm(),
+                                                                        rp.getCommentPerm(),
+                                                                        rp.getAdminPerm() );
+
+                newUserPermissions.add(newUserPermission);
+            }
+
+            List<UserPermissions> up = userDetailsService.addUserPermissions(newUserPermissions);
+
+            // Associate roles with user
+            addRoleUser(userId, roleIds, auth);
+
+            return up;
+        }
+
+        throw new ForbiddenException();
+
+    }
+
 
     // ---------- Organizations ----------- //
 
-    /* Create a new organization */
-    @RequestMapping(value = "/admin/organizations/single",
+
+    /*
+        Create a new Organization
+     */
+    @RequestMapping(value = "/admin/organization",
             method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
@@ -436,13 +569,16 @@ public class AdminController {
 
     // ---------- Roles ----------- //
 
-    /* Create a new organization */
-    @RequestMapping(value = "/admin/roles/single",
+
+    /*
+        Create new Role (not including RolePermissions)
+     */
+    @RequestMapping(value = "/admin/role",
             method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public String addRole (@RequestBody String json,
+    public Roles createRole (@RequestBody String json,
                                    Authentication auth) {
 
         // Check if super admin
@@ -454,18 +590,86 @@ public class AdminController {
                 // Append company name
                 String company = UserHelpers.getCompany(auth);
 
-                // Check if role exists
-// TODO: CHECK IF ROLE EXISTS
-
                 role.setCompanyName(company);
 
-                rolesService.saveRole(role);
+                return rolesService.saveRole(role);
+            }
+            catch (IOException | NullPointerException ex) {
+                throw new ResourceNotFoundException();
+            }
+        }
+
+        throw new ForbiddenException();
+    }
+
+    /*
+        Add RolePermissions as dictated by the newly created Role (runs right after new role is created)
+     */
+    @RequestMapping(value = "/admin/role/permissions",
+            method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public List<RolePermissions> addRolePermissions (@RequestBody String json,
+                                                     Authentication auth) {
+
+        // Check if super admin
+        if (UserHelpers.isSuperAdmin(auth)) {
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                List<RolePermissions> rolePermissionsList = mapper.readValue(json, new TypeReference<List<RolePermissions>>() { } );
+
+                /* ----- Verify all roles and organizations belong to this user's company ----- */
+                String companyName = UserHelpers.getCompany(auth);
+
+                List<Long> roleIds = new ArrayList<>();
+                List<Long> organizationIds = new ArrayList<>();
+
+                for (RolePermissions r : rolePermissionsList) {
+
+                    // Add roleId if not present in list
+                    int numRoleIds = roleIds.size();
+                    for (Long rId : roleIds) {
+                        if ( rId.equals(r.getKey().getRoleId()) ) {
+                            break;
+                        }
+                        --numRoleIds;
+                    }
+                    if ( (numRoleIds == 0) || (roleIds.size() == 0) ) {
+                        roleIds.add(r.getKey().getRoleId());
+                    }
+
+                    // Add organizationId if not present in list
+                    int numOrgIds = organizationIds.size();
+                    for (Long oId : organizationIds) {
+                        if ( oId.equals(r.getKey().getOrganizationId()) ) {
+                            break;
+                        }
+                        --numOrgIds;
+                    }
+                    if ( (numOrgIds == 0) || (organizationIds.size() == 0) ) {
+                        organizationIds.add(r.getKey().getOrganizationId());
+                    }
+
+                }
+
+                List<Roles> roles = rolesService.findByCompanyNameAndRoleIdList(companyName, roleIds);
+                List<Organizations> organizations = organizationsService.findByCompanyNameAndOrganizationIdList(companyName, organizationIds);
+
+                // Compare sizes with retrieved list.
+                // If mismatch then role or org doesn't exist, or exists for another company
+                if ( (roleIds.size() != roles.size()) || (organizationIds.size() != organizations.size()) ) {
+                    throw new ForbiddenException();
+                }
+                /* ------------------------------------------- */
+
+                return rolesService.saveRolePermissions(rolePermissionsList);
+
             }
             catch (IOException | NullPointerException ex) {
                 throw new ResourceNotFoundException();
             }
 
-            return json;
         }
 
         throw new ForbiddenException();
@@ -473,8 +677,10 @@ public class AdminController {
 
 
     /* --------------- OrgUser ---------------- */
-
-    /* Create additional organization mappings */
+// TODO: MAY HAVE A SECURITY ISSUE BECAUSE IDS ARE NOT CHECKED AGAINST WHETHER USER HAS RIGHTS TO THEIR COMPANY
+    /*
+        Create additional organization mappings
+    */
     @RequestMapping(value = "/admin/orgUser",
             method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -512,37 +718,41 @@ public class AdminController {
 
     /* --------------- RoleUser ---------------- */
 
-    /* Create additional organization mappings */
     @RequestMapping(value = "/admin/roleUser",
             method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public String addUserRoles (@RequestBody String json,
-                                      Authentication auth) {
+    public List<RoleUser> addRoleUser (@RequestParam("userId") Long userId,
+                                        @RequestParam("roleIds") Long[] roleIds,
+                                        Authentication auth) {
 
-        // Check if super admin
         if (UserHelpers.isSuperAdmin(auth)) {
-            ObjectMapper mapper = new ObjectMapper();
-            try {
-                List<RoleUser> roleUsersList = mapper.readValue( json, new TypeReference<List<RoleUser>>() { } );
 
-                // Append company name
-                String company = UserHelpers.getCompany(auth);
+            List<Long> roleIdsToAdd = Arrays.asList(roleIds);
+            List<RoleUser> roleUsersToAdd = new ArrayList<>();
 
-                for (RoleUser r : roleUsersList) {
-                    RoleUserKey key = r.getKey();
-                    key.setCompanyName(company);
-                    r.setKey(key);
-                }
+            /* ------ Verify roles and user belong to this company and/or exist ------- */
+            String companyName = UserHelpers.getCompany(auth);
 
-                rolesService.saveRoleUser(roleUsersList);
-            }
-            catch (IOException | NullPointerException ex) {
+            UserDetails userDetails = userDetailsService.findByCompanyNameAndUserId(companyName, userId);
+
+            if (userDetails == null) {
                 throw new ResourceNotFoundException();
             }
 
-            return json;
+            for (Long roleId : roleIdsToAdd) {
+                Roles role = rolesService.findByCompanyNameAndRoleId(companyName, roleId);
+
+                if (role == null) {
+                    throw new ResourceNotFoundException();
+                }
+                else {
+                    roleUsersToAdd.add( new RoleUser(companyName, userDetails.getUserId(), role.getRoleId()) );
+                }
+            }
+
+            return rolesService.addRoleUsers(roleUsersToAdd);
         }
 
         throw new ForbiddenException();
@@ -551,7 +761,9 @@ public class AdminController {
 
     /* --------------- DocumentType ---------------- */
 
-    /* Create new document type */
+    /*
+        Create new document type
+    */
     @RequestMapping(value = "/admin/documentType",
             method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -593,8 +805,10 @@ public class AdminController {
 
     // ---------- Organizations ----------- //
 
-    /* Update organization description */
-    @RequestMapping(value = "/admin/organizations/single",
+    /*
+        Update organization description
+    */
+    @RequestMapping(value = "/admin/organization",
             method = RequestMethod.PUT
     )
     public void updateDescription(@RequestParam("orgId") Long orgId,
@@ -613,28 +827,30 @@ public class AdminController {
     }
 
 
-    /* Add user to organization members */
-    @RequestMapping(value = "/admin/users/single",
+    /*
+        Update user organizations and/or roles
+    */
+    @RequestMapping(value = "/admin/user/properties",
             method = RequestMethod.PUT
     )
-    public ResponseEntity editUser ( @RequestParam(value = "userId", required = true) Long userId,
+    public ResponseEntity updateUserProperties ( @RequestParam(value = "userId", required = true) Long userId,
                            @RequestParam(value = "primaryOrgId", required = false) Long primaryOrgId,
-                           @RequestParam(value = "altOrgId", required = false) Long[] alternateOrgIds,
-                           @RequestParam(value = "roleId", required = false) Long[] roleIds,
+                           @RequestParam(value = "altOrgIds", required = false) Long[] alternateOrgIds,
+                           @RequestParam(value = "roleIds", required = false) Long[] roleIds,
                            Authentication auth
     ) {
 
         // Check if super admin
         if (UserHelpers.isSuperAdmin(auth)) {
 
-            String company = UserHelpers.getCompany(auth);
+            String companyName = UserHelpers.getCompany(auth);
 
             if ( (primaryOrgId == null) && (alternateOrgIds == null) && (roleIds == null) ) {
                 throw new ResourceNotFoundException();
             }
 
             if (primaryOrgId != null) {
-                userDetailsService.updatePrimaryOrganization(primaryOrgId, userId, company);
+                userDetailsService.updatePrimaryOrganization(primaryOrgId, userId, companyName);
             }
 
             // Generate new list of OrgUsers for new alternate organizations
@@ -643,22 +859,16 @@ public class AdminController {
                 List<OrgUser> newAltOrgs = new ArrayList<>();
 
                 for (Long id : altOrgIds) {
-                    newAltOrgs.add(new OrgUser(id, userId, company));
+                    newAltOrgs.add(new OrgUser(id, userId, companyName));
                 }
 
                 organizationsService.saveOrgUser(newAltOrgs);
             }
 
-            // Generate new list of RoleUsers for newly added roles
+            // Add roles to user
             if (roleIds != null) {
-                List<Long> newRoleIds = Arrays.asList(roleIds);
-                List<RoleUser> newUserRoles = new ArrayList<>();
 
-                for (Long id : newRoleIds) {
-                    newUserRoles.add(new RoleUser(id, userId, company));
-                }
-
-                rolesService.saveRoleUser(newUserRoles);
+                addUserPermissions(userId, roleIds, auth);
             }
 
             return new ResponseEntity<>("{}", HttpStatus.OK);
@@ -674,14 +884,61 @@ public class AdminController {
 
     // ---------------- User Related ----------------- //
 
-    // Delete roles or alternate organizations
-    @RequestMapping(value = "/admin/users/single",
+    /*
+        Delete user.
+        DOES NOT DELETE USER FROM THE GATEWAY DB
+
+        1) Delete all User permissions
+        2) Delete all roleUser associations
+        3) Delete all orgUser associations
+        4) Delete UserDetails
+     */
+    @RequestMapping(value = "/admin/user",
                     method = RequestMethod.DELETE
     )
-    public ResponseEntity deleteUserMulti (@RequestParam(value = "userId", required = true) Long userId,
-                                           @RequestParam(value = "orgId", required = false) Long orgId,
-                                           @RequestParam(value = "roleId", required = false) Long roleId,
-                                           Authentication auth
+    public ResponseEntity deleteUser (@RequestParam(value = "userId", required = true) Long userId,
+                                      Authentication auth
+    ) {
+
+        // Check if super admin
+        if (UserHelpers.isSuperAdmin(auth)) {
+
+            String companyName = UserHelpers.getCompany(auth);
+
+            UserDetails userDetails = userDetailsService.findByCompanyNameAndUserId(companyName, userId);
+
+            if (userDetails == null) {
+                throw new ResourceNotFoundException();
+            }
+
+            // Delete all user permissions
+            userDetailsService.deleteAllPermissions(userDetails.getUserId());
+
+            // Delete all OrgUser For User
+            organizationsService.deleteAllOrgUserByUserId(companyName, userDetails.getUserId());
+
+            // Delete all RoleUser For User
+            rolesService.deleteAllRoleUserByUserId(companyName, userDetails.getUserId());
+
+            // Delete UserDetails For User
+            userDetailsService.deleteByUserId(companyName, userDetails.getUserId());
+
+            return new ResponseEntity<>("{}", HttpStatus.OK);
+        }
+
+        throw new ForbiddenException();
+    }
+
+    /*
+        Remove user's alternate organizations and/or roles pointing to user
+     */
+    @RequestMapping(value = "/admin/user/properties",
+            method = RequestMethod.DELETE
+    )
+    public ResponseEntity deleteUserProperties (@RequestParam(value = "userId", required = true) Long userId,
+                                                @RequestParam(value = "orgId", required = false) Long orgId,
+                                                @RequestParam(value = "roleId", required = false) Long roleId,
+                                                Authentication auth
     ) {
 
         // Check if super admin
@@ -693,12 +950,13 @@ public class AdminController {
                 return new ResponseEntity<>("{}", HttpStatus.NOT_FOUND);
             }
 
+// TODO: ADD CHECK TO VERIFY ORGID BELONGS TO COMPANY
             if (orgId != null) {
                 organizationsService.deleteOrgUser(orgId, userId, company);
             }
 
             if (roleId != null) {
-                rolesService.deleteRoleUser(roleId, userId, company);
+                rolesService.deleteRoleUser(company, userId, roleId);
             }
 
             return new ResponseEntity<>("{}", HttpStatus.OK);
@@ -707,27 +965,49 @@ public class AdminController {
         throw new ForbiddenException();
     }
 
-    // Delete a user
-    @RequestMapping(value = "/admin/user/delete",
+    /*
+        Remove UserPermissions for user of userId based on roleId
+     */
+    @RequestMapping(value = "/admin/user/permissions",
                     method = RequestMethod.DELETE
     )
-    public ResponseEntity deleteUser (@RequestParam(value = "userId", required = true) Long userId,
-                                      Authentication auth
-    ) {
-
+    public ResponseEntity removeUserRole (@RequestParam("userId") Long userId,
+                                            @RequestParam("roleId") Long roleId,
+                                            Authentication auth)
+    {
         // Check if super admin
         if (UserHelpers.isSuperAdmin(auth)) {
 
-            String company = UserHelpers.getCompany(auth);
+            String companyName = UserHelpers.getCompany(auth);
 
-            // Delete all OrgUser For User
-            organizationsService.deleteAllOrgUserByUser(userId, company);
+            // Confirm user exists and belongs to company
+            UserDetails userDetails = userDetailsService.findByCompanyNameAndUserId(companyName, userId);
 
-            // Delete all RoleUser For User
-            rolesService.deleteAllRoleUserByUser(userId, company);
+            if (userDetails == null) {
+                throw new ResourceNotFoundException();
+            }
 
-            // Delete UserDetails For User
-            userDetailsService.deleteByUserId(userId, company);
+            // Confirm role exists and belongs to company
+            Roles role = rolesService.findByCompanyNameAndRoleId(companyName, roleId);
+
+            if (role == null) {
+                throw new ResourceNotFoundException();
+            }
+
+            // Get role permissions and create user permission objects to delete
+            List<UserPermissions> userPermissionsToDelete = new ArrayList<>();
+            List<RolePermissions> rolePermissions = rolesService.findRolePermissionsByRoleId(role.getRoleId());
+            for (RolePermissions rp : rolePermissions) {
+                UserPermissions up = new UserPermissions(userDetails.getUserId(),
+                                                        rp.getKey().getOrganizationId(),
+                                                        rp.getViewPerm(),
+                                                        rp.getRevisePerm(),
+                                                        rp.getCommentPerm(),
+                                                        rp.getAdminPerm());
+                userPermissionsToDelete.add(up);
+            }
+
+            userDetailsService.deleteList(userPermissionsToDelete);
 
             return new ResponseEntity<>("{}", HttpStatus.OK);
         }
@@ -738,7 +1018,10 @@ public class AdminController {
 
     // ----------------- Organization Related --------------------- //
 
-    @RequestMapping(value = "/admin/organizations/single",
+    /*
+        Delete organization
+     */
+    @RequestMapping(value = "/admin/organization",
                     method = RequestMethod.DELETE,
                     consumes = MediaType.APPLICATION_JSON_VALUE
     )
@@ -773,19 +1056,33 @@ public class AdminController {
 
     // ------------------ Role Related ------------------ //
 
-    @RequestMapping(value = "/admin/roles/single",
+    /*
+         1) All role permissions are deleted
+         2) All role templates are deleted
+         3) User permissions that were assigned by this role remain
+      */
+    @RequestMapping(value = "/admin/role",
                     method = RequestMethod.DELETE
     )
-    public ResponseEntity deleteRole (@RequestParam(value = "roleId", required = true) Long roleId,
+    public ResponseEntity deleteRole (@RequestParam("roleId") Long roleId,
                                       Authentication auth) {
 
         // Check if super admin
         if (UserHelpers.isSuperAdmin(auth)) {
 
-            String company = UserHelpers.getCompany(auth);
+            String companyName = UserHelpers.getCompany(auth);
 
-            rolesService.deleteAllRoleUserByRoleId(roleId, company);
-            rolesService.deleteRole(roleId, company);
+            Roles role = rolesService.findByCompanyNameAndRoleId(companyName, roleId);
+
+            if (role == null) {
+                throw new ResourceNotFoundException();
+            }
+
+            // Delete all role permissions
+            rolesService.deleteAllRolePermissionsByRoleId(roleId);
+
+            // Delete role
+            rolesService.deleteRole(role);
 
             return new ResponseEntity<>("{}", HttpStatus.OK);
         }

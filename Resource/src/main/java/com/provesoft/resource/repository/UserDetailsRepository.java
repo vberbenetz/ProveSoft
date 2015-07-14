@@ -18,6 +18,8 @@ public interface UserDetailsRepository extends JpaRepository<UserDetails, Long> 
 
     String findCompanyNameByUserId(Long userId);
 
+    UserDetails findByCompanyNameAndUserId(String companyName, Long userId);
+
     List<UserDetails> findByCompanyNameAndUserIdIn(String companyName, List<Long> userId);
 
     // Get subset of users based on search
@@ -54,6 +56,6 @@ public interface UserDetailsRepository extends JpaRepository<UserDetails, Long> 
     )
     @Modifying
     @Transactional
-    void deleteByUserId(@Param("userId") Long userId,
-                        @Param("companyName") String companyName);
+    void deleteByUserId(@Param("companyName") String companyName,
+                        @Param("userId") Long userId);
 }

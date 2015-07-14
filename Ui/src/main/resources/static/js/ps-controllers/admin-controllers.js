@@ -35,6 +35,14 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
     };
 
     $scope.newRole = {
+        name: '',
+        description: ''
+    };
+
+    $scope.newRolePermissions = [];
+
+    $scope.permission = {
+        organization: {},
         viewPerm: true,
         revisePerm: false,
         commentPerm: false,
@@ -145,22 +153,22 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
 
             manageUsersService.orgUser.queryByUserId({userId: data.userId}, function(additionalOrgs) {
                 $scope.rightPanel.data.additionalOrgs = additionalOrgs;
-            }, function(error) {
-                $scope.err = error;
-            });
 
-            manageUsersService.roleUser.queryByUserId({userId: data.userId}, function(roles) {
-                var organizations = $scope.organizations;
+                manageUsersService.roleUser.queryByUserId({userId: data.userId}, function(roleUsers) {
 
-                for (var i = 0; i < roles.length; i++) {
-                    for (var j = 0; j < organizations.length; j++) {
-                        if (roles[i].organizationId == organizations[j].organizationId) {
-                            roles[i].organizationName = organizations[j].name;
-                        }
-                    }
-                }
+                    $scope.rightPanel.data.roles = $scope.getRoleListByRoleUsers(roleUsers);
 
-                $scope.rightPanel.data.roles = roles
+                    manageUsersService.permissions.queryByUserId({userId: data.userId}, function(userPermissions) {
+                        $scope.rightPanel.data.userPermissions = userPermissions;
+
+                    }, function(error) {
+                        $scope.err = error;
+                    })
+
+                }, function(error) {
+                    $scope.err = error;
+                });
+
             }, function(error) {
                 $scope.err = error;
             });
@@ -180,8 +188,19 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
             $scope.rightPanel.view = view;
         }
         else if (view === 'role') {
-            $scope.rightPanel.data = data;
-            $scope.rightPanel.view = view;
+
+            manageUsersService.permissions.queryByRoleId({roleId: data.roleId}, function(rolePermissions) {
+                $scope.rightPanel.data = {
+                    role: data,
+                    rolePermissions: rolePermissions
+                };
+
+                $scope.rightPanel.view = view;
+
+            }, function(error) {
+                $scope.err = error;
+            });
+
         }
         else if (
             $scope.rightPanel.view === 'new_user' ||
@@ -202,8 +221,10 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
         var newUserRoles = [], newUserAdditionalOrgs = [], savedUser = {};
 
         // Deep copy arrays before deleting from object
-        angular.copy($scope.newUser.roles, newUserRoles);
         angular.copy($scope.newUser.additionalOrgs, newUserAdditionalOrgs);
+        for (var i = 0; i < $scope.newUser.roles.length; i++) {
+            newUserRoles.push($scope.newUser.roles[i].roleId);
+        }
 
         // Format userDetails object
         $scope.newUser.primaryOrgId = $scope.newUser.primaryOrg.organizationId;
@@ -216,9 +237,8 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
             savedUser.primaryOrgName = $scope.getOrgNameById(savedUser.primaryOrgId);
             $scope.users.push(savedUser);
 
-            var formattedUserRoles = $scope.genNewUserRolesPkg(newUserRoles, savedUser.userId);
-
-            manageUsersService.roleUser.save(formattedUserRoles, function(data, status, headers, config) {
+            manageUsersService.userPermissions.save({userId: savedUser.userId, roleIds: newUserRoles},
+            function(data, status, headers, config) {
 
                 var formattedAdditionalOrgs = $scope.genNewUserAdditionalOrgsPkg(newUserAdditionalOrgs, savedUser.userId);
 
@@ -228,6 +248,7 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
                     $scope.newUser.firstName = '';
                     $scope.newUser.lastName = '';
                     $scope.newUser.email = '';
+                    $scope.newUser.title = '';
                     $scope.newUser.roles = [];
                     $scope.newUser.primaryOrg = {};
                     $scope.newUser.additionalOrgs = [];
@@ -247,6 +268,7 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
                     $scope.newUser.firstName = '';
                     $scope.newUser.lastName = '';
                     $scope.newUser.email = '';
+                    $scope.newUser.title = '';
                     $scope.newUser.roles = [];
                     $scope.newUser.primaryOrg = {};
                     $scope.newUser.additionalOrgs = [];
@@ -259,6 +281,7 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
                 $scope.newUser.firstName = '';
                 $scope.newUser.lastName = '';
                 $scope.newUser.email = '';
+                $scope.newUser.title = '';
                 $scope.newUser.roles = [];
                 $scope.newUser.primaryOrg = {};
                 $scope.newUser.additionalOrgs = [];
@@ -271,6 +294,7 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
             $scope.newUser.firstName = '';
             $scope.newUser.lastName = '';
             $scope.newUser.email = '';
+            $scope.newUser.title = '';
             $scope.newUser.roles = [];
             $scope.newUser.primaryOrg = {};
             $scope.newUser.additionalOrgs = [];
@@ -287,7 +311,7 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
             var userId = $scope.rightPanel.data.userId;
             var primaryOrgId = $scope.editUser.primaryOrg.organizationId;
 
-            manageUsersService.user.updatePrimaryOrg({userId: userId, primaryOrgId: primaryOrgId}, function(data) {
+            manageUsersService.userProperties.updatePrimaryOrg({userId: userId, primaryOrgId: primaryOrgId}, function(data) {
 
                 // Reset primaryOrg edit ng-model
                 $scope.editUser.primaryOrg = '';
@@ -324,7 +348,7 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
                 ids.push(altOrgs[i].organizationId);
             }
 
-            manageUsersService.user.updateAltOrgs({userId: userId, altOrgId: ids}, function(data) {
+            manageUsersService.userProperties.updateAltOrgs({userId: userId, altOrgId: ids}, function(data) {
 
                 // Reset alternateOrg edit ng-model
                 $scope.editUser.altOrgs = [];
@@ -360,7 +384,7 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
                 ids.push(roles[i].roleId);
             }
 
-            manageUsersService.user.updateRoles({userId: userId, roleId: ids}, function(data) {
+            manageUsersService.userProperties.updateRoles({userId: userId, roleIds: ids}, function(data) {
 
                 // Reset alternateRole edit ng-model
                 $scope.editUser.roles = [];
@@ -385,7 +409,7 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
         var userId = $scope.rightPanel.data.userId;
         var orgId = org.organizationId;
 
-        manageUsersService.user.deleteAltOrg({userId: userId, orgId: orgId}, function(data) {
+        manageUsersService.userProperties.deleteAltOrg({userId: userId, orgId: orgId}, function(data) {
             // Refresh front end user data
             $scope.changeRightPanel('user', $scope.rightPanel.data);
         }, function(err) {
@@ -397,18 +421,34 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
         var userId = $scope.rightPanel.data.userId;
         var roleId = role.roleId;
 
-        manageUsersService.user.deleteRole({userId: userId, roleId: roleId}, function(data) {
-            // Refresh front end user data
-            $scope.changeRightPanel('user', $scope.rightPanel.data);
+        manageUsersService.userPermissions.remove({userId: userId, roleId: roleId}, function(data) {
+
+            manageUsersService.userProperties.deleteRole({userId: userId, roleId: roleId}, function(data) {
+
+                // Refresh front end user data
+                var userRoles = $scope.rightPanel.data.roles;
+                for (var i = 0; i < userRoles.length; i++) {
+                    if (userRoles[i].roleId == roleId) {
+                        userRoles.splice(i, 1);
+                        break;
+                    }
+                }
+
+            }, function(err) {
+                $scope.error = err;
+            });
+
         }, function(err) {
             $scope.error = err;
         });
+
+
     };
 
     $scope.deleteUser = function(user) {
         var userId = user.userId;
 
-        manageUsersService.userDelete.remove({userId: userId}, function(data) {
+        manageUsersService.user.remove({userId: userId}, function(data) {
             var users = $scope.users;
             for (var i = 0; i < users.length; i++) {
                 if (users[i].userId === userId) {
@@ -480,21 +520,71 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
 
     /* ----------- Role Related ------------ */
 
+    /*
+        Add the selected organization to the role template (Does not persist and only front-end)
+     */
+    $scope.addOrgToRole = function() {
+
+        var permToAdd = $scope.permission;
+
+        $scope.newRolePermissions.push({
+            key: {
+                organizationId: permToAdd.organization.organizationId
+            },
+            organizationName: permToAdd.organization.name,      // Temporary variable so user can see name (will be deleted on save)
+            viewPerm: permToAdd.viewPerm,
+            revisePerm: permToAdd.revisePerm,
+            commentPerm: permToAdd.commentPerm,
+            adminPerm: permToAdd.adminPerm
+        });
+
+        $scope.permission = {
+            organization: {},
+            viewPerm: true,
+            revisePerm: false,
+            commentPerm: false,
+            adminPerm: false
+        };
+    };
+
+    /*
+        Remove select organization and its permissions from the role template (Does tno persist and only front-end)
+     */
+    $scope.removeOrgFromRole = function(index) {
+        $scope.newRolePermissions.splice(index, 1);
+    };
+
+    /*
+        Save the new Role and all the Role permissions to the backend
+     */
     $scope.createNewRole = function() {
 
-        $scope.newRole.organizationId = $scope.newRole.selectedOrg.organizationId;
-        delete $scope.newRole.selectedOrg;
+        manageUsersService.role.save($scope.newRole, function(addedRole, status, headers, config) {
+            $scope.newRole = {
+                name: '',
+                description: ''
+            };
 
-        if (typeof $scope.newRole.organizationId !== 'undefined') {
+            var newRolePerms = $scope.newRolePermissions;
 
-            manageUsersService.role.save($scope.newRole, function(data, status, headers, config) {
+            for (var i = 0; i < newRolePerms.length; i++) {
+                newRolePerms[i].key.roleId = addedRole.roleId;
+                delete newRolePerms[i].organizationName;        // Remove placeholder name for saving
+            }
+            $scope.newRolePermissions = newRolePerms;
 
-                $scope.newRole = {
+            manageUsersService.rolePermissions.save($scope.newRolePermissions, function(data, status, headers, config) {
+                $scope.newRolePermissions.splice(0, Number.MAX_VALUE);
+                $scope.permission = {
+                    organization: {},
                     viewPerm: true,
                     revisePerm: false,
                     commentPerm: false,
                     adminPerm: false
                 };
+
+                // Add newly created role to front-end list
+                $scope.roles.push(addedRole);
 
                 // Send out success alert notification
                 $scope.successfullyAddedRole = true;
@@ -507,21 +597,21 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
             }, function(data, status, headers, config) {
                 $scope.err = status;
             });
-        }
+
+        }, function(data, status, headers, config) {
+            $scope.err = status;
+        });
+
     };
 
-    $scope.updateRole = function() {
+    $scope.updateRolePermissions = function() {
 
-        var updatedRole = $scope.rightPanel.data;
+        var updatedRolePermissions = $scope.rightPanel.data.rolePermissions;
 
-        // Remove extra properties for save
-        var tempOrgName = updatedRole.organizationName;
-        delete updatedRole.organizationName;
-
-        manageUsersService.role.save(updatedRole, function(data, status, headers, config) {
+        manageUsersService.rolePermissions.save(updatedRolePermissions, function(data, status, headers, config) {
 
             // Return removed organization name
-            $scope.rightPanel.data.organizationName = tempOrgName;
+            $scope.rightPanel.data.rolePermissions = data;
 
             // Send out success alert notification
             $scope.successfullyUpdatedRole = true;
@@ -559,20 +649,30 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
 
     /* ----------- Helpers ------------ */
 
-    $scope.formatRole = function(role) {
-        role.organizationName = $scope.getOrgNameById(role.organizationId);
-        return role;
-    };
-
     $scope.getOrgNameById = function(organizationId) {
 
         var orgs = $scope.organizations;
         for (var i = 0; i < orgs.length; i++) {
-            if (orgs[i].organizationId = organizationId) {
+            if (orgs[i].organizationId == organizationId) {
                 return orgs[i].name;
             }
         }
         return '';
+    };
+
+    $scope.getRoleListByRoleUsers = function(roleUsers) {
+
+        var roles = $scope.roles;
+        var rolesForUser = [];
+        for (var i = 0; i < roleUsers.length; i++) {
+            for (var j = 0; j < roles.length; j++) {
+                if (roleUsers[i].key.roleId == roles[j].roleId) {
+                    rolesForUser.push(roles[j]);
+                }
+            }
+        }
+
+        return rolesForUser;
     };
 
     $scope.genNewUserRolesPkg = function(roles, userId) {
