@@ -1,11 +1,14 @@
 package com.provesoft.resource.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.provesoft.resource.entity.Document;
+import com.provesoft.resource.entity.DocumentRevisions;
 import com.provesoft.resource.entity.DocumentType;
 import com.provesoft.resource.exceptions.InternalServerErrorException;
 import com.provesoft.resource.exceptions.ResourceNotFoundException;
 import com.provesoft.resource.service.DocumentService;
+import com.provesoft.resource.utils.SystemHelpers;
 import com.provesoft.resource.utils.UserHelpers;
 import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.TransactionRolledbackException;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -69,10 +73,31 @@ public class DocumentController {
         return documentService.findByCompanyName(companyName);
     }
 
+    /* ------ DocumentRevision ------ */
+
+    /*
+        Retrieve all revisions by documentId.
+     */
+    @RequestMapping(
+            value = "/document/revision",
+            method = RequestMethod.GET
+    )
+    public List<DocumentRevisions> getRevisionsByDocumentId(@RequestParam String documentId,
+                                                            Authentication auth) {
+
+// TODO: CHECK IF USER HAS VIEW PERMISSIONS FOR THIS DOCUMENT
+
+        String companyName = UserHelpers.getCompany(auth);
+
+        return documentService.findDocRevByCompanyNameAndDocumentId(companyName, documentId);
+    }
+
 
     /* --------------------------------------------------------- */
     /* ------------------------ POST --------------------------- */
     /* --------------------------------------------------------- */
+
+    /* ------ Document ------ */
 
     @RequestMapping(
             value = "/document",
@@ -115,6 +140,9 @@ public class DocumentController {
 
                             documentId = documentId + suffix;
                             newDocument.setId(documentId);
+                            newDocument.setRevision("A");
+                            newDocument.setState("Released");
+                            newDocument.setDate( SystemHelpers.getCurrentDate() );
 
                             return documentService.addDocument(newDocument, suffix);
                         }
@@ -150,4 +178,104 @@ public class DocumentController {
 
         throw new ResourceNotFoundException();
     }
+
+    /* ------ DocumentRevision ------ */
+/*
+    @RequestMapping(
+            value = "/document/revision",
+            method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public Document reviseDocument(@RequestBody String json,
+                                   Authentication auth) {
+
+// TODO: CHECK IF USER HAS PERMISSIONS TO EDIT FOR THIS DOCUMENT BELONGING TO ORGANIZATION
+
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            JsonNode rootNode = mapper.readTree(json);
+            String documentId = rootNode.get("documentId").textValue();
+            String changeReason = rootNode.get("changeReason").textValue();
+            Long changeUserId = rootNode.get("changeUserId").longValue();
+
+            String companyName = UserHelpers.getCompany(auth);
+
+            String currentDate = SystemHelpers.getCurrentDate();
+
+            /* -------- Critical area starts here ---------- */
+            // Multiple users may attempt to get new rev Id.
+            // Retry until resource becomes free to generate new Id.
+/*            for (long stop=System.currentTimeMillis()+ TimeUnit.SECONDS.toMillis(30L); stop > System.currentTimeMillis();) {
+
+                try {
+                    String documentRevisionId = documentService.getAndGenerateDocumentRevisionId(companyName, documentId);
+
+                    DocumentRevisions newRevision = new DocumentRevisions(
+                            companyName,
+                            documentId,
+                            documentRevisionId,
+                            changeReason,
+                            changeUserId,
+                            currentDate
+                    );
+
+                    // TODO: UPDATE REVISION WITH RED-LINE DOCUMENT
+
+                    // TODO: UPDATE DOCUMENT WITH NEW: REVISION, DOCUMENT, RELEASE DATE
+
+
+
+                } catch (CannotAcquireLockException | LockAcquisitionException | TransactionRolledbackException ex) {
+                    // Sleep and try to get resource again
+                    try {
+                        Thread.sleep(5L);
+                    } catch (InterruptedException ie) {
+                        ie.printStackTrace();
+                    }
+                }
+            }
+
+        }
+        catch (IOException ioe) {
+            throw new ResourceNotFoundException();
+        }
+    }
+*/
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

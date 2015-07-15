@@ -65,6 +65,12 @@ function config($stateProvider, $locationProvider, $urlRouterProvider, $ocLazyLo
                 }
             }
         })
+        .state('process-viewer.document-revision', {
+            url: "/document-revision?documentId",
+            templateUrl: "views/process-viewer/document_revision.html",
+            controller: 'documentRevisionCtrl',
+            data: { pageTitle: 'Document Revision' }
+        })
 
         .state('admin', {
             abstract: true,

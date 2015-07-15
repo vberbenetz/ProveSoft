@@ -33,6 +33,9 @@ public class Document {
     private Organizations organization;
 
     private String title;
+    private String revision;
+    private String state;
+    private String date;
 
     public String getId() {
         return id;
@@ -72,5 +75,29 @@ public class Document {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getRevision() {
+        return revision;
+    }
+
+    public void setRevision(String revision) {
+        this.revision = revision;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 }

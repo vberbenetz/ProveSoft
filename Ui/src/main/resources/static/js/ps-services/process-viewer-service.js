@@ -8,7 +8,7 @@ function documentCreationService($resource) {
 
         organization: $resource('/resource/organization')
     }
-};
+}
 
 function documentLookupService($resource) {
     return {
@@ -23,11 +23,31 @@ function documentLookupService($resource) {
                     isArray: true
                 }
             }
+        ),
+
+        revision: $resource('/resource/document/revision',
+            {},
+            {
+                query: {
+                    method: 'GET',
+                    params: {
+                        documentId: '@documentId'
+                    },
+                    isArray: true
+                }
+            }
         )
     }
-};
+}
+
+function documentRevisionService($resource) {
+    return {
+        revision: $resource('/resource/document/revision')
+    }
+}
 
 angular
     .module('provesoft')
     .factory('documentCreationService', documentCreationService)
-    .factory('documentLookupService', documentLookupService);
+    .factory('documentLookupService', documentLookupService)
+    .factory('documentRevisionService', documentRevisionService);

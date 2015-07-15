@@ -82,6 +82,10 @@ textarea {
 .padding-right-10 { padding-right: 10px; }
 .padding-right-15 { padding-right: 15px; }
 
+.dark-grey-bg {
+    background-color: #d3d3d3;
+}
+
 /* Resize profile pics */
 .sidebar-avatar {
     display: block;

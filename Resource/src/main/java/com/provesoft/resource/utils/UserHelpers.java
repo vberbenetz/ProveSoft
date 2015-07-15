@@ -5,6 +5,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.security.Principal;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
 
 public final class UserHelpers {

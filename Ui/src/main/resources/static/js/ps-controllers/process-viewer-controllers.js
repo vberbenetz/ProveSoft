@@ -9,6 +9,8 @@ function documentLookupCtrl($scope, $rootScope, $window, $timeout, documentLooku
     $scope.searchString = '';
     $scope.prevSearchString = '';
     $scope.documentSearchResults = [];
+    $scope.revisions = [];
+    $scope.lastFetchedRevisions = '';      // Prevent the same revisions from being fetched again on-click
 
     $scope.$watch('searchString', function(newVal, oldVal) {
 
@@ -23,6 +25,9 @@ function documentLookupCtrl($scope, $rootScope, $window, $timeout, documentLooku
         }
     });
 
+
+    /* ---------- Controller Methods ----------- */
+
     $scope.executeSearch = function() {
         $timeout( function() {
 
@@ -36,8 +41,20 @@ function documentLookupCtrl($scope, $rootScope, $window, $timeout, documentLooku
                     $scope.error = status;
                 });
             }
-        } , 1000);
+        } , 700);
+    };
+
+    $scope.getRevisions = function(documentId) {
+        if ($scope.lastFetchedRevisions != documentId) {
+            documentLookupService.revision.query({documentId: documentId}, function(revisions) {
+                $scope.revisions = revisions;
+            }, function(error) {
+                $scope.err = error;
+            });
+            $scope.lastFetchedRevisions = documentId;
+        }
     }
+
 };
 
 function documentCreationCtrl($scope, $rootScope, $window, documentCreationService) {
@@ -122,9 +139,23 @@ function documentCreationCtrl($scope, $rootScope, $window, documentCreationServi
         });
     };
 
+};
+
+function documentRevisionCtrl($scope, $rootScope, $window, $stateParams, documentRevisionService) {
+
+    if (!$rootScope.authenticated) {
+        $window.location.href = '/';
+    }
+
+    // ------------------ Initialize -------------------- //
+
+    // Keep track of form progress
+    $scope.reviseDocumentForm = 1;
+    $scope.documentId = $stateParams.documentId;
 }
 
 angular
     .module('provesoft')
     .controller('documentLookupCtrl', documentLookupCtrl)
-    .controller('documentCreationCtrl', documentCreationCtrl);
+    .controller('documentCreationCtrl', documentCreationCtrl)
+    .controller('documentRevisionCtrl', documentRevisionCtrl);

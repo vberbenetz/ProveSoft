@@ -1,11 +1,8 @@
 package com.provesoft.resource.service;
 
-import com.provesoft.resource.entity.Document;
-import com.provesoft.resource.entity.DocumentType;
-import com.provesoft.resource.entity.DocumentTypeId;
-import com.provesoft.resource.repository.DocumentRepository;
-import com.provesoft.resource.repository.DocumentTypeIdRepository;
-import com.provesoft.resource.repository.DocumentTypeRepository;
+import com.provesoft.resource.entity.*;
+import com.provesoft.resource.repository.*;
+import com.provesoft.resource.utils.DocumentHelpers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -26,9 +23,14 @@ public class DocumentService {
     @Autowired
     DocumentTypeIdRepository documentTypeIdRepository;
 
-    public List<DocumentType> findByCompanyName(String companyName) {
-        return documentTypeRepository.findByCompanyName(companyName);
-    }
+    @Autowired
+    DocumentRevisionsRepository documentRevisionsRepository;
+
+    @Autowired
+    DocumentRevisionIdsRepository documentRevisionIdsRepository;
+
+
+    /* ------------------------ Document -------------------------- */
 
     // Search method will use wildcards for the title
     public List<Document> findByTitle(String companyName, String title) {
@@ -41,23 +43,19 @@ public class DocumentService {
     }
 
     /*
-        Generate new unique id for document of documentType
-     */
-    @Transactional(isolation = Isolation.SERIALIZABLE)
-    public DocumentTypeId getAndGenerateDocumentId(Long documentTypeId) throws TransactionRolledbackException {
-        DocumentTypeId docTypeId = documentTypeIdRepository.findByDocumentTypeId(documentTypeId);
-        documentTypeIdRepository.incrementSuffixId(documentTypeId);
-        documentTypeIdRepository.flush();
-        return docTypeId;
-    }
-
-    /*
         Add a document and perform a lazy id update for the DocumentType associated.
         Does not have to be entirely accurate (concurrently modified) because the DocumentTypeId keeps track of this
      */
     public Document addDocument(Document document, Long suffix) {
         documentTypeRepository.updateCurrentSuffix(document.getDocumentType().getId(), suffix);
         return documentRepository.saveAndFlush(document);
+    }
+
+
+    /* ------------------------ DocumentType -------------------------- */
+
+    public List<DocumentType> findByCompanyName(String companyName) {
+        return documentTypeRepository.findByCompanyName(companyName);
     }
 
     /*
@@ -73,6 +71,42 @@ public class DocumentService {
 
     public void deleteDocumentTypeById(Long id, String companyName) {
         documentTypeRepository.deleteDocumentTypeById(id, companyName);
+    }
+
+
+    /* ------------------------ DocumentTypeId -------------------------- */
+
+    /*
+        Generate new unique id for document of documentType
+     */
+    @Transactional(isolation = Isolation.SERIALIZABLE)
+    public DocumentTypeId getAndGenerateDocumentId(Long documentTypeId) throws TransactionRolledbackException {
+        DocumentTypeId docTypeId = documentTypeIdRepository.findByDocumentTypeId(documentTypeId);
+        documentTypeIdRepository.incrementSuffixId(documentTypeId);
+        documentTypeIdRepository.flush();
+        return docTypeId;
+    }
+
+
+    /* ------------------------ DocumentRevisionIds -------------------------- */
+
+    /*
+        Retrieve DocumentRevision by userId (and companyName)
+     */
+    public List<DocumentRevisions> findDocRevByCompanyNameAndDocumentId (String companyName, String documentId) {
+        return documentRevisionsRepository.findByKeyCompanyNameAndKeyDocumentId(companyName, documentId);
+    }
+
+    /*
+        Generate a new revisionId for the document
+     */
+    @Transactional(isolation = Isolation.SERIALIZABLE)
+    public String getAndGenerateDocumentRevisionId(String companyName, String documentId) throws TransactionRolledbackException {
+        DocumentRevisionIds docRevId = documentRevisionIdsRepository.findByKeyCompanyNameAndKeyDocumentId(companyName, documentId);
+        String nextRevId = DocumentHelpers.genNextRevId(docRevId.getRevisionId());
+        documentRevisionIdsRepository.incrementRevId(companyName, documentId, nextRevId);
+        documentRevisionIdsRepository.flush();
+        return nextRevId;
     }
 
 }

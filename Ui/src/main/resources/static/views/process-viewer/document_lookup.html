@@ -36,37 +36,66 @@
                             <table class="table table-hover issue-tracker">
                                 <thead>
                                 <tr>
-                                    <th></th>
                                     <th>ID</th>
                                     <th>Title</th>
                                     <th>Owner</th>
                                     <th>Revision</th>
                                     <th>State</th>
                                     <th>Release Date</th>
-                                    <th></th>
                                 </tr>
                                 </thead>
-                                <tbody>
-                                <tr ng-repeat="n in documentSearchResults">
-                                    <td></td>
-                                    <td>{{ n.id }}</td>
-                                    <td>{{ n.title }}</td>
-                                    <td>{{ n.organization.name }}</td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-warning">
-                                            <span class="fa fa-pencil"></span>
-                                            &nbsp;Edit
-                                        </button>
-                                    </td>
-                                </tr>
-                                </tbody>
                             </table>
                         </div>
 
-                        <div class="hr-line-dashed"></div>
+                        <accordion close-other="true">
+                            <accordion-group ng-repeat="n in documentSearchResults">
+                                <accordion-heading>
+                                    <div class="row">
+                                        <button ui-sref="process-viewer.document-revision({documentId: n.id})" class="btn btn-lg btn-warning" type="button">
+                                            <span class="fa fa-pencil"></span>
+                                        </button>
+
+                                        <div class="col-md-11" ng-click="getRevisions(n.id)">
+                                            <table class="table">
+                                                <tbody>
+                                                <tr>
+                                                    <td>{{ n.id }}</td>
+                                                    <td>{{ n.title }}</td>
+                                                    <td>{{ n.organization.name }}</td>
+                                                    <td>{{ n.revision }}</td>
+                                                    <td>{{ n.state }}</td>
+                                                    <td>{{ n.date }}</td>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </accordion-heading>
+                                <div class="table-responsive" ng-if="lastFetchedRevisions==n.id">
+                                    <table class="table table-hover issue-tracker">
+                                        <thead>
+                                        <tr>
+                                            <th>Revision</th>
+                                            <th>Reason For Change</th>
+                                            <th>Changed By</th>
+                                            <th>Change Date</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr ng-repeat="r in revisions">
+                                                <td>{{ r.key.revisionId }}</td>
+                                                <td>{{ r.changeReason }}</td>
+                                                <td>{{ r.changeUserId }}</td>
+                                                <td>{{ r.changeDate }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </accordion-group>
+                        </accordion>
+
+                        <hr/>
+
                         <div class="text-center">
                             <div class="btn-group">
                                 <button class="btn btn-white" type="button"><i class="fa fa-chevron-left"></i></button>

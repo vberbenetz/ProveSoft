@@ -7,7 +7,9 @@ import com.provesoft.resource.entity.Organizations;
 import com.provesoft.resource.exceptions.ResourceNotFoundException;
 import com.provesoft.resource.service.DocumentService;
 import com.provesoft.resource.service.OrganizationsService;
+import com.provesoft.resource.utils.DocumentHelpers;
 import org.hibernate.exception.LockAcquisitionException;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -107,6 +109,29 @@ public class DocumentControllerTests {
         catch(InterruptedException ie) {
             ie.printStackTrace();
         }
+    }
+
+    @Test
+    public void documentRevisionIncrementTest() {
+        String id1 = "ABC";
+        String id4 = "ABZ";
+        String id2 = "AZ";
+        String id3 = "ZZZZ";
+
+        String nextId1 = DocumentHelpers.genNextRevId(id1);
+        String nextId4 = DocumentHelpers.genNextRevId(id4);
+        String nextId2 = DocumentHelpers.genNextRevId(id2);
+        String nextId3 = DocumentHelpers.genNextRevId(id3);
+
+        System.out.println(nextId1);
+        System.out.println(nextId4);
+        System.out.println(nextId2);
+        System.out.println(nextId3);
+
+        Assert.assertEquals("ABD", nextId1);
+        Assert.assertEquals("ACA", nextId4);
+        Assert.assertEquals("BA", nextId2);
+        Assert.assertEquals("AAAAA", nextId3);
     }
 
 }
