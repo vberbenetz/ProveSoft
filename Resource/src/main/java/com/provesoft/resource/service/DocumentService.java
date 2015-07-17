@@ -43,11 +43,43 @@ public class DocumentService {
     }
 
     /*
-        Add a document and perform a lazy id update for the DocumentType associated.
-        Does not have to be entirely accurate (concurrently modified) because the DocumentTypeId keeps track of this
+        Search for document by documentId
      */
-    public Document addDocument(Document document, Long suffix) {
+    public Document findByCompanyNameAndDocumentId(String companyName, String documentId) {
+        return documentRepository.findByCompanyNameAndId(companyName, documentId);
+    }
+
+    /*
+        Add a document and perform a lazy id update for the DocumentType associated.
+        Does not have to be entirely accurate (concurrently modified) because the DocumentTypeId keeps track of this.
+
+        1) Update id in DocumentType
+        2) Add initial RevisionId
+        3) Add initial Revision
+        4) Add document
+     */
+    public Document addDocument(Document document, Long suffix, Long userId) {
         documentTypeRepository.updateCurrentSuffix(document.getDocumentType().getId(), suffix);
+
+        DocumentRevisions initialRev = new DocumentRevisions(document.getCompanyName(),
+                                                                document.getId(),
+                                                                "A",
+                                                                "Document Created",
+                                                                userId,
+                                                                document.getDate());
+
+        DocumentRevisionIds initialRevId = new DocumentRevisionIds(document.getCompanyName(), document.getId(), "A");
+
+        documentRevisionIdsRepository.save(initialRevId);
+        documentRevisionsRepository.save(initialRev);
+
+        return documentRepository.saveAndFlush(document);
+    }
+
+    /*
+        Update document after a revision
+     */
+    public Document updateDocument(Document document) {
         return documentRepository.saveAndFlush(document);
     }
 
@@ -85,6 +117,16 @@ public class DocumentService {
         documentTypeIdRepository.incrementSuffixId(documentTypeId);
         documentTypeIdRepository.flush();
         return docTypeId;
+    }
+
+
+    /* ------------------------ DocumentRevisions -------------------------- */
+
+    /*
+        Add new DocumentRevision
+     */
+    public DocumentRevisions addNewRevision (DocumentRevisions documentRevision) {
+        return documentRevisionsRepository.saveAndFlush(documentRevision);
     }
 
 

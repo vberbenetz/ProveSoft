@@ -811,9 +811,21 @@ function documentTypeSetupCtrl($scope, $rootScope, $window, documentTypeService)
         return prefix + suffix;
     }
 
-};
+}
+
+function moduleSettingsCtrl($scope, $rootScope, $window, moduleSettingsService) {
+
+    if (!$rootScope.authenticated) {
+        $window.location.href = '/';
+    }
+
+    $scope.redline = 'on';
+
+    // ------------------ Initialize -------------------- //
+}
 
 angular
     .module('provesoft')
     .controller('manageUsersCtrl', manageUsersCtrl)
-    .controller('documentTypeSetupCtrl', documentTypeSetupCtrl);
+    .controller('documentTypeSetupCtrl', documentTypeSetupCtrl)
+    .controller('moduleSettingsCtrl', moduleSettingsCtrl);

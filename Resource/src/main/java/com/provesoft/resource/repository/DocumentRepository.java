@@ -9,6 +9,8 @@ import java.util.List;
 
 public interface DocumentRepository extends JpaRepository<Document, String> {
 
+    Document findByCompanyNameAndId(String companyName, String id);
+
     @Query(
             "SELECT d " +
             "FROM Document d " +

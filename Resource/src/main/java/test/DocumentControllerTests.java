@@ -65,7 +65,7 @@ public class DocumentControllerTests {
                         documentId = documentId + suffix;
                         newDocument.setId(documentId);
 
-                        documentService.addDocument(newDocument, suffix);
+                        documentService.addDocument(newDocument, suffix, 1L);
 
                         return;
                     }

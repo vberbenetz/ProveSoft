@@ -69,7 +69,20 @@ function config($stateProvider, $locationProvider, $urlRouterProvider, $ocLazyLo
             url: "/document-revision?documentId",
             templateUrl: "views/process-viewer/document_revision.html",
             controller: 'documentRevisionCtrl',
-            data: { pageTitle: 'Document Revision' }
+            data: { pageTitle: 'Document Revision' },
+            resolve: {
+                loadPlugin: function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        {
+                            files: [
+                                'css/plugins/dropzone/basic.css',
+                                'css/plugins/dropzone/dropzone.css',
+                                'js/plugins/dropzone/dropzone.js'
+                            ]
+                        }
+                    ])
+                }
+            }
         })
 
         .state('admin', {
@@ -116,6 +129,12 @@ function config($stateProvider, $locationProvider, $urlRouterProvider, $ocLazyLo
                     ]);
                 }
             }
+        })
+        .state('admin.moduleSettings', {
+            url: "/module-settings",
+            templateUrl: "views/admin/module_settings.html",
+            controller: moduleSettingsCtrl,
+            data: { pageTitle: 'Admin | Settings' }
         })
 
         .state('home.profile', {

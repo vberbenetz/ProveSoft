@@ -31,6 +31,10 @@ public class UserDetailsService {
         return userDetailsRepository.findByCompanyNameAndUserId(companyName, userId);
     }
 
+    public UserDetails findByCompanyNameAndUserName(String companyName, String userName) {
+        return userDetailsRepository.findByCompanyNameAndUserName(companyName, userName);
+    }
+
     public List<UserDetails> findByCompanyNameAndUserIdList(String companyName, List<Long> userIds) {
         return userDetailsRepository.findByCompanyNameAndUserIdIn(companyName, userIds);
     }

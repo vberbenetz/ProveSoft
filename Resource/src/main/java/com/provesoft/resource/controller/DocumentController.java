@@ -5,11 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.provesoft.resource.entity.Document;
 import com.provesoft.resource.entity.DocumentRevisions;
 import com.provesoft.resource.entity.DocumentType;
+import com.provesoft.resource.entity.UserDetails;
 import com.provesoft.resource.exceptions.InternalServerErrorException;
 import com.provesoft.resource.exceptions.ResourceNotFoundException;
 import com.provesoft.resource.service.DocumentService;
+import com.provesoft.resource.service.UserDetailsService;
 import com.provesoft.resource.utils.SystemHelpers;
 import com.provesoft.resource.utils.UserHelpers;
+import org.apache.catalina.User;
 import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.CannotAcquireLockException;
@@ -19,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.TransactionRolledbackException;
 import java.io.IOException;
+import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -28,6 +32,9 @@ public class DocumentController {
 
     @Autowired
     DocumentService documentService;
+
+    @Autowired
+    UserDetailsService userDetailsService;
 
 
     /* -------------------------------------------------------- */
@@ -115,14 +122,14 @@ public class DocumentController {
             newDocument = mapper.readValue(json, Document.class);
 
             // Retrieve their company
-            String company = UserHelpers.getCompany(auth);
+            String companyName = UserHelpers.getCompany(auth);
 
-            if (company != null) {
+            if (companyName != null) {
 
 // TODO: Verify if document and organizations belong to user
 // TODO: Verify if user has permissions to add document of this type to this organization
 
-                newDocument.setCompanyName(company);
+                newDocument.setCompanyName(companyName);
 
                 // Retry if deadlock occurs until the resource becomes free or timeout occurs
                 for (long stop=System.currentTimeMillis()+ TimeUnit.SECONDS.toMillis(30L); stop > System.currentTimeMillis();) {
@@ -138,13 +145,18 @@ public class DocumentController {
                                 documentId = documentId + "0";
                             }
 
+                            // Get user for revision details
+                            UserDetails user = userDetailsService.findByCompanyNameAndUserName(companyName, auth.getName());
+
+                            String currentDate = SystemHelpers.getCurrentDate();
+
                             documentId = documentId + suffix;
                             newDocument.setId(documentId);
                             newDocument.setRevision("A");
                             newDocument.setState("Released");
-                            newDocument.setDate( SystemHelpers.getCurrentDate() );
+                            newDocument.setDate(currentDate);
 
-                            return documentService.addDocument(newDocument, suffix);
+                            return documentService.addDocument(newDocument, suffix, user.getUserId());
                         }
 
                         else {
@@ -180,15 +192,15 @@ public class DocumentController {
     }
 
     /* ------ DocumentRevision ------ */
-/*
+
     @RequestMapping(
             value = "/document/revision",
             method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public Document reviseDocument(@RequestBody String json,
-                                   Authentication auth) {
+    public DocumentRevisions reviseDocument(@RequestBody String json,
+                                            Authentication auth) {
 
 // TODO: CHECK IF USER HAS PERMISSIONS TO EDIT FOR THIS DOCUMENT BELONGING TO ORGANIZATION
 
@@ -197,16 +209,27 @@ public class DocumentController {
             JsonNode rootNode = mapper.readTree(json);
             String documentId = rootNode.get("documentId").textValue();
             String changeReason = rootNode.get("changeReason").textValue();
-            Long changeUserId = rootNode.get("changeUserId").longValue();
+            String changeUserName = rootNode.get("changeUserName").textValue();
 
             String companyName = UserHelpers.getCompany(auth);
-
             String currentDate = SystemHelpers.getCurrentDate();
+
+            UserDetails changeUser = userDetailsService.findByCompanyNameAndUserName(companyName, changeUserName);
+
+            if (changeUser == null) {
+                throw new ResourceNotFoundException();
+            }
+
+            // Verify document belongs to company
+            Document docToChange = documentService.findByCompanyNameAndDocumentId(companyName, documentId);
+            if (docToChange == null) {
+                throw new ResourceNotFoundException();
+            }
 
             /* -------- Critical area starts here ---------- */
             // Multiple users may attempt to get new rev Id.
             // Retry until resource becomes free to generate new Id.
-/*            for (long stop=System.currentTimeMillis()+ TimeUnit.SECONDS.toMillis(30L); stop > System.currentTimeMillis();) {
+            for (long stop=System.currentTimeMillis()+ TimeUnit.SECONDS.toMillis(30L); stop > System.currentTimeMillis();) {
 
                 try {
                     String documentRevisionId = documentService.getAndGenerateDocumentRevisionId(companyName, documentId);
@@ -216,15 +239,22 @@ public class DocumentController {
                             documentId,
                             documentRevisionId,
                             changeReason,
-                            changeUserId,
+                            changeUser.getUserId(),
                             currentDate
                     );
 
-                    // TODO: UPDATE REVISION WITH RED-LINE DOCUMENT
+                    newRevision = documentService.addNewRevision(newRevision);
 
-                    // TODO: UPDATE DOCUMENT WITH NEW: REVISION, DOCUMENT, RELEASE DATE
+                    docToChange.setRevision(documentRevisionId);
+                    docToChange.setDate(currentDate);
 
+                    documentService.updateDocument(docToChange);
 
+// TODO: UPDATE REVISION WITH RED-LINE DOCUMENT
+
+// TODO: UPDATE DOCUMENT WITH NEW: DOCUMENT
+
+                    return newRevision;
 
                 } catch (CannotAcquireLockException | LockAcquisitionException | TransactionRolledbackException ex) {
                     // Sleep and try to get resource again
@@ -240,8 +270,10 @@ public class DocumentController {
         catch (IOException ioe) {
             throw new ResourceNotFoundException();
         }
+
+        throw new ResourceNotFoundException();
     }
-*/
+
 }
 
 

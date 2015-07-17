@@ -1,0 +1,113 @@
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-10">
+        <h1>Modules / Settings</h1>
+    </div>
+    <div class="col-lg-2">
+
+    </div>
+</div>
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox">
+                <div class="ibox-content full-height-scroll" full-scroll="">
+
+                    <!-- Modules -->
+                    <div class="col-xs-12">
+                        <h2>Modules</h2>
+                        <div class="col-md-8 col-lg-6">
+                            <ul class="list-group">
+                                <li class="list-group-item">
+                                    <div class="widget style1 dark-grey-bg">
+                                        <div class="row vertical-align">
+                                            <div class="col-xs-4 vertical-align">
+                                                <h3>Module Name</h3>
+                                            </div>
+                                            <div class="col-xs-8 text-right">
+                                                <h3 class="font-bold">
+                                                    <button class="btn btn-lg btn-primary" ng-model="btnCheck" btn-checkbox="">On</button>
+                                                    <button class="btn btn-lg btn-default" ng-model="btnCheck" btn-checkbox="">Off</button>
+                                                </h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li class="list-group-item">
+                                    <div class="widget style1 dark-grey-bg">
+                                        <div class="row vertical-align">
+                                            <div class="col-xs-4 vertical-align">
+                                                <h3>Module Name</h3>
+                                            </div>
+                                            <div class="col-xs-8 text-right">
+                                                <h3 class="font-bold">
+                                                    <button class="btn btn-lg btn-default" ng-model="btnCheck" btn-checkbox="">On</button>
+                                                    <button class="btn btn-lg btn-danger" ng-model="btnCheck" btn-checkbox="">Off</button>
+                                                </h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li class="list-group-item">
+                                    <div class="widget style1 dark-grey-bg">
+                                        <div class="row vertical-align">
+                                            <div class="col-xs-4 vertical-align">
+                                                <h3>Module Name</h3>
+                                            </div>
+                                            <div class="col-xs-8 text-right">
+                                                <h3 class="font-bold">
+                                                    <button class="btn btn-lg btn-primary" ng-model="btnCheck" btn-checkbox="">On</button>
+                                                    <button class="btn btn-lg btn-default" ng-model="btnCheck" btn-checkbox="">Off</button>
+                                                </h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li class="list-group-item">
+                                    <div class="widget style1 dark-grey-bg">
+                                        <div class="row vertical-align">
+                                            <div class="col-xs-4 vertical-align">
+                                                <h3>Module Name</h3>
+                                            </div>
+                                            <div class="col-xs-8 text-right">
+                                                <h3 class="font-bold">
+                                                    <button class="btn btn-lg btn-primary" ng-model="btnCheck" btn-checkbox="">On</button>
+                                                    <button class="btn btn-lg btn-default" ng-model="btnCheck" btn-checkbox="">Off</button>
+                                                </h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Settings -->
+                    <div class="col-xs-12 margin-top-30">
+                        <h2>Settings</h2>
+                        <div class="col-md-8 col-lg-6">
+                            <ul class="list-group">
+                                <li class="list-group-item">
+                                    <div class="widget style1 dark-grey-bg">
+                                        <div class="row vertical-align">
+                                            <div class="col-xs-4 vertical-align">
+                                                <h3>Redlined Documents</h3>
+                                            </div>
+                                            <div class="col-xs-8 text-right">
+                                                <h3 class="font-bold">
+                                                    <button class="btn btn-lg btn-primary" ng-class="{ 'btn-default': redline != 'on' }" ng-model="redline" btn-radio="'on'">On</button>
+                                                    <button class="btn btn-lg btn-default" ng-class="{ 'btn-warning': redline == 'optional' }" ng-model="redline" btn-radio="'optional'">Optional</button>
+                                                    <button class="btn btn-lg btn-default" ng-class="{ 'btn-danger': redline == 'off' }" ng-model="redline" btn-radio="'off'">Off</button>
+                                                </h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

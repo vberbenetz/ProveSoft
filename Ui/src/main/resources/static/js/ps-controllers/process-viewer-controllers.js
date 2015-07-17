@@ -135,13 +135,13 @@ function documentCreationCtrl($scope, $rootScope, $window, documentCreationServi
                 organization: {}
             }
         }, function(data, status, headers, config) {
-
+            $scope.err = status;
         });
     };
 
 };
 
-function documentRevisionCtrl($scope, $rootScope, $window, $stateParams, documentRevisionService) {
+function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams, documentRevisionService) {
 
     if (!$rootScope.authenticated) {
         $window.location.href = '/';
@@ -152,6 +152,29 @@ function documentRevisionCtrl($scope, $rootScope, $window, $stateParams, documen
     // Keep track of form progress
     $scope.reviseDocumentForm = 1;
     $scope.documentId = $stateParams.documentId;
+
+    $scope.revision = {
+        changeReason: ''
+    };
+
+
+    // ------------------ Methods ------------------- //
+
+    $scope.reviseDocument = function() {
+        var revisionPayload = {
+            documentId: $scope.documentId,
+            changeReason: $scope.revision.changeReason,
+            changeUserName: $rootScope.user.userName
+        };
+
+        documentRevisionService.revision.save(revisionPayload, function(data, status, headers, config) {
+            $state.go('process-viewer.document-lookup');
+        }, function(data, status, headers, config) {
+            $scope.err = status;
+        });
+    }
+
+
 }
 
 angular

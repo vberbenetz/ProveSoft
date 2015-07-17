@@ -6,6 +6,7 @@ import javax.persistence.*;
 public class UserDetails {
 
     public UserDetails(String companyName,
+                       String userName,
                        String firstName,
                        String lastName,
                        String email,
@@ -13,6 +14,7 @@ public class UserDetails {
                        Long primaryOrgId)
     {
         this.companyName = companyName;
+        this.userName = userName;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -29,6 +31,7 @@ public class UserDetails {
     private Long userId;
 
     private String companyName;
+    private String userName;
     private String email;
     private String firstName;
     private String lastName;
@@ -49,6 +52,14 @@ public class UserDetails {
 
     public void setCompanyName(String companyName) {
         this.companyName = companyName;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public String getEmail() {
