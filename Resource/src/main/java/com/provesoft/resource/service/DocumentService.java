@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.transaction.TransactionRolledbackException;
+import java.io.File;
 import java.util.List;
 
 @Service
@@ -16,6 +17,9 @@ public class DocumentService {
 
     @Autowired
     DocumentRepository documentRepository;
+
+    @Autowired
+    DocumentUploadRepository documentUploadRepository;
 
     @Autowired
     DocumentTypeRepository documentTypeRepository;
@@ -81,6 +85,23 @@ public class DocumentService {
      */
     public Document updateDocument(Document document) {
         return documentRepository.saveAndFlush(document);
+    }
+
+
+    /* ------------------------ DocumentUpload -------------------------- */
+
+    /*
+        Retrieve uploaded file
+     */
+    public DocumentUpload findUploadByCompanyNameAndDocumentIdAndRedline(String companyName, String documentId, Boolean redline) {
+        return documentUploadRepository.findByKeyCompanyNameAndKeyDocumentIdAndRedline(companyName, documentId, redline);
+    }
+
+    /*
+        Insert uploaded document file
+     */
+    public void addDocumentFile(DocumentUpload documentUpload) {
+        documentUploadRepository.saveAndFlush(documentUpload);
     }
 
 

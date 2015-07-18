@@ -160,41 +160,48 @@ function dropzone($cookies) {
     var xsrfToken = $cookies['XSRF-TOKEN'];
 
     return function(scope, element, attrs) {
-         element.dropzone({
+
+        var config = {
             url: '/resource/upload',
             maxFilesize: 100,
             paramName: "uploadfile",
             maxThumbnailFilesize: 10,
-            //autoProcessQueue: false,
+            parallelUploads: 1,
+            autoProcessQueue: false,
             headers: {
                 "X-XSRF-TOKEN": xsrfToken
-            },
-            init: function() {
-                scope.files.push({file: 'added'});
-                this.on('success', function(file, json) {
-                });
-                this.on('addedfile', function(file) {
-                    scope.$apply(function(){
-                        scope.files.push({file: 'added'});
-                    });
-                });
-                this.on('drop', function(file) {
-                });
-                /*
-                scope.$watch(function() {
-                    return scope.submitClicked;
-                }, function (newVal, oldVal) {
-                    this.processQueue();
-                });
-                */
-
             }
+        };
+
+        var eventHandlers = {
+            'addedfile': function(file) {
+                scope.file = file;
+                if (this.files[1]!=null) {
+                    this.removeFile(this.files[0]);
+                }
+            },
+            'sending': function (file, xhr, formData) {
+                formData.append('documentId', scope.documentId);
+                formData.append('isRedline', false);
+            },
+            'success': function (file, response) {
+                scope.$apply(function(){
+                    scope.uploadSuccessful = true;
+                });
+            }
+        };
+
+        dropzone = new Dropzone(element[0], config);
+
+        angular.forEach(eventHandlers, function(handler, event) {
+            dropzone.on(event, handler);
         });
 
+        scope.processDropzone = function() {
+            dropzone.processQueue();
+        };
     }
 }
-
-
 
 
 /**

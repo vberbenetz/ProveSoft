@@ -53,7 +53,7 @@
                         </div>
                     </form>
 
-                    <div class="col-md-8 col-md-offset-2">
+                    <div class="col-md-6 col-md-offset-2">
                         <div class="ibox ibox-border">
                             <div class="ibox-title">
                                 <h5>Document Upload Area</h5>
@@ -70,13 +70,13 @@
 
                     <div class="row">
                         <div class="pull-right">
-                            <button ui-sref="process-viewer.document-lookup" class="btn btn-danger margin-right-20">Cancel</button>
+                            <button ui-sref="process-viewer.document-lookup" class="btn btn-danger margin-right-20" ng-class="{ 'disabled btn-default' : creatingDocument }">Cancel</button>
                         </div>
                         <div class="pull-right">
-                            <button ng-click="createNewDocument()" class="btn btn-primary margin-right-20">Next</button>
+                            <button ng-click="createNewDocument()" class="btn btn-primary margin-right-20" ng-class="{ 'disabled btn-default' : creatingDocument }">Next</button>
                         </div>
                         <div class="pull-right">
-                            <button class="btn btn-warning margin-right-20">Previous</button>
+                            <button class="btn btn-warning margin-right-20" ng-class="{ 'disabled btn-default' : creatingDocument }">Previous</button>
                         </div>
                     </div>
                 </div>

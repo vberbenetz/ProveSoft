@@ -57,7 +57,7 @@ function documentLookupCtrl($scope, $rootScope, $window, $timeout, documentLooku
 
 };
 
-function documentCreationCtrl($scope, $rootScope, $window, documentCreationService) {
+function documentCreationCtrl($scope, $rootScope, $state, $window, documentCreationService) {
 
     if (!$rootScope.authenticated) {
         $window.location.href = '/';
@@ -68,6 +68,8 @@ function documentCreationCtrl($scope, $rootScope, $window, documentCreationServi
     // Initialize file upload (dropzone)
     $scope.files = [];
     $scope.submitClicked = false;
+    $scope.uploadedSuccessfully = false;
+    $scope.creatingDocument = false;
 
     // Keep track of form progress
     $scope.newDocumentForm = 1;
@@ -128,18 +130,32 @@ function documentCreationCtrl($scope, $rootScope, $window, documentCreationServi
     };
 
     $scope.createNewDocument = function() {
+        $scope.creatingDocument = true;
+
         documentCreationService.document.save($scope.newDocument, function(data, status, headers, config) {
+
+            $scope.documentId = data.id;
+            $scope.processDropzone();
             $scope.newDocument = {
                 title: '',
                 documentType: {},
                 organization: {}
-            }
+            };
+
         }, function(data, status, headers, config) {
             $scope.err = status;
         });
     };
 
-};
+    $scope.$watch('uploadSuccessful', function(newVal, oldVal) {
+        if (newVal == true) {
+
+            // Redirect on successful creation and upload
+            $state.go('process-viewer.document-lookup');
+        }
+    });
+
+}
 
 function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams, documentRevisionService) {
 
@@ -153,14 +169,44 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
     $scope.reviseDocumentForm = 1;
     $scope.documentId = $stateParams.documentId;
 
+    $scope.docDownloadLink = '/resource/download?documentId=' + $scope.documentId;
+    $scope.redlineDocDownloadLink = '/resource/download?documentId=' + $scope.documentId + '&isRedline=true';
+
     $scope.revision = {
         changeReason: ''
     };
 
+    // Keep track of file uploads
+    $scope.uploadSuccessful = false;
+    $scope.uploadingDocument = false;
+    $scope.uploadedFile = '';
+
 
     // ------------------ Methods ------------------- //
 
-    $scope.reviseDocument = function() {
+    $scope.uploadRevisedDocument = function() {
+
+        // Only upload if it is a new file
+        if ($scope.uploadedFile != $scope.file.name) {
+            $scope.uploadingDocument = true;
+            $scope.processDropzone();
+            $scope.uploadedFile = $scope.file.name;
+        }
+        else {
+            $scope.reviseDocumentForm = 2;
+        }
+    };
+
+    // Watch directive for when upload completes
+    $scope.$watch('uploadSuccessful', function(newVal, oldVal) {
+        if (newVal == true) {
+            $scope.uploadSuccessful = false;        // Reset flag
+            $scope.uploadingDocument = false;
+            $scope.reviseDocumentForm = 2;
+        }
+    });
+
+    $scope.addRevision = function() {
         var revisionPayload = {
             documentId: $scope.documentId,
             changeReason: $scope.revision.changeReason,
@@ -172,8 +218,7 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
         }, function(data, status, headers, config) {
             $scope.err = status;
         });
-    }
-
+    };
 
 }
 

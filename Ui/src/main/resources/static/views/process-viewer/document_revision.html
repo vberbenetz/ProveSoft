@@ -59,16 +59,29 @@
                         </div>
                     </form>
 
-                    <div class="col-md-8 col-md-offset-2">
+                    <div class="col-md-6 col-md-offset-2">
                         <div class="ibox ibox-border">
                             <div class="ibox-title">
-                                <h5>Document Upload Area</h5>
+                                <h3>Document Upload Area</h3>
                             </div>
                             <div class="ibox-content">
                                 <form action="" class="dropzone" dropzone="" id="dropzone">
                                     <div class="dz-default dz-message">
                                     </div>
-                                    <!-- <button ng-click="createNewDocument()" class="btn btn-primary pull-right">Submit this form!</button> -->
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 col-md-offset-2">
+                        <div class="ibox ibox-border">
+                            <div class="ibox-title">
+                                <h3>Redline Document Upload</h3>
+                            </div>
+                            <div class="ibox-content">
+                                <form action="" class="dropzone" dropzone="" id="dropzoneRedline">
+                                    <div class="dz-default dz-message">
+                                    </div>
                                 </form>
                             </div>
                         </div>
@@ -76,13 +89,13 @@
 
                     <div class="row">
                         <div class="pull-right">
-                            <button ui-sref="process-viewer.document-lookup" class="btn btn-danger margin-right-20">Cancel</button>
+                            <button ui-sref="process-viewer.document-lookup" class="btn btn-danger margin-right-20" ng-class="{ 'disabled btn-default' : uploadingDocument }">Cancel</button>
                         </div>
                         <div class="pull-right">
-                            <button ng-click="reviseDocumentForm=2" class="btn btn-primary margin-right-20">Next</button>
+                            <button ng-click="uploadRevisedDocument()" class="btn btn-primary margin-right-20" ng-class="{ 'disabled btn-default' : uploadingDocument }">Next</button>
                         </div>
                         <div class="pull-right">
-                            <button class="btn btn-warning margin-right-20">Previous</button>
+                            <button class="btn btn-warning margin-right-20" ng-class="{ 'disabled btn-default' : uploadingDocument }">Previous</button>
                         </div>
                     </div>
                 </div>
@@ -266,6 +279,13 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="row">
+                            <h3><label class="col-md-2 control-label margin-left-10">New Document</label></h3>
+                            <div class="col-md-4 col-lg-2 margin-bottom-30">
+                                <a ng-href="{{ docDownloadLink }}">{{ uploadedFile }}</a>
+                            </div>
+                        </div>
                     </form>
 
                     <div class="row">
@@ -273,7 +293,7 @@
                             <button ui-sref="process-viewer.document-lookup" class="btn btn-danger margin-right-20">Cancel</button>
                         </div>
                         <div class="pull-right">
-                            <button ng-click="reviseDocument()" class="btn btn-primary margin-right-20">Submit</button>
+                            <button ng-click="addRevision()" class="btn btn-primary margin-right-20">Submit</button>
                         </div>
                         <div class="pull-right">
                             <button ng-click="reviseDocumentForm=2" class="btn btn-warning margin-right-20">Previous</button>
