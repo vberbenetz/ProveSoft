@@ -170,30 +170,37 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
     $scope.documentId = $stateParams.documentId;
 
     $scope.docDownloadLink = '/resource/download?documentId=' + $scope.documentId;
-    $scope.redlineDocDownloadLink = '/resource/download?documentId=' + $scope.documentId + '&isRedline=true';
+    $scope.redlineDownloadLink = '/resource/download?documentId=' + $scope.documentId + '&isRedline=true';
 
     $scope.revision = {
         changeReason: ''
     };
 
     // Keep track of file uploads
+    $scope.fileAdded = false;
     $scope.uploadSuccessful = false;
     $scope.uploadingDocument = false;
-    $scope.uploadedFile = '';
+    $scope.isRedline = false;
+    $scope.uploadedDocument = undefined;
+    $scope.uploadedRedline = undefined;
 
 
     // ------------------ Methods ------------------- //
 
-    $scope.uploadRevisedDocument = function() {
+    $scope.uploadDocument = function(isRedline) {
 
-        // Only upload if it is a new file
-        if ($scope.uploadedFile != $scope.file.name) {
-            $scope.uploadingDocument = true;
-            $scope.processDropzone();
-            $scope.uploadedFile = $scope.file.name;
-        }
-        else {
-            $scope.reviseDocumentForm = 2;
+        if ($scope.fileAdded) {
+
+            // Only upload if it is a new file
+            if (((isRedline) && ($scope.uploadedDocument != $scope.file.name)) ||
+                ((!isRedline) && ($scope.uploadedRedline != $scope.file.name))) {
+                isRedline ? $scope.isRedline = true : $scope.isRedline = false;
+
+                $scope.uploadingDocument = true;
+                $scope.processDropzone();
+
+                isRedline ? $scope.uploadedRedline = $scope.file.name : $scope.uploadedDocument = $scope.file.name;
+            }
         }
     };
 
@@ -202,9 +209,17 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
         if (newVal == true) {
             $scope.uploadSuccessful = false;        // Reset flag
             $scope.uploadingDocument = false;
-            $scope.reviseDocumentForm = 2;
+            $scope.fileAdded = false;
+            $scope.resetDropzone();
         }
     });
+
+    // Advance form to next step
+    $scope.goToNextStage = function(nextStage) {
+        if (nextStage == 2) {
+            $scope.reviseDocumentForm = 2;
+        }
+    };
 
     $scope.addRevision = function() {
         var revisionPayload = {

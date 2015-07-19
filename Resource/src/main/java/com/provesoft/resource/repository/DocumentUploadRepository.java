@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface DocumentUploadRepository extends JpaRepository<DocumentUpload, DocumentUploadKey> {
 
-    DocumentUpload findByKeyCompanyNameAndKeyDocumentIdAndRedline(String companyName, String documentId, Boolean redline);
+    DocumentUpload findByKeyCompanyNameAndKeyDocumentIdAndKeyRedline(String companyName, String documentId, Boolean redline);
 }

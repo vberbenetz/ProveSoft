@@ -14,11 +14,10 @@ public class DocumentUpload {
                           String mimeType,
                           Boolean redline) {
 
-        this.key = new DocumentUploadKey(companyName, documentId);
+        this.key = new DocumentUploadKey(companyName, documentId, redline);
         this.file = file;
         this.filename = filename;
         this.mimeType = mimeType;
-        this.redline = redline;
     }
 
     public DocumentUpload() {
@@ -34,8 +33,6 @@ public class DocumentUpload {
     private String filename;
 
     private String mimeType;
-
-    private Boolean redline;
 
     public DocumentUploadKey getKey() {
         return key;
@@ -69,11 +66,4 @@ public class DocumentUpload {
         this.mimeType = mimeType;
     }
 
-    public Boolean getRedline() {
-        return redline;
-    }
-
-    public void setRedline(Boolean redline) {
-        this.redline = redline;
-    }
 }

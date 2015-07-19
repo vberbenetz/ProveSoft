@@ -179,11 +179,16 @@ function dropzone($cookies) {
                 if (this.files[1]!=null) {
                     this.removeFile(this.files[0]);
                 }
+                scope.$apply(function() {
+                    scope.fileAdded = true;
+                });
             },
+
             'sending': function (file, xhr, formData) {
                 formData.append('documentId', scope.documentId);
-                formData.append('isRedline', false);
+                formData.append('isRedline', scope.isRedline);
             },
+
             'success': function (file, response) {
                 scope.$apply(function(){
                     scope.uploadSuccessful = true;
@@ -200,6 +205,10 @@ function dropzone($cookies) {
         scope.processDropzone = function() {
             dropzone.processQueue();
         };
+
+        scope.resetDropzone = function() {
+            dropzone.removeAllFiles();
+        }
     }
 }
 

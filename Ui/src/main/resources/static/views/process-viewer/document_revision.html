@@ -39,27 +39,43 @@
 
                 <!-- 1st Form Screen -->
                 <div ng-show="reviseDocumentForm==1">
-                    <form class="form-horizontal">
-                        <div class="row">
+                    <form class="form-horizontal margin-top-30">
+                        <div class="form-group">
                             <h3><label class="col-md-2 control-label margin-left-10">Document ID</label></h3>
                             <div class="col-md-4 col-lg-2 margin-bottom-30">
-                                <div class="widget style1 gray-bg text-center">
-                                    <div class="row vertical-align">
-                                        <h4 class="font-bold">
-                                            {{ documentId }}
-                                        </h4>
-                                    </div>
-                                </div>
+                                <h4 class="form-control-static font-bold">
+                                    {{ documentId }}
+                                </h4>
                             </div>
                         </div>
 
-                        <h3><label class="col-md-2 control-label">Change Reason</label></h3>
-                        <div class="col-md-10 margin-bottom-30">
-                            <textarea rows="4" ng-model="revision.changeReason"></textarea>
+                        <div class="form-group">
+                            <h3><label class="col-md-2 control-label">Change Reason</label></h3>
+                            <div class="col-md-10 margin-bottom-30">
+                                <textarea rows="4" ng-model="revision.changeReason"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <h3><label class="col-md-2 control-label">Uploaded Document</label></h3>
+                            <div class="col-md-6 margin-bottom-30 margin-left-15 text-center" ng-class="{ 'alert alert-success' : uploadedDocument }">
+                                <h4 class="form-control-static font-bold">
+                                    {{ uploadedDocument }}
+                                </h4>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <h3><label class="col-md-2 control-label">Uploaded Redline</label></h3>
+                            <div class="col-md-6 margin-bottom-30 margin-left-15 text-center" ng-class="{ 'alert alert-success' : uploadedRedline }">
+                                <h4 class="form-control-static font-bold">
+                                    {{ uploadedRedline }}
+                                </h4>
+                            </div>
                         </div>
                     </form>
 
-                    <div class="col-md-6 col-md-offset-2">
+                    <div class="col-md-8 col-md-offset-2 col-lg-6 col-lg-offset-2">
                         <div class="ibox ibox-border">
                             <div class="ibox-title">
                                 <h3>Document Upload Area</h3>
@@ -69,20 +85,10 @@
                                     <div class="dz-default dz-message">
                                     </div>
                                 </form>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6 col-md-offset-2">
-                        <div class="ibox ibox-border">
-                            <div class="ibox-title">
-                                <h3>Redline Document Upload</h3>
-                            </div>
-                            <div class="ibox-content">
-                                <form action="" class="dropzone" dropzone="" id="dropzoneRedline">
-                                    <div class="dz-default dz-message">
-                                    </div>
-                                </form>
+                                <div class="text-right">
+                                    <button class="btn btn-success" ng-disabled="!fileAdded" ng-click="uploadDocument(false)" ng-class="{ 'disabled btn-default' : uploadingDocument }">Upload Document</button>
+                                    <button class="btn btn-success" ng-disabled="!fileAdded" ng-click="uploadDocument(true)" ng-class="{ 'disabled btn-default' : uploadingDocument }">Upload Redline</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -92,10 +98,7 @@
                             <button ui-sref="process-viewer.document-lookup" class="btn btn-danger margin-right-20" ng-class="{ 'disabled btn-default' : uploadingDocument }">Cancel</button>
                         </div>
                         <div class="pull-right">
-                            <button ng-click="uploadRevisedDocument()" class="btn btn-primary margin-right-20" ng-class="{ 'disabled btn-default' : uploadingDocument }">Next</button>
-                        </div>
-                        <div class="pull-right">
-                            <button class="btn btn-warning margin-right-20" ng-class="{ 'disabled btn-default' : uploadingDocument }">Previous</button>
+                            <button ng-click="goToNextStage(2)" class="btn btn-primary margin-right-20" ng-class="{ 'disabled btn-default' : uploadingDocument }">Next</button>
                         </div>
                     </div>
                 </div>
@@ -243,7 +246,7 @@
                 <!-- 3rd Form Screen -->
                 <div ng-show="reviseDocumentForm==3">
                     <form class="form-horizontal">
-                        <div class="row">
+                        <div class="form-group">
                             <h3><label class="col-md-2 control-label margin-left-10">Document ID</label></h3>
                             <div class="col-md-4 col-lg-2 margin-bottom-30">
                                 <div class="widget style1 gray-bg text-center">
@@ -256,7 +259,7 @@
                             </div>
                         </div>
 
-                        <div class="row">
+                        <div class="form-group">
                             <h3><label class="col-md-2 control-label margin-left-10">Signoff Path</label></h3>
                             <div class="col-md-4 col-lg-2 margin-bottom-30">
                                 <div class="widget style1 gray-bg text-center">
@@ -269,7 +272,7 @@
                             </div>
                         </div>
 
-                        <div class="row">
+                        <div class="form-group">
                             <h3><label class="col-md-2 control-label margin-left-10">Change Reason</label></h3>
                             <div class="col-md-4 col-lg-2 margin-bottom-30">
                                 <div class="widget style1 gray-bg text-center">
@@ -280,10 +283,21 @@
                             </div>
                         </div>
 
-                        <div class="row">
-                            <h3><label class="col-md-2 control-label margin-left-10">New Document</label></h3>
-                            <div class="col-md-4 col-lg-2 margin-bottom-30">
-                                <a ng-href="{{ docDownloadLink }}">{{ uploadedFile }}</a>
+                        <div class="form-group">
+                            <h3><label class="col-md-2 control-label">Uploaded Document</label></h3>
+                            <div class="col-md-6 margin-bottom-30 margin-left-15 text-center" ng-class="{ 'alert alert-success' : uploadedDocument }">
+                                <h4 class="form-control-static font-bold">
+                                    <a ng-href="{{ docDownloadLink }}">{{ uploadedDocument }}</a>
+                                </h4>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <h3><label class="col-md-2 control-label">Uploaded Redline</label></h3>
+                            <div class="col-md-6 margin-bottom-30 margin-left-15 text-center" ng-class="{ 'alert alert-success' : uploadedRedline }">
+                                <h4 class="form-control-static font-bold">
+                                    <a ng-href="{{ redlineDownloadLink }}">{{ uploadedRedline }}</a>
+                                </h4>
                             </div>
                         </div>
                     </form>

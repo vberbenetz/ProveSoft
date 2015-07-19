@@ -94,7 +94,7 @@ public class DocumentService {
         Retrieve uploaded file
      */
     public DocumentUpload findUploadByCompanyNameAndDocumentIdAndRedline(String companyName, String documentId, Boolean redline) {
-        return documentUploadRepository.findByKeyCompanyNameAndKeyDocumentIdAndRedline(companyName, documentId, redline);
+        return documentUploadRepository.findByKeyCompanyNameAndKeyDocumentIdAndKeyRedline(companyName, documentId, redline);
     }
 
     /*
