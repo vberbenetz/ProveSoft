@@ -54,6 +54,13 @@ public class DocumentService {
     }
 
     /*
+        Get first 10 documents for document preview in lookup screen
+     */
+    public List<Document> findFirst10ByCompanyName(String companyName) {
+        return documentRepository.findFirst10ByCompanyNameOrderByTitleAsc(companyName);
+    }
+
+    /*
         Add a document and perform a lazy id update for the DocumentType associated.
         Does not have to be entirely accurate (concurrently modified) because the DocumentTypeId keeps track of this.
 

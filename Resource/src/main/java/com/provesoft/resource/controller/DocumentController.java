@@ -6,6 +6,7 @@ import com.provesoft.resource.entity.Document;
 import com.provesoft.resource.entity.DocumentRevisions;
 import com.provesoft.resource.entity.DocumentType;
 import com.provesoft.resource.entity.UserDetails;
+import com.provesoft.resource.exceptions.ForbiddenException;
 import com.provesoft.resource.exceptions.InternalServerErrorException;
 import com.provesoft.resource.exceptions.ResourceNotFoundException;
 import com.provesoft.resource.service.DocumentService;
@@ -65,6 +66,28 @@ public class DocumentController {
 
         return documentsByTitle;
     }
+
+    /*
+        Retrieve first 10 documents sorted alphabetically
+     */
+    @RequestMapping(
+            value = "/document/first10",
+            method = RequestMethod.GET
+    )
+    public List<Document> findFirst10ByCompanyName(Authentication auth) {
+
+// TODO: (MAYBE) ONLY RETRIEVE RESULTS WHICH THE USER HAS PERMISSIONS FOR
+
+        // Retrieve their company
+        String company = UserHelpers.getCompany(auth);
+
+        if (company != null) {
+            return documentService.findFirst10ByCompanyName(company);
+        }
+
+        throw new ResourceNotFoundException();
+    }
+
 
     /* ------ DocumentType ------ */
 

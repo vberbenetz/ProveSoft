@@ -12,6 +12,13 @@ function documentLookupCtrl($scope, $rootScope, $window, $timeout, documentLooku
     $scope.revisions = [];
     $scope.lastFetchedRevisions = '';      // Prevent the same revisions from being fetched again on-click
 
+    // Get initial list of companies
+    documentLookupService.first10.query(function(data) {
+        $scope.documentSearchResults = data;
+    }, function(error) {
+        $scope.err = error;
+    });
+
     $scope.$watch('searchString', function(newVal, oldVal) {
 
         // Clear search results
@@ -55,7 +62,7 @@ function documentLookupCtrl($scope, $rootScope, $window, $timeout, documentLooku
         }
     }
 
-};
+}
 
 function documentCreationCtrl($scope, $rootScope, $state, $window, documentCreationService) {
 
@@ -190,7 +197,7 @@ function documentCreationCtrl($scope, $rootScope, $state, $window, documentCreat
 
 }
 
-function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams, documentRevisionService) {
+function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams, documentRevisionService, generalSettingsService) {
 
     if (!$rootScope.authenticated) {
         $window.location.href = '/';
@@ -202,12 +209,15 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
     $scope.reviseDocumentForm = 1;
     $scope.documentId = $stateParams.documentId;
 
+    // Default set redline flag to true
+    $scope.redlineRequired = true;
     $scope.docDownloadLink = '/resource/download?documentId=' + $scope.documentId;
     $scope.redlineDownloadLink = '/resource/download?documentId=' + $scope.documentId + '&isRedline=true';
 
     $scope.revision = {
         changeReason: ''
     };
+    $scope.fieldValidationFail = {};
 
     // Keep track of file uploads
     $scope.fileAdded = false;
@@ -216,6 +226,13 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
     $scope.isRedline = false;
     $scope.uploadedDocument = undefined;
     $scope.uploadedRedline = undefined;
+
+    // Get redline setting
+    generalSettingsService.setting.get({setting: 'redline'}, function(data) {
+        $scope.redlineRequired = data.value;
+    }, function(error) {
+        $scope.err = error;
+    });
 
 
     // ------------------ Methods ------------------- //
@@ -233,6 +250,7 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
                 $scope.processDropzone();
 
                 isRedline ? $scope.uploadedRedline = $scope.file.name : $scope.uploadedDocument = $scope.file.name;
+                isRedline ? $scope.fieldValidationFail.uploadedRedline = false : $scope.fieldValidationFail.uploadedDocument = false;
             }
         }
     };
@@ -252,8 +270,37 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
     // Advance form to next step
     $scope.goToNextStage = function(nextStage) {
         if (nextStage == 2) {
-            $scope.reviseDocumentForm = 2;
+            if ($scope.validateForm()) {
+                $scope.reviseDocumentForm = 2;
+            }
         }
+    };
+
+    $scope.validateForm = function() {
+        var validationFail = false;
+        var changeReason = $scope.revision.changeReason;
+        var doc = $scope.uploadedDocument;
+        var redline = $scope.uploadedRedline;
+
+        // Reset form validation error messages
+        $scope.fieldValidationFail = {};
+
+        if ( (typeof changeReason === 'undefined') || (changeReason === '') || (changeReason.length == 0) ) {
+            $scope.fieldValidationFail.changeReason = true;
+            validationFail = true;
+        }
+        if (typeof doc === 'undefined') {
+            $scope.fieldValidationFail.uploadedDocument = true;
+            validationFail = true;
+        }
+        if ($scope.redlineRequired) {
+            if (typeof redline === 'undefined') {
+                $scope.fieldValidationFail.uploadedRedline = true;
+                validationFail = true;
+            }
+        }
+
+        return !validationFail;
     };
 
     $scope.addRevision = function() {

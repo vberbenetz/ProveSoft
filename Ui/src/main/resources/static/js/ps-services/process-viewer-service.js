@@ -25,6 +25,8 @@ function documentLookupService($resource) {
             }
         ),
 
+        first10: $resource('/resource/document/first10'),
+
         revision: $resource('/resource/document/revision',
             {},
             {

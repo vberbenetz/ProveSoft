@@ -34,8 +34,8 @@ public class OrganizationsService {
         return organizationsRepository.findByNameAndCompanyName(organizationName, companyName);
     }
 
-    public void saveOrg(Organizations organization) {
-        organizationsRepository.save(organization);
+    public Organizations saveOrg(Organizations organization) {
+        return organizationsRepository.saveAndFlush(organization);
     }
 
     public void updateDescription(Long organizationId, String companyName, String newDescription) {

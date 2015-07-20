@@ -32,60 +32,63 @@
                 </div>
 
                 <div ng-show="newDocumentForm==1">
-                    <form class="form-horizontal">
-                        <div class="form-group" ng-class="{ 'has-error' : fieldValidationFail.title }">
-                            <label class="col-md-2 control-label">Title</label>
-                            <div class="col-lg-4 margin-bottom-30">
-                                <input ng-model="newDocument.title" type="text" placeholder="Document Name" class="form-control">
-                                <p class="text-danger" ng-show="fieldValidationFail.title">Please input a title</p>
-                            </div>
-                        </div>
-
-                        <div class="form-group" ng-class="{ 'has-error' : fieldValidationFail.documentType }">
-                            <label class="col-md-2 control-label">Type</label>
-                            <div class="col-md-10 margin-bottom-30">
-                                <select chosen style="width:250px;" data-placeholder="Choose Document Type.." id="docTypeSelect" size="6" class="form-control chosen-select" ng-model="newDocument.documentType" ng-options="d.name for d in documentTypes">
-                                </select>
-                                <p class="text-danger" ng-show="fieldValidationFail.documentType">Please select a document type</p>
-                            </div>
-                        </div>
-
-                        <div class="form-group" ng-class="{ 'has-error' : fieldValidationFail.organization }">
-                            <label class="col-md-2 control-label">Organization</label>
-                            <div class="col-md-10 margin-bottom-30">
-                                <select chosen style="width:250px;" data-placeholder="Choose Owning Organization.." id="orgSelect" size="6" class="form-control chosen-select" ng-model="newDocument.organization" ng-options="o.name for o in organizations">
-                                </select>
-                                <p class="text-danger" ng-show="fieldValidationFail.organization">Please select an organization</p>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="pull-right">
-                                <button ui-sref="process-viewer.document-lookup" class="btn btn-danger margin-right-20" ng-class="{ 'disabled btn-default' : creatingDocument }">Cancel</button>
-                            </div>
-                            <div class="pull-right">
-                                <button ng-click="createNewDocument()" class="btn btn-primary margin-right-20" ng-class="{ 'disabled btn-default' : creatingDocument }">Next</button>
-                            </div>
-                        </div>
-                    </form>
-
-                    <div class="col-md-6 col-md-offset-2">
-                        <div class="ibox ibox-border" ng-class="{ 'ibox-border-error' : fieldValidationFail.file }">
-                            <div class="ibox-title">
-                                <div class="row">
-                                    <h5>Document Upload Area</h5>
-                                </div>
-                                <p class="text-danger" ng-show="fieldValidationFail.file">Please add a file</p>
-                            </div>
-                            <div class="ibox-content">
-                                <form action="" class="dropzone" dropzone="" id="dropzone">
-                                    <div class="dz-default dz-message">
+                    <div class="ibox margin-top-30">
+                        <div class="ibox-content">
+                            <form class="form-horizontal">
+                                <div class="form-group" ng-class="{ 'has-error' : fieldValidationFail.title }">
+                                    <label class="col-md-2 control-label">Title</label>
+                                    <div class="col-lg-4 margin-bottom-30">
+                                        <input ng-model="newDocument.title" type="text" placeholder="Document Name" class="form-control">
+                                        <p class="text-danger" ng-show="fieldValidationFail.title">Please input a title</p>
                                     </div>
-                                </form>
+                                </div>
+
+                                <div class="form-group" ng-class="{ 'has-error' : fieldValidationFail.documentType }">
+                                    <label class="col-md-2 control-label">Type</label>
+                                    <div class="col-md-10 margin-bottom-30">
+                                        <select chosen style="width:250px;" data-placeholder="Choose Document Type.." id="docTypeSelect" size="6" class="form-control chosen-select" ng-model="newDocument.documentType" ng-options="d.name for d in documentTypes">
+                                        </select>
+                                        <p class="text-danger" ng-show="fieldValidationFail.documentType">Please select a document type</p>
+                                    </div>
+                                </div>
+
+                                <div class="form-group" ng-class="{ 'has-error' : fieldValidationFail.organization }">
+                                    <label class="col-md-2 control-label">Organization</label>
+                                    <div class="col-md-10 margin-bottom-30">
+                                        <select chosen style="width:250px;" data-placeholder="Choose Owning Organization.." id="orgSelect" size="6" class="form-control chosen-select" ng-model="newDocument.organization" ng-options="o.name for o in organizations">
+                                        </select>
+                                        <p class="text-danger" ng-show="fieldValidationFail.organization">Please select an organization</p>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="pull-right">
+                                        <button ui-sref="process-viewer.document-lookup" class="btn btn-danger margin-right-20" ng-class="{ 'disabled btn-default' : creatingDocument }">Cancel</button>
+                                    </div>
+                                    <div class="pull-right">
+                                        <button ng-click="createNewDocument()" class="btn btn-primary margin-right-20" ng-class="{ 'disabled btn-default' : creatingDocument }">Next</button>
+                                    </div>
+                                </div>
+                            </form>
+
+                            <div class="col-md-6 col-md-offset-2">
+                                <div class="ibox ibox-border" ng-class="{ 'ibox-border-error' : fieldValidationFail.file }">
+                                    <div class="ibox-title">
+                                        <div class="row">
+                                            <h5>Document Upload Area</h5>
+                                        </div>
+                                        <p class="text-danger" ng-show="fieldValidationFail.file">Please add a file</p>
+                                    </div>
+                                    <div class="ibox-content">
+                                        <form action="" class="dropzone" dropzone="" id="dropzone">
+                                            <div class="dz-default dz-message">
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-
                 </div>
 
                 <div ng-show="newDocumentForm==2">

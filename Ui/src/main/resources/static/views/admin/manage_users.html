@@ -466,30 +466,34 @@
                             </div>
                             <div class="full-height-scroll" full-scroll>
                                 <form class="form-horizontal">
-                                    <div class="form-group">
-
+                                    <div class="form-group" ng-class="{ 'has-error' : newOrgValidationFail.name }">
                                         <label class="col-sm-2 control-label">
                                             Organization Name
                                         </label>
                                         <div class="col-sm-10 margin-bottom-30">
                                             <input ng-model="newOrg.name" class="form-control" type="text" />
+                                            <p class="text-danger" ng-show="newOrgValidationFail.name">Please enter a name for the organization</p>
                                         </div>
-
+                                    </div>
+                                    <div class="form-group" ng-class="{ 'has-error' : newOrgValidationFail.description }">
                                         <div class="row margin-bottom-30 padding-left-15">
                                             <label class="col-sm-2 control-label">
                                                 Organization Description
                                             </label>
                                             <div class="col-sm-9 margin-bottom-20">
                                                 <textarea ng-model="newOrg.description" rows="8"></textarea>
+                                                <p class="text-danger" ng-show="newOrgValidationFail.description">Please enter a description</p>
                                             </div>
                                         </div>
-
+                                    </div>
+                                    <div class="form-group">
                                         <div class="col-sm-6 col-sm-offset-2">
                                             <button ng-click="createNewOrg()" class="btn btn-block btn-primary" type="button">
                                                 Create Organization
                                             </button>
                                         </div>
-
+                                    </div>
+                                    <div class="form-group">
                                         <div class="col-xs-12">
                                             <div ng-show="successfullyAddedOrg" class="show-hide-notifications text-center alert alert-success margin-top-20">
                                                 <h3>Successfully Added Organization</h3>
@@ -580,30 +584,45 @@
                             </div>
 
                             <form class="form-horizontal">
-                                <div class="form-group">
+                                <div class="form-group" ng-class="{ 'has-error' : newRoleValidationFail.name }">
                                     <label class="col-sm-2 control-label">
                                         Role Name
                                     </label>
                                     <div class="col-sm-10 margin-bottom-30">
                                         <input ng-model="newRole.name" class="form-control" type="text" />
+                                        <p class="text-danger" ng-show="newRoleValidationFail.name">Please enter a name</p>
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group" ng-class="{ 'has-error' : newRoleValidationFail.description }">
+                                    <div class="row margin-bottom-30 padding-left-15">
+                                        <label class="col-sm-2 control-label">
+                                            Role Description
+                                        </label>
+                                        <div class="col-sm-9 margin-bottom-20">
+                                            <textarea ng-model="newRole.description" rows="8"></textarea>
+                                            <p class="text-danger" ng-show="newRoleValidationFail.description">Please enter a description</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group" ng-class="{ 'has-error' : newRoleValidationFail.permissions }">
                                     <label class="col-sm-2 control-label">
                                         Organization
                                     </label>
                                     <div class="col-sm-10 margin-bottom-20 padding-left-15 ">
                                         <select chosen id="states" class="chosen-select" style="width:350px;" size="6" ng-model="permission.organization" ng-options="o.name for o in organizations">
                                         </select>
+                                        <p class="text-danger" ng-show="newRoleValidationFail.permissions">Please include at least one organization</p>
                                     </div>
-                                    <button ng-click="addOrgToRole()" class="btn btn-primary">
-                                        <span class="fa fa-plus"></span>
-                                        &nbsp;Include In Role
-                                    </button>
+                                    <div class="text-right">
+                                        <button ng-click="addOrgToRole()" class="btn btn-primary">
+                                            <span class="fa fa-plus"></span>
+                                            &nbsp;Include Organization In Role
+                                        </button>
+                                    </div>
                                 </div>
                             </form>
 
-                            <form class="form-horizontal">
+                            <form class="form-horizontal margin-top-45">
                                 <div class="form-group">
                                     <label class="col-sm-2 control-label">
                                         Permissions

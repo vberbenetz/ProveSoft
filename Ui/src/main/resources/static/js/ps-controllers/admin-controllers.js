@@ -30,6 +30,7 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
         name: '',
         description: ''
     };
+    $scope.newOrgValidationFail = {};
 
     $scope.editOrg = {
         newMember: {},
@@ -40,6 +41,7 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
         name: '',
         description: ''
     };
+    $scope.newRoleValidationFail = {};
 
     $scope.newRolePermissions = [];
 
@@ -227,7 +229,6 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
         var title = $scope.newUser.title;
         var roles = $scope.newUser.roles;
         var primaryOrg = $scope.newUser.primaryOrg;
-        var additionalOrgs = $scope.newUser.additionalOrgs;
 
         // Reset form validation error messages
         $scope.newUserValidationFail = {};
@@ -254,10 +255,6 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
         }
         if ( (typeof primaryOrg === 'undefined') || (primaryOrg === '') ) {
             $scope.newUserValidationFail.primaryOrg = true;
-            validationFail = true;
-        }
-        if ( (typeof additionalOrgs === 'undefined') || (additionalOrgs.length == 0) ) {
-            $scope.newUserValidationFail.additionalOrgs = true;
             validationFail = true;
         }
 
@@ -521,25 +518,51 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
 
     /* ----------- Organization Related ------------ */
 
+    $scope.validateNewOrgForm = function() {
+
+        var validationFail = false;
+        var name = $scope.newOrg.name;
+        var description = $scope.newOrg.description;
+
+        // Reset form validation error messages
+        $scope.newOrgValidationFail = {};
+
+        if ( (typeof name === 'undefined') || (name === '') || (name.length == 0) ) {
+            $scope.newOrgValidationFail.name = true;
+            validationFail = true;
+        }
+        if ( (typeof description === 'undefined') || (description === '') || (description.length == 0) ) {
+            $scope.newOrgValidationFail.description = true;
+            validationFail = true;
+        }
+
+        return !validationFail;
+    };
+
     $scope.createNewOrg = function() {
 
-        manageUsersService.organization.save($scope.newOrg, function(data, status, headers, config) {
-            $scope.newOrg = {
-                name: '',
-                description: ''
-            };
+        if ($scope.validateNewOrgForm()) {
 
-            // Send out success alert notification
-            $scope.successfullyAddedOrg = true;
-            setTimeout(function() {
-                $scope.$apply(function() {
-                    $scope.successfullyAddedOrg = false;
-                });
-            }, 2000);
+            manageUsersService.organization.save($scope.newOrg, function(data, status, headers, config) {
+                $scope.organizations.push(data);
 
-        }, function(data, status, headers, config) {
-            $scope.err = status;
-        });
+                $scope.newOrg = {
+                    name: '',
+                    description: ''
+                };
+
+                // Send out success alert notification
+                $scope.successfullyAddedOrg = true;
+                setTimeout(function() {
+                    $scope.$apply(function() {
+                        $scope.successfullyAddedOrg = false;
+                    });
+                }, 2000);
+
+            }, function(data, status, headers, config) {
+                $scope.err = status;
+            });
+        }
     };
 
     $scope.addMember = function () {
@@ -604,53 +627,82 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
         $scope.newRolePermissions.splice(index, 1);
     };
 
+    $scope.validateNewRoleForm = function() {
+
+        var validationFail = false;
+        var name = $scope.newRole.name;
+        var description = $scope.newRole.description;
+        var permissions = $scope.newRolePermissions;
+
+        // Reset form validation error messages
+        $scope.newRoleValidationFail = {};
+
+        if ( (typeof name === 'undefined') || (name === '') || (name.length == 0) ) {
+            $scope.newRoleValidationFail.name = true;
+            validationFail = true;
+        }
+        if ( (typeof description === 'undefined') || (description === '') || (description.length == 0) ) {
+            $scope.newRoleValidationFail.description = true;
+            validationFail = true;
+        }
+        if ( (typeof permissions === 'undefined') || (permissions.length == 0) ) {
+            $scope.newRoleValidationFail.permissions = true;
+            validationFail = true;
+        }
+
+        return !validationFail;
+    };
+
     /*
         Save the new Role and all the Role permissions to the backend
      */
     $scope.createNewRole = function() {
 
-        manageUsersService.role.save($scope.newRole, function(addedRole, status, headers, config) {
-            $scope.newRole = {
-                name: '',
-                description: ''
-            };
+        if ($scope.validateNewRoleForm()) {
 
-            var newRolePerms = $scope.newRolePermissions;
-
-            for (var i = 0; i < newRolePerms.length; i++) {
-                newRolePerms[i].key.roleId = addedRole.roleId;
-                delete newRolePerms[i].organizationName;        // Remove placeholder name for saving
-            }
-            $scope.newRolePermissions = newRolePerms;
-
-            manageUsersService.rolePermissions.save($scope.newRolePermissions, function(data, status, headers, config) {
-                $scope.newRolePermissions.splice(0, Number.MAX_VALUE);
-                $scope.permission = {
-                    organization: {},
-                    viewPerm: true,
-                    revisePerm: false,
-                    commentPerm: false,
-                    adminPerm: false
+            manageUsersService.role.save($scope.newRole, function(addedRole, status, headers, config) {
+                $scope.newRole = {
+                    name: '',
+                    description: ''
                 };
 
-                // Add newly created role to front-end list
-                $scope.roles.push(addedRole);
+                var newRolePerms = $scope.newRolePermissions;
 
-                // Send out success alert notification
-                $scope.successfullyAddedRole = true;
-                setTimeout(function() {
-                    $scope.$apply(function() {
-                        $scope.successfullyAddedRole = false;
-                    });
-                }, 2000);
+                for (var i = 0; i < newRolePerms.length; i++) {
+                    newRolePerms[i].key.roleId = addedRole.roleId;
+                    delete newRolePerms[i].organizationName;        // Remove placeholder name for saving
+                }
+                $scope.newRolePermissions = newRolePerms;
+
+                manageUsersService.rolePermissions.save($scope.newRolePermissions, function(data, status, headers, config) {
+                    $scope.newRolePermissions.splice(0, Number.MAX_VALUE);
+                    $scope.permission = {
+                        organization: {},
+                        viewPerm: true,
+                        revisePerm: false,
+                        commentPerm: false,
+                        adminPerm: false
+                    };
+
+                    // Add newly created role to front-end list
+                    $scope.roles.push(addedRole);
+
+                    // Send out success alert notification
+                    $scope.successfullyAddedRole = true;
+                    setTimeout(function() {
+                        $scope.$apply(function() {
+                            $scope.successfullyAddedRole = false;
+                        });
+                    }, 2000);
+
+                }, function(data, status, headers, config) {
+                    $scope.err = status;
+                });
 
             }, function(data, status, headers, config) {
                 $scope.err = status;
             });
-
-        }, function(data, status, headers, config) {
-            $scope.err = status;
-        });
+        }
 
     };
 
@@ -758,7 +810,7 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
     }
 
 
-};
+}
 
 function documentTypeSetupCtrl($scope, $rootScope, $window, documentTypeService) {
 
@@ -777,6 +829,7 @@ function documentTypeSetupCtrl($scope, $rootScope, $window, documentTypeService)
         startingNumber: 1
     };
     $scope.newNextDocumentId = '';
+    $scope.fieldValidationFail = {};
 
     // Hold generated next document Ids for document types
     $scope.nextDocumentId = [];
@@ -813,8 +866,14 @@ function documentTypeSetupCtrl($scope, $rootScope, $window, documentTypeService)
 
             // Prevent exceeding max digits
             if (newVal.startingNumber.toString().length > newVal.maxNumberOfDigits) {
-                newVal.startingNumber = parseInt( newVal.startingNumber.toString().substring(0, newVal.maxNumberOfDigits - 1) );
-                $scope.startingNumber = newVal.startingNumber;
+                if ( (newVal.maxNumberOfDigits == '') || (newVal.maxNumberOfDigits == 0) ) {
+                    $scope.maxNumberOfDigits = 1;
+                    $scope.startingNumber = 1;
+                }
+                else {
+                    newVal.startingNumber = parseInt( newVal.startingNumber.toString().substring(0, newVal.maxNumberOfDigits - 1) );
+                    $scope.startingNumber = newVal.startingNumber;
+                }
             }
 
             $scope.newNextDocumentId = $scope.generateNextDocId(newVal.documentPrefix, newVal.startingNumber, newVal.maxNumberOfDigits);
@@ -825,27 +884,54 @@ function documentTypeSetupCtrl($scope, $rootScope, $window, documentTypeService)
 
     // ------------------- Methods ------------------- //
 
+    $scope.validateNewDocumentTypeForm = function() {
+
+        var validationFail = false;
+        var name = $scope.newDocumentType.name;
+        var description = $scope.newDocumentType.description;
+        var docPrefix = $scope.newDocumentType.documentPrefix;
+
+        // Reset form validation error messages
+        $scope.fieldValidationFail = {};
+
+        if ( (typeof name === 'undefined') || (name === '') || (name.length == 0) ) {
+            $scope.fieldValidationFail.name = true;
+            validationFail = true;
+        }
+        if ( (typeof description === 'undefined') || (description === '') || (description.length == 0) ) {
+            $scope.fieldValidationFail.description = true;
+            validationFail = true;
+        }
+        if ( (typeof docPrefix === 'undefined') || (docPrefix === '') || (docPrefix.length == 0) ) {
+            $scope.fieldValidationFail.documentPrefix = true;
+            validationFail = true;
+        }
+
+        return !validationFail;
+    };
+
     $scope.createNewDocumentType = function() {
-        documentTypeService.documentType.save($scope.newDocumentType, function(data, status, headers, config) {
 
-            for (var i = 0; i < data.length; i++) {
-                $scope.nextDocumentId[ data[i].id ] = $scope.generateNextDocId(data[i].documentPrefix, data[i].startingNumber, data[i].maxNumberOfDigits);
-            }
+        if ($scope.validateNewDocumentTypeForm()) {
 
-            $scope.documentTypes.push(data);
+            documentTypeService.documentType.save($scope.newDocumentType, function(data, status, headers, config) {
 
-            // Reset newDocumentType
-            $scope.newDocumentType = {
-                name: '',
-                description: '',
-                documentPrefix: '',
-                maxNumberOfDigits: '',
-                startingNumber: ''
-            }
+                $scope.nextDocumentId[ data.id ] = $scope.generateNextDocId(data.documentPrefix, data.startingNumber, data.maxNumberOfDigits);
+                $scope.documentTypes.push(data);
 
-        }, function(data, status, headers, config) {
-            $scope.err = status;
-        });
+                // Reset newDocumentType
+                $scope.newDocumentType = {
+                    name: '',
+                    description: '',
+                    documentPrefix: '',
+                    maxNumberOfDigits: '',
+                    startingNumber: ''
+                }
+
+            }, function(data, status, headers, config) {
+                $scope.err = status;
+            });
+        }
     };
 
 

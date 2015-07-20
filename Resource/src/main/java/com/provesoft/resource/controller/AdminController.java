@@ -534,7 +534,7 @@ public class AdminController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public String addOrganization (@RequestBody String json,
+    public Organizations addOrganization (@RequestBody String json,
                                    Authentication auth) {
 
         // Check if super admin
@@ -554,13 +554,11 @@ public class AdminController {
 
                 organization.setCompanyName(company);
 
-                organizationsService.saveOrg(organization);
+                return organizationsService.saveOrg(organization);
             }
             catch (IOException | NullPointerException ex) {
                 throw new ResourceNotFoundException();
             }
-
-            return json;
         }
 
         throw new ForbiddenException();
