@@ -198,9 +198,9 @@ function documentTypeService ($resource) {
     }
 }
 
-function moduleSettingsService ($resource) {
+function adminModuleSettingsService ($resource) {
     return {
-
+        setting: $resource('/resource/admin/setting')
     }
 }
 
@@ -208,4 +208,4 @@ angular
     .module('provesoft')
     .factory('manageUsersService', manageUsersService)
     .factory('documentTypeService', documentTypeService)
-    .factory('moduleSettingsService', moduleSettingsService);
+    .factory('adminModuleSettingsService', adminModuleSettingsService);

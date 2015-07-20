@@ -66,7 +66,8 @@ function documentCreationCtrl($scope, $rootScope, $state, $window, documentCreat
     // ------------------ Initialize -------------------- //
 
     // Initialize file upload (dropzone)
-    $scope.files = [];
+    $scope.uploadedFile = '';
+    $scope.fileAdded = false;
     $scope.submitClicked = false;
     $scope.uploadedSuccessfully = false;
     $scope.creatingDocument = false;
@@ -80,11 +81,8 @@ function documentCreationCtrl($scope, $rootScope, $state, $window, documentCreat
     $scope.populatedDocumentTypesDropdown = false;
     $scope.populatedOrganizationsDropdown = false;
 
-    $scope.newDocument = {
-        title: '',
-        documentType: {},
-        organization: {}
-    };
+    $scope.newDocument = {};
+    $scope.fieldValidationFail = {};
 
     // Get initial data for form
     documentCreationService.documentType.query(function(documentTypes) {
@@ -130,30 +128,68 @@ function documentCreationCtrl($scope, $rootScope, $state, $window, documentCreat
     };
 
     $scope.createNewDocument = function() {
-        $scope.creatingDocument = true;
 
-        documentCreationService.document.save($scope.newDocument, function(data, status, headers, config) {
+        if ($scope.validateForm()) {
+            $scope.creatingDocument = true;
 
-            $scope.documentId = data.id;
-            $scope.processDropzone();
-            $scope.newDocument = {
-                title: '',
-                documentType: {},
-                organization: {}
-            };
+            documentCreationService.document.save($scope.newDocument, function(data, status, headers, config) {
 
-        }, function(data, status, headers, config) {
-            $scope.err = status;
-        });
+                $scope.documentId = data.id;
+
+                if ($scope.file.name != $scope.uploadedFile) {
+                    $scope.processDropzone();
+                    $scope.uploadedFile = $scope.file.name;
+                }
+
+            }, function(data, status, headers, config) {
+                $scope.err = status;
+            });
+        }
+
     };
 
     $scope.$watch('uploadSuccessful', function(newVal, oldVal) {
-        if (newVal == true) {
+        if (newVal != oldVal) {
 
-            // Redirect on successful creation and upload
-            $state.go('process-viewer.document-lookup');
+            if (newVal == true) {
+
+                // Redirect on successful creation and upload
+                $state.go('process-viewer.document-lookup');
+            }
         }
     });
+
+    $scope.validateForm = function() {
+        var validationFail = false;
+        var title = $scope.newDocument.title;
+        var documentType = $scope.newDocument.documentType;
+        var organization = $scope.newDocument.organization;
+
+        // Reset form validation error messages
+        $scope.fieldValidationFail = {};
+
+        if ( (typeof title === 'undefined') || (title === '') || (title.length == 0) ) {
+            $scope.fieldValidationFail.title = true;
+            validationFail = true;
+        }
+        if ( (typeof documentType === 'undefined') || (documentType === '') ) {
+            $scope.fieldValidationFail.documentType = true;
+            validationFail = true;
+        }
+        if ( (typeof organization === 'undefined') || (organization === '') ) {
+            $scope.fieldValidationFail.organization = true;
+            validationFail = true;
+        }
+        if (!$scope.fileAdded) {
+            $scope.fieldValidationFail.file = true;
+            validationFail = true;
+        }
+
+        if (validationFail) {
+            return false;
+        }
+        return true;
+    }
 
 }
 
@@ -206,11 +242,13 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
 
     // Watch directive for when upload completes
     $scope.$watch('uploadSuccessful', function(newVal, oldVal) {
-        if (newVal == true) {
-            $scope.uploadSuccessful = false;        // Reset flag
-            $scope.uploadingDocument = false;
-            $scope.fileAdded = false;
-            $scope.resetDropzone();
+        if (newVal != oldVal) {
+            if (newVal == true) {
+                $scope.uploadSuccessful = false;        // Reset flag
+                $scope.uploadingDocument = false;
+                $scope.fileAdded = false;
+                $scope.resetDropzone();
+            }
         }
     });
 

@@ -5,10 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.provesoft.resource.entity.*;
 import com.provesoft.resource.exceptions.ForbiddenException;
 import com.provesoft.resource.exceptions.ResourceNotFoundException;
-import com.provesoft.resource.service.DocumentService;
-import com.provesoft.resource.service.OrganizationsService;
-import com.provesoft.resource.service.RolesService;
-import com.provesoft.resource.service.UserDetailsService;
+import com.provesoft.resource.service.*;
 import com.provesoft.resource.utils.UserHelpers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,6 +31,9 @@ public class AdminController {
 
     @Autowired
     DocumentService documentService;
+
+    @Autowired
+    SystemSettingsService systemSettingsService;
 
 
     /* -------------------------------------------------------- */
@@ -789,6 +789,44 @@ public class AdminController {
                 // Generate new document type.
                 // Automatically generate new entry to maintain Id in DocumentTypeId table (done within the service)
                 return documentService.addDocumentType(documentType);
+            }
+            catch (IOException | NullPointerException ex) {
+                throw new ResourceNotFoundException();
+            }
+        }
+
+        throw new ForbiddenException();
+    }
+
+
+    /* --------------- SystemSettings ---------------- */
+
+    /*
+        Add new system setting
+     */
+    @RequestMapping(
+            value = "/admin/setting",
+            method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public SystemSettings saveSystemSetting(@RequestBody String json,
+                                            Authentication auth) {
+
+        if (UserHelpers.isSuperAdmin(auth)) {
+
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                SystemSettings systemSetting = mapper.readValue(json, SystemSettings.class);
+
+                // Append company name
+                String company = UserHelpers.getCompany(auth);
+
+                SystemSettingsKey key = systemSetting.getKey();
+                key.setCompanyName(company);
+                systemSetting.setKey(key);
+
+                return systemSettingsService.saveSetting(systemSetting);
             }
             catch (IOException | NullPointerException ex) {
                 throw new ResourceNotFoundException();

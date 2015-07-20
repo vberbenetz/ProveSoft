@@ -1,26 +1,32 @@
 package com.provesoft.resource.entity;
 
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.Id;
+
 
 @Entity
 public class SystemSettings {
 
-    private SystemSettings (String setting, String value) {
-        this.setting = setting;
+    private SystemSettings (String company, String setting, String value) {
+        this.key = new SystemSettingsKey(company, setting);
         this.value = value;
     }
 
-    @Id
-    private String setting;
-    private String value;
-
-    public String getSetting() {
-        return setting;
+    public SystemSettings() {
+        // Public Constructor
     }
 
-    public void setSetting(String setting) {
-        this.setting = setting;
+    @EmbeddedId
+    private SystemSettingsKey key;
+
+    private String value;
+
+    public SystemSettingsKey getKey() {
+        return key;
+    }
+
+    public void setKey(SystemSettingsKey key) {
+        this.key = key;
     }
 
     public String getValue() {

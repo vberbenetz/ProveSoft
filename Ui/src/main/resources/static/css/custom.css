@@ -132,3 +132,15 @@ textarea {
     padding: 14px 15px 7px;
     min-height: 48px;
 }
+
+.ibox-border-error {
+    -moz-border-bottom-colors: #ed5565;
+    -moz-border-left-colors: #ed5565;
+    -moz-border-right-colors: #ed5565;
+    -moz-border-top-colors: #ed5565;
+    border: 2px solid #ed5565;
+    color: inherit;
+    margin-bottom: 0;
+    padding: 14px 15px 7px;
+    min-height: 48px;
+}

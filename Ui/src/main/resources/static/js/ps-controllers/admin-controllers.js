@@ -813,15 +813,39 @@ function documentTypeSetupCtrl($scope, $rootScope, $window, documentTypeService)
 
 }
 
-function moduleSettingsCtrl($scope, $rootScope, $window, moduleSettingsService) {
+function moduleSettingsCtrl($scope, $rootScope, $window, adminModuleSettingsService, generalSettingsService) {
 
     if (!$rootScope.authenticated) {
         $window.location.href = '/';
     }
 
-    $scope.redline = 'on';
-
     // ------------------ Initialize -------------------- //
+
+    generalSettingsService.setting.get({setting: 'redline'}, function(data) {
+        $scope.redline = data.value;
+    });
+
+    // ---------------- Methods ----------------- //
+
+    // Watch directive for when upload completes
+    $scope.$watch('redline', function(newVal, oldVal) {
+        if (newVal != oldVal) {
+
+            var payload = {
+                key: {
+                    setting: 'redline'
+                },
+                value: $scope.redline
+            };
+
+            adminModuleSettingsService.setting.save(payload, function(data, status, headers, config) {
+
+            }, function(data, status, headers, config) {
+
+            });
+        }
+    });
+
 }
 
 angular
