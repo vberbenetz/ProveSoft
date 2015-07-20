@@ -229,7 +229,12 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
 
     // Get redline setting
     generalSettingsService.setting.get({setting: 'redline'}, function(data) {
-        $scope.redlineRequired = data.value;
+        if (data.value === 'on') {
+            $scope.redlineRequired = true;
+        }
+        else {
+            $scope.redlineRequired = false;
+        }
     }, function(error) {
         $scope.err = error;
     });
