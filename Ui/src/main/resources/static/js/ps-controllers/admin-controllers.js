@@ -13,10 +13,12 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
         firstName: '',
         lastName: '',
         email: '',
+        title: '',
         roles: [],
-        primaryOrg: {},
+        primaryOrg: '',
         additionalOrgs: []
     };
+    $scope.newUserValidationFail = {};
 
     $scope.editUser = {
         primaryOrg: '',
@@ -216,63 +218,124 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
 
     /* ----------- User Related ------------ */
 
-    $scope.createNewUser = function() {
+    $scope.validateNewUserForm = function() {
 
-        var newUserRoles = [], newUserAdditionalOrgs = [], savedUser = {};
+        var validationFail = false;
+        var firstname = $scope.newUser.firstName;
+        var lastname = $scope.newUser.lastName;
+        var email = $scope.newUser.email;
+        var title = $scope.newUser.title;
+        var roles = $scope.newUser.roles;
+        var primaryOrg = $scope.newUser.primaryOrg;
+        var additionalOrgs = $scope.newUser.additionalOrgs;
 
-        // Deep copy arrays before deleting from object
-        angular.copy($scope.newUser.additionalOrgs, newUserAdditionalOrgs);
-        for (var i = 0; i < $scope.newUser.roles.length; i++) {
-            newUserRoles.push($scope.newUser.roles[i].roleId);
+        // Reset form validation error messages
+        $scope.newUserValidationFail = {};
+
+        if ( (typeof firstname === 'undefined') || (firstname === '') || (firstname.length == 0) ) {
+            $scope.newUserValidationFail.firstname = true;
+            validationFail = true;
+        }
+        if ( (typeof lastname === 'undefined') || (lastname === '') || (lastname.length == 0) ) {
+            $scope.newUserValidationFail.lastname = true;
+            validationFail = true;
+        }
+        if ( (typeof email === 'undefined') || (email === '') || (email.length == 0) ) {
+            $scope.newUserValidationFail.email = true;
+            validationFail = true;
+        }
+        if ( (typeof title === 'undefined') || (title === '') || (title.length == 0) ) {
+            $scope.newUserValidationFail.title = true;
+            validationFail = true;
+        }
+        if ( (typeof roles === 'undefined') || (roles.length == 0) ) {
+            $scope.newUserValidationFail.roles = true;
+            validationFail = true;
+        }
+        if ( (typeof primaryOrg === 'undefined') || (primaryOrg === '') ) {
+            $scope.newUserValidationFail.primaryOrg = true;
+            validationFail = true;
+        }
+        if ( (typeof additionalOrgs === 'undefined') || (additionalOrgs.length == 0) ) {
+            $scope.newUserValidationFail.additionalOrgs = true;
+            validationFail = true;
         }
 
-        // Format userDetails object
-        $scope.newUser.primaryOrgId = $scope.newUser.primaryOrg.organizationId;
-        delete $scope.newUser.primaryOrg;
-        delete $scope.newUser.roles;
-        delete $scope.newUser.additionalOrgs;
+        return !validationFail;
+    };
 
-        manageUsersService.user.save($scope.newUser, function(data, status, headers, config) {
-            savedUser = data;
-            savedUser.primaryOrgName = $scope.getOrgNameById(savedUser.primaryOrgId);
-            $scope.users.push(savedUser);
+    $scope.createNewUser = function() {
 
-            manageUsersService.userPermissions.save({userId: savedUser.userId, roleIds: newUserRoles},
-            function(data, status, headers, config) {
+        if ($scope.validateNewUserForm()) {
 
-                var formattedAdditionalOrgs = $scope.genNewUserAdditionalOrgsPkg(newUserAdditionalOrgs, savedUser.userId);
+            var newUserRoles = [], newUserAdditionalOrgs = [], savedUser = {};
 
-                manageUsersService.orgUser.save(formattedAdditionalOrgs, function(data, status, headers, config) {
+            // Deep copy arrays before deleting from object
+            angular.copy($scope.newUser.additionalOrgs, newUserAdditionalOrgs);
+            for (var i = 0; i < $scope.newUser.roles.length; i++) {
+                newUserRoles.push($scope.newUser.roles[i].roleId);
+            }
 
-                    // Reset user model
-                    $scope.newUser.firstName = '';
-                    $scope.newUser.lastName = '';
-                    $scope.newUser.email = '';
-                    $scope.newUser.title = '';
-                    $scope.newUser.roles = [];
-                    $scope.newUser.primaryOrg = {};
-                    $scope.newUser.additionalOrgs = [];
+            // Format userDetails object
+            $scope.newUser.primaryOrgId = $scope.newUser.primaryOrg.organizationId;
+            delete $scope.newUser.primaryOrg;
+            delete $scope.newUser.roles;
+            delete $scope.newUser.additionalOrgs;
 
-                    // Send out success alert notification
-                    $scope.successfullyAddedUser = true;
-                    setTimeout(function() {
-                        $scope.$apply(function() {
-                            $scope.successfullyAddedUser = false;
+            manageUsersService.user.save($scope.newUser, function(data, status, headers, config) {
+                savedUser = data;
+                savedUser.primaryOrgName = $scope.getOrgNameById(savedUser.primaryOrgId);
+                $scope.users.push(savedUser);
+
+                manageUsersService.userPermissions.save({userId: savedUser.userId, roleIds: newUserRoles},
+                    function(data, status, headers, config) {
+
+                        var formattedAdditionalOrgs = $scope.genNewUserAdditionalOrgsPkg(newUserAdditionalOrgs, savedUser.userId);
+
+                        manageUsersService.orgUser.save(formattedAdditionalOrgs, function(data, status, headers, config) {
+
+                            // Reset user model
+                            $scope.newUser.firstName = '';
+                            $scope.newUser.lastName = '';
+                            $scope.newUser.email = '';
+                            $scope.newUser.title = '';
+                            $scope.newUser.roles = [];
+                            $scope.newUser.primaryOrg = '';
+                            $scope.newUser.additionalOrgs = [];
+
+                            // Send out success alert notification
+                            $scope.successfullyAddedUser = true;
+                            setTimeout(function() {
+                                $scope.$apply(function() {
+                                    $scope.successfullyAddedUser = false;
+                                });
+                            }, 2000);
+
+                        }, function(data, status, headers, config) {
+                            $scope.err = status;
+
+                            // Reset user model
+                            $scope.newUser.firstName = '';
+                            $scope.newUser.lastName = '';
+                            $scope.newUser.email = '';
+                            $scope.newUser.title = '';
+                            $scope.newUser.roles = [];
+                            $scope.newUser.primaryOrg = '';
+                            $scope.newUser.additionalOrgs = [];
                         });
-                    }, 2000);
 
-                }, function(data, status, headers, config) {
-                    $scope.err = status;
+                    }, function(data, status, headers, config) {
+                        $scope.err = status;
 
-                    // Reset user model
-                    $scope.newUser.firstName = '';
-                    $scope.newUser.lastName = '';
-                    $scope.newUser.email = '';
-                    $scope.newUser.title = '';
-                    $scope.newUser.roles = [];
-                    $scope.newUser.primaryOrg = {};
-                    $scope.newUser.additionalOrgs = [];
-                });
+                        // Reset user model
+                        $scope.newUser.firstName = '';
+                        $scope.newUser.lastName = '';
+                        $scope.newUser.email = '';
+                        $scope.newUser.title = '';
+                        $scope.newUser.roles = [];
+                        $scope.newUser.primaryOrg = '';
+                        $scope.newUser.additionalOrgs = [];
+                    });
 
             }, function(data, status, headers, config) {
                 $scope.err = status;
@@ -283,23 +346,10 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
                 $scope.newUser.email = '';
                 $scope.newUser.title = '';
                 $scope.newUser.roles = [];
-                $scope.newUser.primaryOrg = {};
+                $scope.newUser.primaryOrg = '';
                 $scope.newUser.additionalOrgs = [];
             });
-
-        }, function(data, status, headers, config) {
-            $scope.err = status;
-
-            // Reset user model
-            $scope.newUser.firstName = '';
-            $scope.newUser.lastName = '';
-            $scope.newUser.email = '';
-            $scope.newUser.title = '';
-            $scope.newUser.roles = [];
-            $scope.newUser.primaryOrg = {};
-            $scope.newUser.additionalOrgs = [];
-        });
-
+        }
     };
 
     $scope.updateUserPrimaryOrganization = function() {

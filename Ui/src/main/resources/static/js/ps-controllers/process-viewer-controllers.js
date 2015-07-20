@@ -185,10 +185,7 @@ function documentCreationCtrl($scope, $rootScope, $state, $window, documentCreat
             validationFail = true;
         }
 
-        if (validationFail) {
-            return false;
-        }
-        return true;
+        return !validationFail;
     }
 
 }

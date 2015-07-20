@@ -181,75 +181,81 @@
                             </div>
                             <div class="full-height-scroll" full-scroll>
                                 <form class="form-horizontal">
-                                    <div class="form-group">
-
+                                    <div class="form-group" ng-class="{ 'has-error' : newUserValidationFail.firstname }">
                                         <label class="col-sm-2 control-label">
                                             First Name
                                         </label>
                                         <div class="col-sm-10 margin-bottom-30">
                                             <input ng-model="newUser.firstName" class="form-control" type="text" />
+                                            <p class="text-danger" ng-show="newUserValidationFail.firstname">Please enter a first name</p>
                                         </div>
-
+                                    </div>
+                                    <div class="form-group" ng-class="{ 'has-error' : newUserValidationFail.lastname }">
                                         <label class="col-sm-2 control-label">
                                             Last Name
                                         </label>
                                         <div class="col-sm-10 margin-bottom-30">
                                             <input ng-model="newUser.lastName" class="form-control" type="text" />
+                                            <p class="text-danger" ng-show="newUserValidationFail.lastname">Please enter a last name</p>
                                         </div>
-
+                                    </div>
+                                    <div class="form-group" ng-class="{ 'has-error' : newUserValidationFail.title }">
                                         <label class="col-sm-2 control-label">
                                             Title
                                         </label>
                                         <div class="col-sm-10 margin-bottom-30">
                                             <input ng-model="newUser.title" class="form-control" type="text" />
+                                            <p class="text-danger" ng-show="newUserValidationFail.title">Please enter a title</p>
                                         </div>
-
+                                    </div>
+                                    <div class="form-group" ng-class="{ 'has-error' : newUserValidationFail.email }">
                                         <label class="col-sm-2 control-label">
                                             Email
                                         </label>
                                         <div class="col-sm-10 margin-bottom-30">
                                             <input ng-model="newUser.email" class="form-control" type="text" />
+                                            <p class="text-danger" ng-show="newUserValidationFail.email">Please enter an email</p>
                                         </div>
-
-                                        <div class="row margin-bottom-30 padding-left-15">
-                                            <label class="col-sm-2 control-label">
-                                                Primary Organization
-                                            </label>
-                                            <div class="col-lg-6">
-                                                <select chosen style="width:250px;" data-placeholder="Choose Primary Organization" id="newUserPrimaryOrg" size="6" class="chosen-select"  ng-model="newUser.primaryOrg" ng-options="o.name for o in organizations">
-                                                </select>
-                                            </div>
+                                    </div>
+                                    <div class="form-group" ng-class="{ 'has-error' : newUserValidationFail.primaryOrg }">
+                                        <label class="col-sm-2 control-label">
+                                            Primary Organization
+                                        </label>
+                                        <div class="col-lg-6">
+                                            <select chosen style="width:250px;" data-placeholder="Choose Primary Organization" id="newUserPrimaryOrg" size="6" class="chosen-select"  ng-model="newUser.primaryOrg" ng-options="o.name for o in organizations">
+                                            </select>
+                                            <p class="text-danger" ng-show="newUserValidationFail.primaryOrg">Please select a primary organization</p>
                                         </div>
-
-                                        <div class="row margin-bottom-30 padding-left-15">
-                                            <label class="col-sm-2 control-label">
-                                                Additional Organizations
-                                            </label>
-                                            <div class="col-lg-6">
-                                                <select chosen multiple style="width:250px;" data-placeholder="Choose Additional Organizations" id="newUserAdditionalOrgs" size="6" class="chosen-select" ng-model="newUser.additionalOrgs" ng-options="o.name for o in organizations">
-                                                </select>
-                                            </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">
+                                            Additional Organizations
+                                        </label>
+                                        <div class="col-lg-6">
+                                            <select chosen multiple style="width:250px;" data-placeholder="Choose Additional Organizations" id="newUserAdditionalOrgs" size="6" class="chosen-select" ng-model="newUser.additionalOrgs" ng-options="o.name for o in organizations">
+                                            </select>
                                         </div>
-
-                                        <div class="row margin-bottom-30 padding-left-15">
-                                            <label class="col-sm-2 control-label">
-                                                User Roles
-                                            </label>
-                                            <div class="col-lg-6">
-                                                <select chosen multiple style="width:250px;" data-placeholder="Choose Roles" id="newUserRoles" class="chosen-select" size="6" ng-model="newUser.roles" ng-options="r.name for r in roles">
-                                                </select>
-                                            </div>
+                                    </div>
+                                    <div class="form-group" ng-class="{ 'has-error' : newUserValidationFail.roles }">
+                                        <label class="col-sm-2 control-label">
+                                            User Roles
+                                        </label>
+                                        <div class="col-lg-6">
+                                            <select chosen multiple style="width:250px;" data-placeholder="Choose Roles" id="newUserRoles" class="chosen-select" size="6" ng-model="newUser.roles" ng-options="r.name for r in roles">
+                                            </select>
+                                            <p class="text-danger" ng-show="newUserValidationFail.roles">Please select at least one role</p>
                                         </div>
-
+                                    </div>
+                                    <div class="form-group">
                                         <div class="col-sm-6 col-sm-offset-2 margin-top-20">
                                             <button ng-click="createNewUser()" class="btn btn-block btn-primary" type="button">
                                                 Add User
                                             </button>
                                         </div>
+                                    </div>
 
-                                        <div ng-show="successfullyAddedUser" class="show-hide-notifications alert alert-success col-sm-3 margin-top-20">
-                                            Successfully Added User
-                                        </div>
+                                    <div ng-show="successfullyAddedUser" class="show-hide-notifications alert alert-success col-sm-3 margin-top-20">
+                                        Successfully Added User
                                     </div>
                                 </form>
                             </div>
