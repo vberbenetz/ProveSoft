@@ -1,8 +1,8 @@
 package test;
 
 import com.provesoft.resource.ResourceApplication;
-import com.provesoft.resource.entity.Document;
-import com.provesoft.resource.entity.DocumentType;
+import com.provesoft.resource.entity.Document.Document;
+import com.provesoft.resource.entity.Document.DocumentType;
 import com.provesoft.resource.entity.Organizations;
 import com.provesoft.resource.exceptions.ResourceNotFoundException;
 import com.provesoft.resource.service.DocumentService;

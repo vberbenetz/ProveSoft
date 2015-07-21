@@ -1,7 +1,7 @@
 package com.provesoft.resource.repository;
 
-import com.provesoft.resource.entity.DocumentRevisionIds;
-import com.provesoft.resource.entity.DocumentRevisionIdsKey;
+import com.provesoft.resource.entity.Document.DocumentRevisionIds;
+import com.provesoft.resource.entity.Document.DocumentRevisionIdsKey;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

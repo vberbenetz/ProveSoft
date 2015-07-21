@@ -1,4 +1,4 @@
-package com.provesoft.resource.entity;
+package com.provesoft.resource.entity.Document;
 
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;

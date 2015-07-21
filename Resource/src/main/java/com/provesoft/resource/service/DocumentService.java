@@ -1,6 +1,6 @@
 package com.provesoft.resource.service;
 
-import com.provesoft.resource.entity.*;
+import com.provesoft.resource.entity.Document.*;
 import com.provesoft.resource.repository.*;
 import com.provesoft.resource.utils.DocumentHelpers;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.transaction.TransactionRolledbackException;
-import java.io.File;
 import java.util.List;
 
 @Service
@@ -124,7 +123,7 @@ public class DocumentService {
      */
     public DocumentType addDocumentType(DocumentType documentType) {
         DocumentType newDocumentType = documentTypeRepository.saveAndFlush(documentType);
-        DocumentTypeId newDocumentTypeId = new DocumentTypeId( newDocumentType.getId(), newDocumentType.getCurrentSuffix() );
+        DocumentTypeId newDocumentTypeId = new DocumentTypeId( newDocumentType.getCompanyName(), newDocumentType.getId(), newDocumentType.getCurrentSuffix() );
         documentTypeIdRepository.saveAndFlush(newDocumentTypeId);
         return newDocumentType;
     }

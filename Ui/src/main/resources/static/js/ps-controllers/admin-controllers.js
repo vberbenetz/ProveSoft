@@ -961,9 +961,13 @@ function moduleSettingsCtrl($scope, $rootScope, $window, adminModuleSettingsServ
         $scope.redline = data.value;
     });
 
+    generalSettingsService.setting.get({setting: 'signoff'}, function(data) {
+        $scope.signoff = data.value;
+    });
+
     // ---------------- Methods ----------------- //
 
-    // Watch directive for when upload completes
+    // Watch for redline settings change
     $scope.$watch('redline', function(newVal, oldVal) {
         if (newVal != oldVal) {
 
@@ -977,10 +981,39 @@ function moduleSettingsCtrl($scope, $rootScope, $window, adminModuleSettingsServ
             adminModuleSettingsService.setting.save(payload, function(data, status, headers, config) {
 
             }, function(data, status, headers, config) {
-
+                $scope.err = status;
             });
         }
     });
+
+    // Watch signoff paths setting change
+    $scope.$watch('signoff', function(newVal, oldVal) {
+        if (newVal != oldVal) {
+
+            var payload = {
+                key: {
+                    setting: 'signoff'
+                },
+                value: $scope.signoff
+            };
+
+            adminModuleSettingsService.setting.save(payload, function(data, status, headers, config) {
+
+            }, function(data, status, headers, config) {
+                $scope.err = status;
+            });
+        }
+    });
+
+}
+
+function signoffPathsSetupCtrl ($scope, $rootScope, $window) {
+
+    if (!$rootScope.authenticated) {
+        $window.location.href = '/';
+    }
+
+    // ------------------ Initialize -------------------- //
 
 }
 
@@ -988,4 +1021,5 @@ angular
     .module('provesoft')
     .controller('manageUsersCtrl', manageUsersCtrl)
     .controller('documentTypeSetupCtrl', documentTypeSetupCtrl)
+    .controller('signoffPathsSetupCtrl', signoffPathsSetupCtrl)
     .controller('moduleSettingsCtrl', moduleSettingsCtrl);

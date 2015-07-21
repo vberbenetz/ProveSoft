@@ -1,6 +1,6 @@
 package com.provesoft.resource.repository;
 
-import com.provesoft.resource.entity.Document;
+import com.provesoft.resource.entity.Document.Document;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

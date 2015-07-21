@@ -1,4 +1,6 @@
-package com.provesoft.resource.entity;
+package com.provesoft.resource.entity.Document;
+
+import com.provesoft.resource.entity.Organizations;
 
 import javax.persistence.Id;
 import javax.persistence.Entity;

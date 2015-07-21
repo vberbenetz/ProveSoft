@@ -130,6 +130,14 @@ function config($stateProvider, $locationProvider, $urlRouterProvider, $ocLazyLo
                 }
             }
         })
+        .state('admin.signoffPathsSetup', {
+            url: "/signoff-paths-setup",
+            templateUrl: "views/admin/signoff_paths_setup.html",
+            controller: signoffPathsSetupCtrl,
+            data: {
+                pageTitle: 'Admin | Signoff Path Setup'
+            }
+        })
         .state('admin.moduleSettings', {
             url: "/module-settings",
             templateUrl: "views/admin/module_settings.html",

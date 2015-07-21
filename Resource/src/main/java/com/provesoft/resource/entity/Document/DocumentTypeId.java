@@ -1,7 +1,7 @@
-package com.provesoft.resource.entity;
+package com.provesoft.resource.entity.Document;
 
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.Id;
 
 /*
     This entity exists to maintain the current numeric suffix id for a new document of documentType.
@@ -12,8 +12,8 @@ import javax.persistence.Id;
 @Entity
 public class DocumentTypeId {
 
-    public DocumentTypeId (Long documentTypeId, Long currentSuffixId) {
-        this.documentTypeId = documentTypeId;
+    public DocumentTypeId (String companyName, Long documentTypeId, Long currentSuffixId) {
+        this.key = new DocumentTypeIdKey(companyName, documentTypeId);
         this.currentSuffixId = currentSuffixId;
     }
 
@@ -21,17 +21,17 @@ public class DocumentTypeId {
         // Public constructor
     }
 
-    @Id
-    Long documentTypeId;
+    @EmbeddedId
+    private DocumentTypeIdKey key;
 
-    Long currentSuffixId;
+    private Long currentSuffixId;
 
-    public Long getDocumentTypeId() {
-        return documentTypeId;
+    public DocumentTypeIdKey getKey() {
+        return key;
     }
 
-    public void setDocumentTypeId(Long documentTypeId) {
-        this.documentTypeId = documentTypeId;
+    public void setKey(DocumentTypeIdKey key) {
+        this.key = key;
     }
 
     public Long getCurrentSuffixId() {

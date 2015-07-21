@@ -2,18 +2,16 @@ package com.provesoft.resource.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.provesoft.resource.entity.Document;
-import com.provesoft.resource.entity.DocumentRevisions;
-import com.provesoft.resource.entity.DocumentType;
+import com.provesoft.resource.entity.Document.Document;
+import com.provesoft.resource.entity.Document.DocumentRevisions;
+import com.provesoft.resource.entity.Document.DocumentType;
 import com.provesoft.resource.entity.UserDetails;
-import com.provesoft.resource.exceptions.ForbiddenException;
 import com.provesoft.resource.exceptions.InternalServerErrorException;
 import com.provesoft.resource.exceptions.ResourceNotFoundException;
 import com.provesoft.resource.service.DocumentService;
 import com.provesoft.resource.service.UserDetailsService;
 import com.provesoft.resource.utils.SystemHelpers;
 import com.provesoft.resource.utils.UserHelpers;
-import org.apache.catalina.User;
 import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.CannotAcquireLockException;
@@ -23,8 +21,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.TransactionRolledbackException;
 import java.io.IOException;
-import java.security.Principal;
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 

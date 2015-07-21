@@ -1,0 +1,36 @@
+package com.provesoft.resource.entity.SignoffPath;
+
+import javax.persistence.Embeddable;
+import java.io.Serializable;
+
+@Embeddable
+public class SignoffPathKey implements Serializable {
+
+    public SignoffPathKey(String companyName, Long pathId) {
+        this.companyName = companyName;
+        this.pathId = pathId;
+    }
+
+    public SignoffPathKey() {
+        // Default Constructor
+    }
+
+    private String companyName;
+    private Long pathId;
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
+    public Long getPathId() {
+        return pathId;
+    }
+
+    public void setPathId(Long pathId) {
+        this.pathId = pathId;
+    }
+}

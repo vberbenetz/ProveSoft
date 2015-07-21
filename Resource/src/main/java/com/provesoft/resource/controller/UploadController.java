@@ -1,13 +1,12 @@
 package com.provesoft.resource.controller;
 
-import com.provesoft.resource.entity.Document;
-import com.provesoft.resource.entity.DocumentUpload;
+import com.provesoft.resource.entity.Document.Document;
+import com.provesoft.resource.entity.Document.DocumentUpload;
 import com.provesoft.resource.exceptions.InternalServerErrorException;
 import com.provesoft.resource.exceptions.ResourceNotFoundException;
 import com.provesoft.resource.service.DocumentService;
 import com.provesoft.resource.utils.UserHelpers;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -18,9 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 @RestController
 public class UploadController {

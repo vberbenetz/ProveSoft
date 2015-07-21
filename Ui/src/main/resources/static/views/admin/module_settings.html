@@ -102,6 +102,21 @@
                                         </div>
                                     </div>
                                 </li>
+                                <li class="list-group-item">
+                                    <div class="widget style1 dark-grey-bg">
+                                        <div class="row vertical-align">
+                                            <div class="col-xs-4 vertical-align">
+                                                <h3>Use Signoff Paths</h3>
+                                            </div>
+                                            <div class="col-xs-8 text-right">
+                                                <h3 class="font-bold">
+                                                    <button class="btn btn-lg btn-primary" ng-class="{ 'btn-default': signoff != 'on' }" ng-model="signoff" btn-radio="'on'">On</button>
+                                                    <button class="btn btn-lg btn-default" ng-class="{ 'btn-danger': signoff == 'off' }" ng-model="signoff" btn-radio="'off'">Off</button>
+                                                </h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
                             </ul>
                         </div>
                     </div>
