@@ -2,18 +2,15 @@ package com.provesoft.resource.entity.SignoffPath;
 
 import com.provesoft.resource.entity.UserDetails;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 
 @Entity
 public class SignoffPathSteps {
 
-    public SignoffPathSteps (String companyName, Long pathId, String stepSequence, UserDetails user) {
+    public SignoffPathSteps (String companyName, Long pathId, String action, UserDetails user) {
         this.companyName = companyName;
         this.pathId = pathId;
-        this.stepSequence = stepSequence;
+        this.action = action;
         this.user = user;
     }
 
@@ -22,11 +19,12 @@ public class SignoffPathSteps {
     }
 
     @Id
+    @GeneratedValue
     Long id;
 
     private String companyName;
     private Long pathId;
-    private String stepSequence;
+    private String action;
 
     @ManyToOne
     @JoinColumn
@@ -56,12 +54,12 @@ public class SignoffPathSteps {
         this.pathId = pathId;
     }
 
-    public String getStepSequence() {
-        return stepSequence;
+    public String getAction() {
+        return action;
     }
 
-    public void setStepSequence(String stepSequence) {
-        this.stepSequence = stepSequence;
+    public void setAction(String action) {
+        this.action = action;
     }
 
     public UserDetails getUser() {

@@ -1174,7 +1174,7 @@ public class AdminController {
         Retrieve subset of all company signoff paths
      */
     @RequestMapping(
-            value = "/admin/signoffpath/first10",
+            value = "/admin/signoffPath/first10",
             method = RequestMethod.GET
     )
     public List<SignoffPath> getFirst10SignoffPaths(Authentication auth) {
@@ -1189,13 +1189,14 @@ public class AdminController {
         throw new ForbiddenException();
     }
 
+
     // -------------------------------------------------- POST ------------------------------------------------------ //
 
     /*
         Create new signoff path
      */
     @RequestMapping(
-            value = "/admin/signoffpath",
+            value = "/admin/signoffPath",
             method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
@@ -1209,11 +1210,9 @@ public class AdminController {
             try {
                 SignoffPath signoffPath = mapper.readValue(json, SignoffPath.class);
 
-                SignoffPathKey key = signoffPath.getKey();
-
-                // Append company name
                 String companyName = UserHelpers.getCompany(auth);
-                key.setCompanyName(companyName);
+
+                SignoffPathKey key = new SignoffPathKey(companyName, null);
 
                 // Get new pathId
                 // Retry if deadlock occurs until the resource becomes free or timeout occurs
@@ -1221,6 +1220,7 @@ public class AdminController {
                     try {
                         Long pathId = signoffPathService.getAndIncrementSignoffPathId(companyName).getKey().getPathId();
                         key.setPathId(pathId);
+                        signoffPath.setKey(key);
 
                         return signoffPathService.createNewPath(signoffPath);
                     }
@@ -1257,27 +1257,31 @@ public class AdminController {
         Create new signoff path step
      */
     @RequestMapping(
-            value = "/admin/signoffpath",
+            value = "/admin/signoffPath/steps",
             method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public SignoffPathSteps createNewSignoffPathStep(@RequestBody String json,
+    public List<SignoffPathSteps> createNewSignoffPathStep(@RequestBody String json,
                                                 Authentication auth) {
 
         if (UserHelpers.isSuperAdmin(auth)) {
 
             ObjectMapper mapper = new ObjectMapper();
             try {
-                SignoffPathSteps signoffPathStep = mapper.readValue(json, SignoffPathSteps.class);
+                List<SignoffPathSteps> signoffPathSteps = mapper.readValue(json, new TypeReference<List<SignoffPathSteps>>() { } );
 
                 String companyName = UserHelpers.getCompany(auth);
-                signoffPathStep.setCompanyName(companyName);
 
-                signoffPathStep = signoffPathService.createNewStep(signoffPathStep);
+                for (SignoffPathSteps s : signoffPathSteps) {
+                    s.setCompanyName(companyName);
+                }
 
-                signoffPathService.appendToPathSeq(companyName, signoffPathStep.getPathId(), signoffPathStep.getId());
+                signoffPathSteps = signoffPathService.createNewSteps(signoffPathSteps);
 
+                signoffPathService.appendToPathSeq(companyName, signoffPathSteps);
+
+                return signoffPathSteps;
             }
             catch (IOException | NullPointerException ex) {
                 throw new ResourceNotFoundException();

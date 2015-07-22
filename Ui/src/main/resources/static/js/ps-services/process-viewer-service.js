@@ -48,8 +48,26 @@ function documentRevisionService($resource) {
     }
 }
 
+function signoffPathsService($resource) {
+    return {
+        steps: $resource('/resource/signoffPath/steps',
+            {},
+            {
+                query: {
+                    method: 'GET',
+                    params: {
+                        pathId: '@pathId'
+                    },
+                    isArray: true
+                }
+            }
+        )
+    }
+}
+
 angular
     .module('provesoft')
     .factory('documentCreationService', documentCreationService)
     .factory('documentLookupService', documentLookupService)
-    .factory('documentRevisionService', documentRevisionService);
+    .factory('documentRevisionService', documentRevisionService)
+    .factory('signoffPathsService', signoffPathsService);

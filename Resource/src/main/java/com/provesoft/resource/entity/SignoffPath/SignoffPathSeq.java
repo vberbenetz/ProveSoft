@@ -1,5 +1,6 @@
 package com.provesoft.resource.entity.SignoffPath;
 
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 
 @Entity
@@ -14,6 +15,7 @@ public class SignoffPathSeq {
         // Default Constructor
     }
 
+    @EmbeddedId
     private SignoffPathKey key;
 
     private String pathSequence;

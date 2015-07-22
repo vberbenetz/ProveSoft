@@ -10,6 +10,10 @@ public class SignoffPathId {
         this.key = new SignoffPathKey(companyName, pathId);
     }
 
+    public SignoffPathId() {
+        // Default Constructor
+    }
+
     @EmbeddedId
     private SignoffPathKey key;
 

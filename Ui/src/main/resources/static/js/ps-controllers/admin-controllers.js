@@ -1007,13 +1007,151 @@ function moduleSettingsCtrl($scope, $rootScope, $window, adminModuleSettingsServ
 
 }
 
-function signoffPathsSetupCtrl ($scope, $rootScope, $window) {
+function signoffPathsSetupCtrl ($scope, $rootScope, $window, manageUsersService, signoffPathsService, adminSignoffPathsService) {
 
     if (!$rootScope.authenticated) {
         $window.location.href = '/';
     }
 
     // ------------------ Initialize -------------------- //
+
+    $scope.actions = [
+        'START',
+        'OR',
+        'THEN'
+    ];
+
+    $scope.paths = [];
+
+    $scope.rightPanel = {};
+    $scope.showRightPanel = false;
+
+    $scope.newPath = {
+        name: '',
+        organization: {}
+    };
+
+    $scope.newSteps = [];
+
+    manageUsersService.allUsers.query(function(users) {
+        $scope.users = users;
+        $scope.loadUsers();
+    }, function(error) {
+        $scope.err = error;
+    });
+
+    manageUsersService.allOrganizations.query(function(orgs) {
+        $scope.organizations = orgs;
+        $scope.loadOrgs();
+    }, function(error) {
+        $scope.err = error;
+    });
+
+    adminSignoffPathsService.first10.query(function(paths) {
+        $scope.paths = paths;
+    }, function(error) {
+        $scope.err = error;
+    });
+
+
+    // ------------------ Methods -------------------- //
+
+    // Need to load users twice for chosen dropdown watcher to register collection of options
+    $scope.loadUsers = function() {
+        if (!$scope.populatedUserDropdown) {
+            manageUsersService.allUsers.query(function(users) {
+                $scope.users = users;
+                $scope.populatedUserDropdown = true;
+            }, function(error) {
+                $scope.err = error;
+            });
+        }
+    };
+
+    // Need to load orgs twice for chosen dropdown watcher to register collection of options
+    $scope.loadOrgs = function() {
+        if (!$scope.populatedOrgDropdown) {
+            manageUsersService.allOrganizations.query(function(orgs) {
+                $scope.organizations = orgs;
+                $scope.populatedOrgDropdown = true;
+            }, function(error) {
+                $scope.err = error;
+            });
+        }
+    };
+
+    $scope.changeRightPanel = function(path) {
+
+        $scope.rightPanel = {};
+        $scope.rightPanel.path = path;
+
+        $scope.newSteps.length = 0;                 // Clear array
+
+        signoffPathsService.steps.query({pathId: path.key.pathId}, function(steps) {
+            $scope.rightPanel.steps = steps;
+            $scope.showRightPanel = true;
+        }, function(error) {
+            $scope.err = error;
+        });
+    };
+
+    $scope.validateCreateNewPath = function() {
+
+        var validationFail = false;
+        var name = $scope.newPath.name;
+        var org = $scope.newPath.organization;
+
+        // Reset form validation error messages
+        $scope.newPathValidationFail = {};
+
+        if ( (typeof name === 'undefined') || (name === '') || (name.length == 0) ) {
+            $scope.newPathValidationFail.name = true;
+            validationFail = true;
+        }
+        if ( (typeof org === 'undefined') || (Object.getOwnPropertyNames(org).length === 0) ) {
+            $scope.newPathValidationFail.description = true;
+            validationFail = true;
+        }
+
+        return !validationFail;
+    };
+
+    $scope.createNewPath = function() {
+        adminSignoffPathsService.path.save($scope.newPath, function(data, status, headers, config) {
+            $scope.paths.push(data);
+
+            // Reset new path variable
+            $scope.newPath.name = '';
+            $scope.newPath.organization = {};
+
+        }, function(data, status, headers, config) {
+            $scope.err = status;
+        });
+    };
+
+    $scope.addStep = function() {
+        $scope.newSteps.push({
+            pathId: $scope.rightPanel.path.key.pathId,
+            action: '',
+            user: {}
+        });
+    };
+
+    $scope.validateNewSteps = function() {
+        return true;
+    };
+
+    $scope.saveSteps = function() {
+        if ($scope.validateNewSteps()) {
+
+            adminSignoffPathsService.steps.save($scope.newSteps, function(data, status, headers, config) {
+                $scope.rightPanel.steps = $scope.rightPanel.steps.concat(data);
+                $scope.newSteps.length = 0;                 // Clear array
+            }, function(data, status, headers, config) {
+                $scope.error = status;
+            });
+        }
+    };
 
 }
 

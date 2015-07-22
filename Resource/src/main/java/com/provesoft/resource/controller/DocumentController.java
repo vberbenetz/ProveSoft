@@ -154,7 +154,7 @@ public class DocumentController {
                 for (long stop=System.currentTimeMillis()+ TimeUnit.SECONDS.toMillis(30L); stop > System.currentTimeMillis();) {
 
                     try {
-                        Long suffix = documentService.getAndGenerateDocumentId(newDocument.getDocumentType().getId()).getCurrentSuffixId();
+                        Long suffix = documentService.getAndGenerateDocumentId(companyName, newDocument.getDocumentType().getId()).getCurrentSuffixId();
                         Integer maxNumberOfDigits = newDocument.getDocumentType().getMaxNumberOfDigits();
 
                         if (String.valueOf(suffix).length() <= maxNumberOfDigits) {

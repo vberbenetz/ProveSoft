@@ -139,9 +139,9 @@ public class DocumentService {
         Generate new unique id for document of documentType
      */
     @Transactional(isolation = Isolation.SERIALIZABLE)
-    public DocumentTypeId getAndGenerateDocumentId(Long documentTypeId) throws TransactionRolledbackException {
-        DocumentTypeId docTypeId = documentTypeIdRepository.findByDocumentTypeId(documentTypeId);
-        documentTypeIdRepository.incrementSuffixId(documentTypeId);
+    public DocumentTypeId getAndGenerateDocumentId(String companyName, Long documentTypeId) throws TransactionRolledbackException {
+        DocumentTypeId docTypeId = documentTypeIdRepository.findByKeyCompanyNameAndKeyDocumentTypeId(companyName, documentTypeId);
+        documentTypeIdRepository.incrementSuffixId(companyName, documentTypeId);
         documentTypeIdRepository.flush();
         return docTypeId;
     }

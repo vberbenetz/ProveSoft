@@ -41,18 +41,20 @@ public class DocumentControllerTests {
         @Override
         public void run() {
 
+            String companyName = "Company";
+
             DocumentType documentType = new DocumentType("Company", "name", "desc", "SU", new Integer(6), new Long(1));
             documentType.setId(1L);
 
             Organizations organization = organizationsService.findByOrganizationIdAndCompanyName(1L, "Company");
 
-            Document newDocument = new Document("Company", "Title", documentType, organization);
+            Document newDocument = new Document(companyName, "Title", documentType, organization);
 
             // Retry if deadlock occurs until the resource becomes free or timeout occurs
             for (long stop=System.currentTimeMillis()+ TimeUnit.SECONDS.toMillis(30L); stop > System.currentTimeMillis();) {
 
                 try {
-                    Long suffix = documentService.getAndGenerateDocumentId(newDocument.getDocumentType().getId()).getCurrentSuffixId();
+                    Long suffix = documentService.getAndGenerateDocumentId(companyName, newDocument.getDocumentType().getId()).getCurrentSuffixId();
                     Integer maxNumberOfDigits = newDocument.getDocumentType().getMaxNumberOfDigits();
 
                     if (String.valueOf(suffix).length() <= maxNumberOfDigits) {

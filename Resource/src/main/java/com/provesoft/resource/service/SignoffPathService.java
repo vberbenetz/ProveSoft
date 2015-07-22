@@ -77,10 +77,19 @@ public class SignoffPathService {
     /* ------------------------ SignoffPathSteps -------------------------- */
 
     /*
+        Retrieve all steps for SignoffPath
+     */
+    public List<SignoffPathSteps> getStepsForPath(String companyName, Long pathId) {
+        return signoffPathStepsRepository.findByCompanyNameAndPathIdOrderByIdAsc(companyName, pathId);
+    }
+
+    /*
         Create new path step
      */
-    public SignoffPathSteps createNewStep(SignoffPathSteps signoffPathStep) {
-        return signoffPathStepsRepository.saveAndFlush(signoffPathStep);
+    public List<SignoffPathSteps> createNewSteps(List<SignoffPathSteps> signoffPathSteps) {
+        List<SignoffPathSteps> retList = signoffPathStepsRepository.save(signoffPathSteps);
+        signoffPathStepsRepository.flush();
+        return retList;
     }
 
 
@@ -89,21 +98,30 @@ public class SignoffPathService {
     /*
         Update path steps sequence string
      */
-    public void appendToPathSeq(String companyName, Long pathId, Long pathStepIdToAppend) {
-        SignoffPathSteps signoffPathStep = signoffPathStepsRepository.findByCompanyNameAndPathId(companyName, pathId);
-        signoffPathStep.setStepSequence( signoffPathStep.getStepSequence() + pathStepIdToAppend.toString() + "|" );
-        signoffPathStepsRepository.saveAndFlush(signoffPathStep);
+    public void appendToPathSeq(String companyName, List<SignoffPathSteps> newSignoffPathSteps) {
+
+        Long pathId = newSignoffPathSteps.get(0).getPathId();
+        SignoffPathSeq signoffPathSeq = signoffPathSeqRepository.findByKeyCompanyNameAndKeyPathId(companyName, pathId);
+
+        String pathSequence = signoffPathSeq.getPathSequence();
+
+        for (SignoffPathSteps s : newSignoffPathSteps) {
+            pathSequence = pathSequence + s.getId() + "|";
+        }
+
+        signoffPathSeq.setPathSequence(pathSequence);
+        signoffPathSeqRepository.saveAndFlush(signoffPathSeq);
     }
 
     /*
         Remove path step from sequence
      */
     public void removeFromPathSeq(String companyName, Long pathId, Long pathStepIdToRemove) {
-        SignoffPathSteps signoffPathStep = signoffPathStepsRepository.findByCompanyNameAndPathId(companyName, pathId);
+        SignoffPathSeq signoffPathSeq = signoffPathSeqRepository.findByKeyCompanyNameAndKeyPathId(companyName, pathId);
 
-        String stepSequence = signoffPathStep.getStepSequence();
-        stepSequence = SignoffPathHelpers.removeFromStepSequence( stepSequence , pathStepIdToRemove );
-        signoffPathStep.setStepSequence(stepSequence);
+        String pathSequence = signoffPathSeq.getPathSequence();
+        pathSequence = SignoffPathHelpers.removeFromStepSequence( pathSequence , pathStepIdToRemove );
+        signoffPathSeq.setPathSequence(pathSequence);
     }
 
 }

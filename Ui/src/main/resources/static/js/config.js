@@ -136,6 +136,17 @@ function config($stateProvider, $locationProvider, $urlRouterProvider, $ocLazyLo
             controller: signoffPathsSetupCtrl,
             data: {
                 pageTitle: 'Admin | Signoff Path Setup'
+            },
+            resolve: {
+                loadPlugin: function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        {
+                            insertBefore: '#loadBefore',
+                            name: 'localytics.directives',
+                            files: ['css/plugins/chosen/chosen.css','js/plugins/chosen/chosen.jquery.js','js/plugins/chosen/chosen.js']
+                        }
+                    ]);
+                }
             }
         })
         .state('admin.moduleSettings', {

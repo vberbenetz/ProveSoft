@@ -204,8 +204,28 @@ function adminModuleSettingsService ($resource) {
     }
 }
 
+function adminSignoffPathsService ($resource) {
+    return {
+        path: $resource('/resource/admin/signoffPath'),
+
+        first10: $resource('/resource/admin/signoffPath/first10'),
+
+        steps: $resource('/resource/admin/signoffPath/steps',
+            {},
+            {
+                save: {
+                    method: 'POST',
+                    params: {},
+                    isArray: true
+                }
+            }
+        )
+    }
+}
+
 angular
     .module('provesoft')
     .factory('manageUsersService', manageUsersService)
     .factory('documentTypeService', documentTypeService)
+    .factory('adminSignoffPathsService', adminSignoffPathsService)
     .factory('adminModuleSettingsService', adminModuleSettingsService);
