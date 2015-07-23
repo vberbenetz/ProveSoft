@@ -1,16 +1,18 @@
 package com.provesoft.resource.entity.Document;
 
 import com.provesoft.resource.entity.Organizations;
+import com.provesoft.resource.entity.SignoffPath.SignoffPath;
 
-import javax.persistence.Id;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.JoinColumn;
+import javax.persistence.*;
 
 @Entity
 public class Document {
 
-    public Document(String companyName, String title, DocumentType documentType, Organizations organization) {
+    public Document(String companyName,
+                    String title,
+                    DocumentType documentType,
+                    Organizations organization) {
+
         this.companyName = companyName;
         this.title = title;
         this.documentType = documentType;
@@ -33,6 +35,8 @@ public class Document {
     @ManyToOne
     @JoinColumn
     private Organizations organization;
+
+    private Long signoffPathId;
 
     private String title;
     private String revision;
@@ -69,6 +73,14 @@ public class Document {
 
     public void setOrganization(Organizations organization) {
         this.organization = organization;
+    }
+
+    public Long getSignoffPathId() {
+        return signoffPathId;
+    }
+
+    public void setSignoffPathId(Long signoffPathId) {
+        this.signoffPathId = signoffPathId;
     }
 
     public String getTitle() {

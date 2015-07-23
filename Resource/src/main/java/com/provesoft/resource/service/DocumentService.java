@@ -87,7 +87,7 @@ public class DocumentService {
     }
 
     /*
-        Update document after a revision
+        Update document after a revision or addition of a signoff path
      */
     public Document updateDocument(Document document) {
         return documentRepository.saveAndFlush(document);

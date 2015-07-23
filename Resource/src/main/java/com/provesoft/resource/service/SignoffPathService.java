@@ -51,6 +51,10 @@ public class SignoffPathService {
         return signoffPathRepository.findFirst10ByKeyCompanyNameOrderByKeyPathIdAsc(companyName);
     }
 
+    public List<SignoffPath> getPathsByOrganizationId(String companyName, Long organizationId) {
+        return signoffPathRepository.getPathsByCompanyNameAndOrganizationId(companyName, organizationId);
+    }
+
     // Create signoff path and create initial sequence object
     public SignoffPath createNewPath(SignoffPath signoffPath) {
         SignoffPath newSignoffPath = signoffPathRepository.saveAndFlush(signoffPath);
@@ -84,12 +88,34 @@ public class SignoffPathService {
     }
 
     /*
-        Create new path step
+        Retrieve step
+     */
+    public SignoffPathSteps getStep(String companyName, Long pathId, Long stepId) {
+        return signoffPathStepsRepository.findByCompanyNameAndPathIdAndId(companyName, pathId, stepId);
+    }
+
+    /*
+        Create new path step (single)
+     */
+    public SignoffPathSteps createNewStep(SignoffPathSteps signoffPathStep) {
+        return signoffPathStepsRepository.saveAndFlush(signoffPathStep);
+    }
+
+    /*
+        Create new path steps (multiple)
      */
     public List<SignoffPathSteps> createNewSteps(List<SignoffPathSteps> signoffPathSteps) {
         List<SignoffPathSteps> retList = signoffPathStepsRepository.save(signoffPathSteps);
         signoffPathStepsRepository.flush();
         return retList;
+    }
+
+    /*
+        Delete a signoff step
+     */
+    public void deleteSignoffSteps(List<SignoffPathSteps> stepsToDelete) {
+        signoffPathStepsRepository.deleteInBatch(stepsToDelete);
+        signoffPathStepsRepository.flush();
     }
 
 

@@ -1201,7 +1201,8 @@ public class AdminController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public SignoffPath createNewSignoffPath(@RequestBody String json,
+    public SignoffPath createNewSignoffPath(@RequestParam("userId") Long userId,
+                                            @RequestBody String json,
                                             Authentication auth) {
 
         if (UserHelpers.isSuperAdmin(auth)) {
@@ -1211,6 +1212,13 @@ public class AdminController {
                 SignoffPath signoffPath = mapper.readValue(json, SignoffPath.class);
 
                 String companyName = UserHelpers.getCompany(auth);
+
+                // Get user for initial path step, and check if they belong to company
+                UserDetails user = userDetailsService.findByCompanyNameAndUserId(companyName, userId);
+
+                if (user == null) {
+                    throw new ResourceNotFoundException();
+                }
 
                 SignoffPathKey key = new SignoffPathKey(companyName, null);
 
@@ -1222,7 +1230,14 @@ public class AdminController {
                         key.setPathId(pathId);
                         signoffPath.setKey(key);
 
-                        return signoffPathService.createNewPath(signoffPath);
+                        SignoffPath newlyCreatedPath = signoffPathService.createNewPath(signoffPath);
+
+                        // Create initial START step
+                        SignoffPathSteps newStep = new SignoffPathSteps(companyName, pathId, "START", user);
+                        signoffPathService.createNewStep(newStep);
+
+                        return newlyCreatedPath;
+
                     }
                     catch (CannotAcquireLockException | LockAcquisitionException | TransactionRolledbackException ex) {
 
@@ -1295,6 +1310,54 @@ public class AdminController {
         throw new ForbiddenException();
     }
 
+    // -------------------------------------------------- PUT ------------------------------------------------------- //
+
+    // ------------------------------------------------- DELETE ----------------------------------------------------- //
+
+    /*
+        Remove signoff path steps
+     */
+    @RequestMapping(
+            value = "/admin/signoffPath/steps",
+            method = RequestMethod.DELETE
+    )
+    public void removeSignoffPathStep(@RequestParam("pathId") Long pathId,
+                                      @RequestParam("stepIds") Long[] stepIds,
+                                      Authentication auth) {
+
+        if (UserHelpers.isSuperAdmin(auth)) {
+
+            String companyName = UserHelpers.getCompany(auth);
+
+            ArrayList<Long> stepIdList = new ArrayList<>(Arrays.asList(stepIds));
+
+            // Retrieve and remove 'START' step if present
+            List<SignoffPathSteps> stepsForPath = signoffPathService.getStepsForPath(companyName, pathId);
+
+            if (stepsForPath == null) {
+                throw new ResourceNotFoundException();
+            }
+
+            List<SignoffPathSteps> stepsToDelete = new ArrayList<>();
+
+            // Add steps for deletion from path which are not "START" status and who are part of stepId list
+            for (SignoffPathSteps s : stepsForPath) {
+                if ( !s.getAction().equals("START") ) {
+                    for (Long stepId : stepIdList) {
+                        if (stepId.equals(s.getId())) {
+                            stepsToDelete.add(s);
+                        }
+                    }
+                }
+            }
+
+            signoffPathService.deleteSignoffSteps(stepsToDelete);
+
+            return;
+        }
+
+        throw new ForbiddenException();
+    }
 
 
 

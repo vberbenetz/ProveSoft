@@ -5,10 +5,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.provesoft.resource.entity.Document.Document;
 import com.provesoft.resource.entity.Document.DocumentRevisions;
 import com.provesoft.resource.entity.Document.DocumentType;
+import com.provesoft.resource.entity.SignoffPath.SignoffPath;
 import com.provesoft.resource.entity.UserDetails;
+import com.provesoft.resource.exceptions.ForbiddenException;
 import com.provesoft.resource.exceptions.InternalServerErrorException;
 import com.provesoft.resource.exceptions.ResourceNotFoundException;
 import com.provesoft.resource.service.DocumentService;
+import com.provesoft.resource.service.SignoffPathService;
 import com.provesoft.resource.service.UserDetailsService;
 import com.provesoft.resource.utils.SystemHelpers;
 import com.provesoft.resource.utils.UserHelpers;
@@ -32,6 +35,9 @@ public class DocumentController {
 
     @Autowired
     UserDetailsService userDetailsService;
+
+    @Autowired
+    SignoffPathService signoffPathService;
 
 
     /* -------------------------------------------------------- */
@@ -291,6 +297,47 @@ public class DocumentController {
         }
 
         throw new ResourceNotFoundException();
+    }
+
+
+    /* --------------------------------------------------------- */
+    /* ------------------------ UPDATE ------------------------- */
+    /* --------------------------------------------------------- */
+
+    /* ------ Document SignoffPath ------ */
+    @RequestMapping(
+            value = "/document/signoffPath",
+            method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public Document addSignoffPath(@RequestParam("documentId") String documentId,
+                                   @RequestParam("signoffPathId") Long signoffPathId,
+                                   Authentication auth) {
+
+        if (UserHelpers.isSuperAdmin(auth)) {
+
+            String companyName = UserHelpers.getCompany(auth);
+
+            Document doc = documentService.findByCompanyNameAndDocumentId(companyName, documentId);
+
+            if (doc == null) {
+                throw new ResourceNotFoundException();
+            }
+
+            // Check if signoff path belongs to company
+            SignoffPath signoffPath = signoffPathService.findByCompanyNameAndPathId(companyName, signoffPathId);
+
+            if (signoffPath == null) {
+                throw new ResourceNotFoundException();
+            }
+
+            doc.setSignoffPathId( signoffPath.getKey().getPathId() );
+
+            return documentService.updateDocument(doc);
+        }
+
+        throw new ForbiddenException();
     }
 
 }

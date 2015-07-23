@@ -1015,23 +1015,26 @@ function signoffPathsSetupCtrl ($scope, $rootScope, $window, manageUsersService,
 
     // ------------------ Initialize -------------------- //
 
-    $scope.actions = [
-        'START',
-        'OR',
-        'THEN'
-    ];
-
     $scope.paths = [];
 
     $scope.rightPanel = {};
     $scope.showRightPanel = false;
 
+    // Flag in new path creation. True if user wants to allow path to be used by all organizations
+    $scope.toggleAllOrgs = false;
+
     $scope.newPath = {
         name: '',
-        organization: {}
+        organization: {},
+        applyToAll: false,
+        initialApprover: {}
     };
+    $scope.newPathValidationFail = {};
+
+    $scope.initialApprover = {};
 
     $scope.newSteps = [];
+    $scope.stepsToRemove = [];
 
     manageUsersService.allUsers.query(function(users) {
         $scope.users = users;
@@ -1086,6 +1089,7 @@ function signoffPathsSetupCtrl ($scope, $rootScope, $window, manageUsersService,
         $scope.rightPanel.path = path;
 
         $scope.newSteps.length = 0;                 // Clear array
+        $scope.stepsToRemove.length = 0;
 
         signoffPathsService.steps.query({pathId: path.key.pathId}, function(steps) {
             $scope.rightPanel.steps = steps;
@@ -1100,6 +1104,7 @@ function signoffPathsSetupCtrl ($scope, $rootScope, $window, manageUsersService,
         var validationFail = false;
         var name = $scope.newPath.name;
         var org = $scope.newPath.organization;
+        var initApp = $scope.initialApprover;
 
         // Reset form validation error messages
         $scope.newPathValidationFail = {};
@@ -1108,8 +1113,12 @@ function signoffPathsSetupCtrl ($scope, $rootScope, $window, manageUsersService,
             $scope.newPathValidationFail.name = true;
             validationFail = true;
         }
-        if ( (typeof org === 'undefined') || (Object.getOwnPropertyNames(org).length === 0) ) {
-            $scope.newPathValidationFail.description = true;
+        if ( (!$scope.toggleAllOrgs) && ((typeof org === 'undefined') || (Object.getOwnPropertyNames(org).length === 0)) ) {
+            $scope.newPathValidationFail.organization = true;
+            validationFail = true;
+        }
+        if ( (typeof initApp === 'undefined') || (Object.getOwnPropertyNames(initApp).length === 0) ) {
+            $scope.newPathValidationFail.initialApprover = true;
             validationFail = true;
         }
 
@@ -1117,15 +1126,25 @@ function signoffPathsSetupCtrl ($scope, $rootScope, $window, manageUsersService,
     };
 
     $scope.createNewPath = function() {
-        adminSignoffPathsService.path.save($scope.newPath, function(data, status, headers, config) {
+        var initialApproverId = $scope.newPath.initialApprover.userId;
+        delete $scope.newPath.initialApprover;
+
+        // If applying to all, attache a placeholder organization
+        if ($scope.newPath.applyToAll) {
+            $scope.newPath.organization = $scope.organizations[0];
+        }
+
+        adminSignoffPathsService.path.save({userId: initialApproverId}, $scope.newPath, function(data, status, headers, config) {
             $scope.paths.push(data);
 
             // Reset new path variable
             $scope.newPath.name = '';
             $scope.newPath.organization = {};
+            $scope.newPath.initialApprover = {};
 
         }, function(data, status, headers, config) {
             $scope.err = status;
+            $scope.newPath.initialApprover = {};
         });
     };
 
@@ -1141,16 +1160,78 @@ function signoffPathsSetupCtrl ($scope, $rootScope, $window, manageUsersService,
         return true;
     };
 
-    $scope.saveSteps = function() {
+    $scope.saveChanges = function() {
         if ($scope.validateNewSteps()) {
 
-            adminSignoffPathsService.steps.save($scope.newSteps, function(data, status, headers, config) {
-                $scope.rightPanel.steps = $scope.rightPanel.steps.concat(data);
-                $scope.newSteps.length = 0;                 // Clear array
-            }, function(data, status, headers, config) {
-                $scope.error = status;
-            });
+            // Delete steps
+            // Extract stepId's from steps to delete
+            if ($scope.stepsToRemove.length > 0) {
+                var stepIds = $scope.extractStepIds($scope.stepsToRemove);
+
+                adminSignoffPathsService.steps.remove({pathId: $scope.rightPanel.path.key.pathId, stepIds: stepIds}, function(data) {
+                    $scope.stepsToRemove.length = 0;
+                }, function(error) {
+                    $scope.error = error;
+                });
+            }
+
+            // Add steps if any were created
+            if ($scope.newSteps.length > 0) {
+                adminSignoffPathsService.steps.save($scope.newSteps, function(data, status, headers, config) {
+                    $scope.rightPanel.steps = $scope.rightPanel.steps.concat(data);
+                    $scope.newSteps.length = 0;                 // Clear array
+                }, function(data, status, headers, config) {
+                    $scope.error = status;
+                });
+            }
+
         }
+    };
+
+    $scope.removeStep = function(step, i) {
+        $scope.stepsToRemove.push(step);
+        $scope.rightPanel.steps.splice(i, 1);
+    };
+
+    $scope.cancelChanges = function() {
+        var steps = $scope.rightPanel.steps.concat($scope.stepsToRemove);
+
+        steps.sort(function(a, b) {
+            if (a.id > b.id) {
+                return 1;
+            }
+            if (a.id < b.id) {
+                return -1;
+            }
+            return 0;
+        });
+
+        // Reset path to the way it was
+        $scope.rightPanel.steps = steps;
+        $scope.stepsToRemove.length = 0;
+        $scope.newSteps.length = 0;
+    };
+
+    $scope.extractStepIds = function(steps) {
+        var stepIds = [];
+        steps.forEach(function (value, i) {
+            stepIds.push(value.id);
+        });
+
+        return stepIds;
+    };
+
+    /* --------------------- Helpers ---------------------- */
+
+    $scope.getOrgNameById = function(organizationId) {
+
+        var orgs = $scope.organizations;
+        for (var i = 0; i < orgs.length; i++) {
+            if (orgs[i].organizationId == organizationId) {
+                return orgs[i].name;
+            }
+        }
+        return '';
     };
 
 }

@@ -206,7 +206,18 @@ function adminModuleSettingsService ($resource) {
 
 function adminSignoffPathsService ($resource) {
     return {
-        path: $resource('/resource/admin/signoffPath'),
+        path: $resource('/resource/admin/signoffPath',
+            {},
+            {
+                save: {
+                    method: 'POST',
+                    params: {
+                        userId: '@userId'
+                    },
+                    isArray: false
+                }
+            }
+        ),
 
         first10: $resource('/resource/admin/signoffPath/first10'),
 
@@ -216,6 +227,14 @@ function adminSignoffPathsService ($resource) {
                 save: {
                     method: 'POST',
                     params: {},
+                    isArray: true
+                },
+                remove: {
+                    method: 'DELETE',
+                    params: {
+                        pathId: '@pathId',
+                        stepIds: '@stepIds'
+                    },
                     isArray: true
                 }
             }

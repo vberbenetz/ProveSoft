@@ -64,7 +64,7 @@ function documentLookupCtrl($scope, $rootScope, $window, $timeout, documentLooku
 
 }
 
-function documentCreationCtrl($scope, $rootScope, $state, $window, documentCreationService) {
+function documentCreationCtrl($scope, $rootScope, $timeout, $window, documentCreationService, signoffPathsService) {
 
     if (!$rootScope.authenticated) {
         $window.location.href = '/';
@@ -78,6 +78,7 @@ function documentCreationCtrl($scope, $rootScope, $state, $window, documentCreat
     $scope.submitClicked = false;
     $scope.uploadedSuccessfully = false;
     $scope.creatingDocument = false;
+    $scope.isRedline = false;   // Only true for revisions
 
     // Keep track of form progress
     $scope.newDocumentForm = 1;
@@ -87,6 +88,8 @@ function documentCreationCtrl($scope, $rootScope, $state, $window, documentCreat
     $scope.organizations = [];
     $scope.populatedDocumentTypesDropdown = false;
     $scope.populatedOrganizationsDropdown = false;
+    $scope.signoffPathChoices =[];
+    $scope.loadedPathsForOrg = 0;
 
     $scope.newDocument = {};
     $scope.fieldValidationFail = {};
@@ -134,9 +137,35 @@ function documentCreationCtrl($scope, $rootScope, $state, $window, documentCreat
         }
     };
 
+    // Load sign off paths if organization choice changes
+    $scope.loadSignoffPaths = function() {
+        if ($scope.loadedPathsForOrg == $scope.newDocument.organizationId) {
+            signoffPathsService.path.query({orgId: $scope.newDocument.organizationId}, function(data) {
+                $scope.signoffPathChoices = data;
+                $scope.loadedPathsForOrg = $scope.newDocument.organizationId;
+            }, function(error) {
+                $scope.error = error;
+            });
+        }
+    };
+
+    $scope.goToStage = function(nextStage) {
+        if (nextStage == 2) {
+            if ($scope.validateForm()) {
+                $scope.loadSignoffPaths();
+                $scope.createNewDocument();
+                $scope.newDocumentForm = 2;
+
+                $timeout(function() {
+                    $scope.loadSignoffPaths();
+                }, 500);
+            }
+        }
+    };
+
     $scope.createNewDocument = function() {
 
-        if ($scope.validateForm()) {
+        //if ($scope.validateForm()) {
             $scope.creatingDocument = true;
 
             documentCreationService.document.save($scope.newDocument, function(data, status, headers, config) {
@@ -151,20 +180,9 @@ function documentCreationCtrl($scope, $rootScope, $state, $window, documentCreat
             }, function(data, status, headers, config) {
                 $scope.err = status;
             });
-        }
+        //}
 
     };
-
-    $scope.$watch('uploadSuccessful', function(newVal, oldVal) {
-        if (newVal != oldVal) {
-
-            if (newVal == true) {
-
-                // Redirect on successful creation and upload
-                $state.go('process-viewer.document-lookup');
-            }
-        }
-    });
 
     $scope.validateForm = function() {
         var validationFail = false;
@@ -211,6 +229,7 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
 
     // Default set redline flag to true
     $scope.redlineRequired = true;
+    $scope.signoffRequired = false;
     $scope.docDownloadLink = '/resource/download?documentId=' + $scope.documentId;
     $scope.redlineDownloadLink = '/resource/download?documentId=' + $scope.documentId + '&isRedline=true';
 
@@ -231,6 +250,18 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
     generalSettingsService.setting.get({setting: 'redline'}, function(data) {
         if (data.value === 'on') {
             $scope.redlineRequired = true;
+        }
+        else {
+            $scope.redlineRequired = false;
+        }
+    }, function(error) {
+        $scope.err = error;
+    });
+
+    // Get signoff setting
+    generalSettingsService.setting.get({setting: 'signoff'}, function(data) {
+        if (data.value === 'on') {
+            $scope.signoffRequired = true;
         }
         else {
             $scope.redlineRequired = false;
@@ -276,7 +307,14 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
     $scope.goToNextStage = function(nextStage) {
         if (nextStage == 2) {
             if ($scope.validateForm()) {
-                $scope.reviseDocumentForm = 2;
+
+                // Check for required sign-off
+                if ($scope.signoffRequired) {
+                    $scope.reviseDocumentForm = 2;
+                }
+                else {
+                    $scope.reviseDocumentForm = 3;
+                }
             }
         }
     };

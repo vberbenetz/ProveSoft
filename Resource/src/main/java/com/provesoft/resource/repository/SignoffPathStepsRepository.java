@@ -9,4 +9,5 @@ public interface SignoffPathStepsRepository extends JpaRepository<SignoffPathSte
 
     List<SignoffPathSteps> findByCompanyNameAndPathIdOrderByIdAsc(String companyName, Long pathId);
 
+    SignoffPathSteps findByCompanyNameAndPathIdAndId(String companyName, Long pathId, Long id);
 }

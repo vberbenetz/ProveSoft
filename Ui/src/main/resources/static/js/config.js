@@ -141,6 +141,9 @@ function config($stateProvider, $locationProvider, $urlRouterProvider, $ocLazyLo
                 loadPlugin: function ($ocLazyLoad) {
                     return $ocLazyLoad.load([
                         {
+                            files: ['css/plugins/iCheck/custom.css','js/plugins/iCheck/icheck.min.js']
+                        },
+                        {
                             insertBefore: '#loadBefore',
                             name: 'localytics.directives',
                             files: ['css/plugins/chosen/chosen.css','js/plugins/chosen/chosen.jquery.js','js/plugins/chosen/chosen.js']

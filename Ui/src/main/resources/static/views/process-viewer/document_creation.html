@@ -9,14 +9,14 @@
             <div class="ibox">
                 <div class="ibox-content">
                     <div class="col-xs-4">
-                        <div class="panel panel-default" ng-class="{'panel-primary': newDocumentForm==1}">
+                        <div class="panel panel-default" ng-class="{'panel-primary': newDocumentForm==1 || newDocumentForm==2 || newDocumentForm==3}">
                             <div class="panel-heading">
                                 Document Upload
                             </div>
                         </div>
                     </div>
                     <div class="col-xs-4">
-                        <div class="panel panel-default" ng-class="{'panel-primary': newDocumentForm==2}">
+                        <div class="panel panel-default" ng-class="{'panel-primary': newDocumentForm==2 || newDocumentForm==3}">
                             <div class="panel-heading">
                                 Signoff Paths
                             </div>
@@ -63,10 +63,10 @@
 
                                 <div class="form-group">
                                     <div class="pull-right">
-                                        <button ui-sref="process-viewer.document-lookup" class="btn btn-danger margin-right-20" ng-class="{ 'disabled btn-default' : creatingDocument }">Cancel</button>
+                                        <button ui-sref="process-viewer.document-lookup" class="btn btn-danger margin-right-20">Cancel</button>
                                     </div>
                                     <div class="pull-right">
-                                        <button ng-click="createNewDocument()" class="btn btn-primary margin-right-20" ng-class="{ 'disabled btn-default' : creatingDocument }">Next</button>
+                                        <button ng-click="goToStage(2)" class="btn btn-primary margin-right-20">Next</button>
                                     </div>
                                 </div>
                             </form>
@@ -92,11 +92,101 @@
                 </div>
 
                 <div ng-show="newDocumentForm==2">
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <h3><label class="col-md-2 control-label margin-left-10">Document ID</label></h3>
+                            <div class="col-md-4 col-lg-2 margin-bottom-30">
+                                <div class="widget style1 gray-bg text-center">
+                                    <div class="row vertical-align">
+                                        <h4 class="font-bold">
+                                            {{ documentId }}
+                                        </h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
+                        <div class="form-group">
+                            <h3><label class="col-md-2 control-label margin-left-10">Signoff Path</label></h3>
+                            <div class="col-md-8 margin-bottom-30">
+                                <select chosen style="width:250px;" data-placeholder="Choose Signoff Path.." id="pathSelect" size="6" class="form-control chosen-select" ng-model="newDocument.signoffPath" ng-options="s.name for s in signoffPathChoices">
+                                </select>
+                                <p class="text-danger" ng-show="">Please select a signoff path</p>
+                            </div>
+                        </div>
+                    </form>
                 </div>
 
                 <div ng-show="newDocumentForm==3">
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <h3><label class="col-md-2 control-label margin-left-10">Document ID</label></h3>
+                            <div class="col-md-4 col-lg-2 margin-bottom-30">
+                                <div class="widget style1 gray-bg text-center">
+                                    <div class="row vertical-align">
+                                        <h4 class="font-bold">
+                                            {{ documentId }}
+                                        </h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
+                        <div class="form-group">
+                            <h3><label class="col-md-2 control-label margin-left-10">Signoff Path</label></h3>
+                            <div class="col-md-4 col-lg-2 margin-bottom-30">
+                                <div class="widget style1 gray-bg text-center">
+                                    <div class="row vertical-align">
+                                        <h4 class="font-bold">
+                                            <!-- SIGN-OFF PATH VALUE -->
+                                        </h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <h3><label class="col-md-2 control-label margin-left-10">Change Reason</label></h3>
+                            <div class="col-md-4 col-lg-2 margin-bottom-30">
+                                <div class="widget style1 gray-bg text-center">
+                                    <div class="row vertical-align">
+                                        <p>{{ revision.changeReason }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <h3><label class="col-md-2 control-label">Uploaded Document</label></h3>
+                            <div class="col-md-6 margin-bottom-30 margin-left-15 text-center" ng-class="{ 'alert alert-success' : uploadedDocument }">
+                                <h4 class="form-control-static font-bold">
+                                    <a ng-href="{{ docDownloadLink }}">{{ uploadedDocument }}</a>
+                                </h4>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <h3><label class="col-md-2 control-label">Uploaded Redline</label></h3>
+                            <div class="col-md-6 margin-bottom-30 margin-left-15 text-center" ng-class="{ 'alert alert-success' : uploadedRedline }">
+                                <h4 class="form-control-static font-bold">
+                                    <a ng-href="{{ redlineDownloadLink }}">{{ uploadedRedline }}</a>
+                                </h4>
+                            </div>
+                        </div>
+                    </form>
+
+                    <div class="row">
+                        <div class="pull-right">
+                            <button ui-sref="process-viewer.document-lookup" class="btn btn-danger margin-right-20">Cancel</button>
+                        </div>
+                        <div class="pull-right">
+                            <button ng-click="addRevision()" class="btn btn-primary margin-right-20">Submit</button>
+                        </div>
+                        <div class="pull-right">
+                            <button ng-if="signoffRequired" ng-click="reviseDocumentForm=2" class="btn btn-warning margin-right-20">Previous</button>
+                            <button ng-if="!signoffRequired" ng-click="reviseDocumentForm=1" class="btn btn-warning margin-right-20">Previous</button>
+                        </div>
+                    </div>
                 </div>
 
             </div>

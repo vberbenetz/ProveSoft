@@ -10,10 +10,11 @@ import javax.persistence.ManyToOne;
 @Entity
 public class SignoffPath {
 
-    public SignoffPath(String companyName, Long pathId, String name, Organizations organization) {
+    public SignoffPath(String companyName, Long pathId, String name, Organizations organization, Boolean applyToAll) {
         this.key = new SignoffPathKey(companyName, pathId);
         this.name = name;
         this.organization = organization;
+        this.applyToAll = applyToAll;
     }
 
     public SignoffPath() {
@@ -28,6 +29,8 @@ public class SignoffPath {
     @ManyToOne
     @JoinColumn
     private Organizations organization;
+
+    private Boolean applyToAll;
 
     public SignoffPathKey getKey() {
         return key;
@@ -51,5 +54,13 @@ public class SignoffPath {
 
     public void setOrganization(Organizations organization) {
         this.organization = organization;
+    }
+
+    public Boolean getApplyToAll() {
+        return applyToAll;
+    }
+
+    public void setApplyToAll(Boolean applyToAll) {
+        this.applyToAll = applyToAll;
     }
 }

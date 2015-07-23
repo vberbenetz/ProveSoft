@@ -50,6 +50,19 @@ function documentRevisionService($resource) {
 
 function signoffPathsService($resource) {
     return {
+        path: $resource('/resource/signoffPath',
+            {},
+            {
+                query: {
+                    method: 'GET',
+                    params: {
+                        orgId: '@orgId'
+                    },
+                    isArray: true
+                }
+            }
+        ),
+
         steps: $resource('/resource/signoffPath/steps',
             {},
             {
