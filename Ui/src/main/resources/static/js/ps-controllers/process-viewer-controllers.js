@@ -64,7 +64,7 @@ function documentLookupCtrl($scope, $rootScope, $window, $timeout, documentLooku
 
 }
 
-function documentCreationCtrl($scope, $rootScope, $timeout, $window, documentCreationService, signoffPathsService) {
+function documentCreationCtrl($scope, $rootScope, $window, $state, documentCreationService, signoffPathsService, generalSettingsService) {
 
     if (!$rootScope.authenticated) {
         $window.location.href = '/';
@@ -73,12 +73,12 @@ function documentCreationCtrl($scope, $rootScope, $timeout, $window, documentCre
     // ------------------ Initialize -------------------- //
 
     // Initialize file upload (dropzone)
-    $scope.uploadedFile = '';
     $scope.fileAdded = false;
     $scope.submitClicked = false;
     $scope.uploadedSuccessfully = false;
     $scope.creatingDocument = false;
     $scope.isRedline = false;   // Only true for revisions
+    $scope.signoffRequired = false;
 
     // Keep track of form progress
     $scope.newDocumentForm = 1;
@@ -92,7 +92,22 @@ function documentCreationCtrl($scope, $rootScope, $timeout, $window, documentCre
     $scope.loadedPathsForOrg = 0;
 
     $scope.newDocument = {};
+    $scope.chosenSignoffPath = {};
+    $scope.signoffPathSteps = [];
+
     $scope.fieldValidationFail = {};
+
+    // Get signoff setting
+    generalSettingsService.setting.get({setting: 'signoff'}, function(data) {
+        if (data.value === 'on') {
+            $scope.signoffRequired = true;
+        }
+        else {
+            $scope.signoffRequired = false;
+        }
+    }, function(error) {
+        $scope.err = error;
+    });
 
     // Get initial data for form
     documentCreationService.documentType.query(function(documentTypes) {
@@ -139,8 +154,8 @@ function documentCreationCtrl($scope, $rootScope, $timeout, $window, documentCre
 
     // Load sign off paths if organization choice changes
     $scope.loadSignoffPaths = function() {
-        if ($scope.loadedPathsForOrg == $scope.newDocument.organizationId) {
-            signoffPathsService.path.query({orgId: $scope.newDocument.organizationId}, function(data) {
+        if ($scope.loadedPathsForOrg != $scope.newDocument.organization.organizationId) {
+            signoffPathsService.pathMulti.query({orgId: $scope.newDocument.organization.organizationId}, function(data) {
                 $scope.signoffPathChoices = data;
                 $scope.loadedPathsForOrg = $scope.newDocument.organizationId;
             }, function(error) {
@@ -149,39 +164,57 @@ function documentCreationCtrl($scope, $rootScope, $timeout, $window, documentCre
         }
     };
 
+    $scope.$watch('chosenSignoffPath.key.pathId', function(newVal, oldVal) {
+        if (newVal != oldVal) {
+            $scope.loadSignoffPathSteps(newVal);
+        }
+    });
+
+    $scope.loadSignoffPathSteps = function(pathId) {
+        signoffPathsService.steps.query({pathId: pathId}, function(steps) {
+             $scope.signoffPathSteps = steps;
+        }, function(error) {
+            $scope.error = error;
+        });
+    };
+
     $scope.goToStage = function(nextStage) {
         if (nextStage == 2) {
             if ($scope.validateForm()) {
-                $scope.loadSignoffPaths();
-                $scope.createNewDocument();
-                $scope.newDocumentForm = 2;
 
-                $timeout(function() {
+                if ($scope.signoffRequired) {
                     $scope.loadSignoffPaths();
-                }, 500);
+                    $scope.newDocumentForm = 2;
+                    $scope.loadSignoffPaths();
+                }
+                else {
+                    $scope.newDocumentForm = 3;
+                }
             }
         }
     };
 
     $scope.createNewDocument = function() {
 
-        //if ($scope.validateForm()) {
-            $scope.creatingDocument = true;
+        $scope.creatingDocument = true;
 
-            documentCreationService.document.save($scope.newDocument, function(data, status, headers, config) {
+        documentCreationService.document.save($scope.newDocument, function(data, status, headers, config) {
+            $scope.documentId = data.id;
+            $scope.processDropzone();
 
-                $scope.documentId = data.id;
+            if ($scope.signoffRequired) {
+                $scope.updatedSignoffPath = documentCreationService.document.addSignoffPath({documentId: data.id, signoffPathId: $scope.chosenSignoffPath.key.pathId});
+                $scope.updatedSignoffPath.$promise.then( function(result) {
+                    $state.go('process-viewer.document-lookup');
+                });
+            }
+            else {
+                $scope.redirectToLookup();
+            }
 
-                if ($scope.file.name != $scope.uploadedFile) {
-                    $scope.processDropzone();
-                    $scope.uploadedFile = $scope.file.name;
-                }
-
-            }, function(data, status, headers, config) {
-                $scope.err = status;
-            });
-        //}
-
+        }, function(data, status, headers, config) {
+            $scope.err = status;
+        });
     };
 
     $scope.validateForm = function() {
@@ -211,11 +244,15 @@ function documentCreationCtrl($scope, $rootScope, $timeout, $window, documentCre
         }
 
         return !validationFail;
+    };
+
+    $scope.redirectToLookup = function() {
+        $state.go('process-viewer.document-lookup');
     }
 
 }
 
-function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams, documentRevisionService, generalSettingsService) {
+function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams, documentCreationService, documentRevisionService, generalSettingsService, signoffPathsService) {
 
     if (!$rootScope.authenticated) {
         $window.location.href = '/';
@@ -246,6 +283,9 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
     $scope.uploadedDocument = undefined;
     $scope.uploadedRedline = undefined;
 
+    $scope.signoffPaths = [];
+    $scope.assocOrgs = [];
+
     // Get redline setting
     generalSettingsService.setting.get({setting: 'redline'}, function(data) {
         if (data.value === 'on') {
@@ -264,10 +304,44 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
             $scope.signoffRequired = true;
         }
         else {
-            $scope.redlineRequired = false;
+            $scope.signoffRequired = false;
         }
     }, function(error) {
         $scope.err = error;
+    });
+
+    // Get document and associated signoff path and steps
+    documentCreationService.document.get({documentId: $scope.documentId}, function(document) {
+        $scope.document = document;
+
+        signoffPathsService.path.get({pathId: document.signoffPathId}, function(signoffPath) {
+            $scope.signoffPath = signoffPath;
+
+            signoffPathsService.steps.query({pathId: signoffPath.key.pathId}, function(steps) {
+                $scope.signoffPathSteps = steps;
+
+                // Get list of organizations relating to step users
+                var orgIds = [];
+                for (var i = 0; i < steps.length; i++) {
+                    orgIds.push(steps[i].user.primaryOrgId);
+                }
+
+                documentCreationService.organizations.query({orgIds: orgIds}, function(assocOrgs) {
+                    $scope.assocOrgs = assocOrgs;
+                }, function(error) {
+                    $scope.error = error;
+                })
+
+            }, function(error) {
+                $scope.error = error;
+            })
+
+        }, function(error) {
+            $scope.error = error;
+        });
+
+    }, function(error) {
+        $scope.error = error;
     });
 
 
@@ -358,6 +432,19 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
         }, function(data, status, headers, config) {
             $scope.err = status;
         });
+    };
+
+    /* ----------- Helpers ------------ */
+
+    $scope.getOrgNameById = function(organizationId) {
+
+        var orgs = $scope.assocOrgs;
+        for (var i = 0; i < orgs.length; i++) {
+            if (orgs[i].organizationId == organizationId) {
+                return orgs[i].name;
+            }
+        }
+        return '';
     };
 
 }

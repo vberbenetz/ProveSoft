@@ -2,11 +2,43 @@
 
 function documentCreationService($resource) {
     return {
-        document: $resource('/resource/document'),
+        document: $resource('/resource/document',
+            {},
+            {
+                get: {
+                    method: 'GET',
+                    params: {
+                        documentId: '@documentId'
+                    },
+                    isArray: false
+                },
+                addSignoffPath: {
+                    method: 'PUT',
+                    params: {
+                        documentId: '@documentId',
+                        signoffPathId: '@signoffPathId'
+                    },
+                    isArray: false
+                }
+            }
+        ),
 
         documentType: $resource('/resource/documentType'),
 
-        organization: $resource('/resource/organization')
+        organization: $resource('/resource/organization'),
+
+        organizations: $resource('/resource/organization/byList',
+            {},
+            {
+                query: {
+                    method: 'GET',
+                    params: {
+                        orgIds: '@orgIds'
+                    },
+                    isArray: true
+                }
+            }
+        )
     }
 }
 
@@ -51,6 +83,19 @@ function documentRevisionService($resource) {
 function signoffPathsService($resource) {
     return {
         path: $resource('/resource/signoffPath',
+            {},
+            {
+                get: {
+                    method: 'GET',
+                    params: {
+                        pathId: '@pathId'
+                    },
+                    isArray: false
+                }
+            }
+        ),
+
+        pathMulti: $resource('/resource/signoffPath/multi',
             {},
             {
                 query: {

@@ -40,6 +40,11 @@ public class DocumentService {
         return documentRepository.searchByTitle(companyName, title);
     }
 
+    // Find single document by Id
+    public Document findDocumentById(String companyName, String id) {
+        return documentRepository.findByCompanyNameAndId(companyName, id);
+    }
+
     // Search method will use wildcards for the title
     public List<Document> findById(String companyName, String id) {
         return documentRepository.searchById(companyName, id);

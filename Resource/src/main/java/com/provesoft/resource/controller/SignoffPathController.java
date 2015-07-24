@@ -21,10 +21,24 @@ public class SignoffPathController {
     SignoffPathService signoffPathService;
 
     /*
-        Retrieve all signoff paths by query parameter
+        Retrieve signoff path by pathId
      */
     @RequestMapping(
             value = "/signoffPath",
+            method = RequestMethod.GET
+    )
+    public SignoffPath getSignoffPath(@RequestParam("pathId") Long pathId, Authentication auth) {
+
+        String companyName = UserHelpers.getCompany(auth);
+
+        return signoffPathService.findByCompanyNameAndPathId(companyName, pathId);
+    }
+
+    /*
+        Retrieve all signoff paths by query parameter
+     */
+    @RequestMapping(
+            value = "/signoffPath/multi",
             method = RequestMethod.GET
     )
     public List<SignoffPath> getSignoffPaths(@RequestParam(value = "orgId", required = false) Long orgId,

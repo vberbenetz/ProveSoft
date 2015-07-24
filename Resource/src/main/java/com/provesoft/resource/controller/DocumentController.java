@@ -46,6 +46,18 @@ public class DocumentController {
 
     /* ------ Document ------ */
 
+    // Find document by Id
+    @RequestMapping(value = "/document",
+            method = RequestMethod.GET
+    )
+    public Document getDocumentById (@RequestParam("documentId") String documentId,
+                                     Authentication auth) {
+
+        String companyName = UserHelpers.getCompany(auth);
+
+        return documentService.findDocumentById(companyName, documentId);
+    }
+
     // Find all documents by the user's company, and join the like list of Id's and Titles
     @RequestMapping(value = "/document/lookup",
             method = RequestMethod.GET
@@ -306,10 +318,8 @@ public class DocumentController {
 
     /* ------ Document SignoffPath ------ */
     @RequestMapping(
-            value = "/document/signoffPath",
-            method = RequestMethod.POST,
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
+            value = "/document",
+            method = RequestMethod.PUT
     )
     public Document addSignoffPath(@RequestParam("documentId") String documentId,
                                    @RequestParam("signoffPathId") Long signoffPathId,
