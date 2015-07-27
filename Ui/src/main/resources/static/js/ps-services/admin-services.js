@@ -34,7 +34,7 @@ function manageUsersService($resource) {
                     method: 'PUT',
                     params: {
                         userId: '@userId',
-                        altOrgId: '@altOrgId'
+                        altOrgIds: '@altOrgIds'
                     },
                     isArray: false
                 },

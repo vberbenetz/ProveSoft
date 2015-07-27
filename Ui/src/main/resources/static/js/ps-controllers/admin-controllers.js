@@ -80,10 +80,7 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
 
         // Load preview of users
         manageUsersService.allUsers.query(function(users) {
-
             $scope.users = users;
-
-            $scope.loadUsers();
 
         }, function(error) {
             $scope.err = error;
@@ -96,7 +93,6 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
     // Load all roles
     manageUsersService.allRoles.query(function(roles) {
         $scope.roles = roles;
-        $scope.loadRoles();
     }, function(error) {
         $scope.err = error;
     });
@@ -115,8 +111,6 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
 
                 $scope.users = users;
                 $scope.populatedUserDropdown = true;
-
-                $scope.loadOrgs();
 
             }, function(error) {
                 $scope.err = error;
@@ -395,7 +389,7 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
                 ids.push(altOrgs[i].organizationId);
             }
 
-            manageUsersService.userProperties.updateAltOrgs({userId: userId, altOrgId: ids}, function(data) {
+            manageUsersService.userProperties.updateAltOrgs({userId: userId, altOrgIds: ids}, function(data) {
 
                 // Reset alternateOrg edit ng-model
                 $scope.editUser.altOrgs = [];
@@ -1038,14 +1032,12 @@ function signoffPathsSetupCtrl ($scope, $rootScope, $window, manageUsersService,
 
     manageUsersService.allUsers.query(function(users) {
         $scope.users = users;
-        $scope.loadUsers();
     }, function(error) {
         $scope.err = error;
     });
 
     manageUsersService.allOrganizations.query(function(orgs) {
         $scope.organizations = orgs;
-        $scope.loadOrgs();
     }, function(error) {
         $scope.err = error;
     });
@@ -1058,30 +1050,6 @@ function signoffPathsSetupCtrl ($scope, $rootScope, $window, manageUsersService,
 
 
     // ------------------ Methods -------------------- //
-
-    // Need to load users twice for chosen dropdown watcher to register collection of options
-    $scope.loadUsers = function() {
-        if (!$scope.populatedUserDropdown) {
-            manageUsersService.allUsers.query(function(users) {
-                $scope.users = users;
-                $scope.populatedUserDropdown = true;
-            }, function(error) {
-                $scope.err = error;
-            });
-        }
-    };
-
-    // Need to load orgs twice for chosen dropdown watcher to register collection of options
-    $scope.loadOrgs = function() {
-        if (!$scope.populatedOrgDropdown) {
-            manageUsersService.allOrganizations.query(function(orgs) {
-                $scope.organizations = orgs;
-                $scope.populatedOrgDropdown = true;
-            }, function(error) {
-                $scope.err = error;
-            });
-        }
-    };
 
     $scope.changeRightPanel = function(path) {
 

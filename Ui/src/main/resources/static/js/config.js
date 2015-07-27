@@ -53,12 +53,11 @@ function config($stateProvider, $locationProvider, $urlRouterProvider, $ocLazyLo
                             ]
                         },
                         {
-                            insertBefore: '#loadBefore',
-                            name: 'localytics.directives',
+                            name:'ui.select',
                             files: [
-                                'css/plugins/chosen/chosen.css',
-                                'js/plugins/chosen/chosen.jquery.js',
-                                'js/plugins/chosen/chosen.js'
+                                'css/plugins/ui-select/select.min.css',
+                                'css/plugins/ui-select/selectize.min.css',
+                                'js/plugins/ui-select/select.min.js'
                             ]
                         }
                     ]);
@@ -104,9 +103,13 @@ function config($stateProvider, $locationProvider, $urlRouterProvider, $ocLazyLo
                             files: ['css/plugins/iCheck/custom.css','js/plugins/iCheck/icheck.min.js']
                         },
                         {
-                            insertBefore: '#loadBefore',
-                            name: 'localytics.directives',
-                            files: ['css/plugins/chosen/chosen.css','js/plugins/chosen/chosen.jquery.js','js/plugins/chosen/chosen.js']
+                            name:'ui.select',
+                            files: [
+                                'css/plugins/ui-select/select.min.css',
+                                'css/plugins/ui-select/select2.min.css',
+                                'css/plugins/ui-select/selectize.min.css',
+                                'js/plugins/ui-select/select.min.js'
+                            ]
                         }
                     ]);
                 }
@@ -144,9 +147,13 @@ function config($stateProvider, $locationProvider, $urlRouterProvider, $ocLazyLo
                             files: ['css/plugins/iCheck/custom.css','js/plugins/iCheck/icheck.min.js']
                         },
                         {
-                            insertBefore: '#loadBefore',
-                            name: 'localytics.directives',
-                            files: ['css/plugins/chosen/chosen.css','js/plugins/chosen/chosen.jquery.js','js/plugins/chosen/chosen.js']
+                            name:'ui.select',
+                            files: [
+                                'css/plugins/ui-select/select.min.css',
+                                'css/plugins/ui-select/select2.min.css',
+                                'css/plugins/ui-select/selectize.min.css',
+                                'js/plugins/ui-select/select.min.js'
+                            ]
                         }
                     ]);
                 }

@@ -84,7 +84,9 @@ function documentCreationCtrl($scope, $rootScope, $window, $state, documentCreat
     $scope.newDocumentForm = 1;
 
     // Initialize data for form
+    $scope.documentType = {};
     $scope.documentTypes = [];
+    $scope.organization = {};
     $scope.organizations = [];
     $scope.populatedDocumentTypesDropdown = false;
     $scope.populatedOrganizationsDropdown = false;
@@ -92,7 +94,8 @@ function documentCreationCtrl($scope, $rootScope, $window, $state, documentCreat
     $scope.loadedPathsForOrg = 0;
 
     $scope.newDocument = {};
-    $scope.chosenSignoffPath = {};
+    $scope.signoffPath = {};
+    $scope.signoffPaths = [];
     $scope.signoffPathSteps = [];
 
     $scope.fieldValidationFail = {};
@@ -112,11 +115,9 @@ function documentCreationCtrl($scope, $rootScope, $window, $state, documentCreat
     // Get initial data for form
     documentCreationService.documentType.query(function(documentTypes) {
         $scope.documentTypes = documentTypes;
-        $scope.loadDocumentTypes();
 
         documentCreationService.organization.query(function(organizations) {
             $scope.organizations = organizations;
-            $scope.loadOrganizations();
         }, function(error) {
             $scope.err = error;
         });
@@ -128,43 +129,19 @@ function documentCreationCtrl($scope, $rootScope, $window, $state, documentCreat
 
     // ------------------ Methods ------------------- //
 
-    // Need to load documentTypes twice for chosen dropdown watcher to register collection of options
-    $scope.loadDocumentTypes = function() {
-        if (!$scope.populatedDocumentTypesDropdown) {
-            documentCreationService.documentType.query(function(documentTypes) {
-                $scope.populatedDocumentTypesDropdown = true;
-                $scope.documentTypes = documentTypes;
-            }, function(error) {
-                $scope.err = error;
-            });
-        }
-    };
-
-    // Need to load organizations twice for chosen dropdown watcher to register collection of options
-    $scope.loadOrganizations = function() {
-        if (!$scope.populatedOrganizationsDropdown) {
-            documentCreationService.organization.query(function(organizations) {
-                $scope.populatedOrganizationsDropdown = true;
-                $scope.organizations = organizations;
-            }, function(error) {
-                $scope.err = error;
-            });
-        }
-    };
-
     // Load sign off paths if organization choice changes
     $scope.loadSignoffPaths = function() {
         if ($scope.loadedPathsForOrg != $scope.newDocument.organization.organizationId) {
             signoffPathsService.pathMulti.query({orgId: $scope.newDocument.organization.organizationId}, function(data) {
-                $scope.signoffPathChoices = data;
-                $scope.loadedPathsForOrg = $scope.newDocument.organizationId;
+                $scope.signoffPaths = data;
+                $scope.loadedPathsForOrg = $scope.newDocument.organization.organizationId;
             }, function(error) {
                 $scope.error = error;
             });
         }
     };
 
-    $scope.$watch('chosenSignoffPath.key.pathId', function(newVal, oldVal) {
+    $scope.$watch('signoffPath.selected.key.pathId', function(newVal, oldVal) {
         if (newVal != oldVal) {
             $scope.loadSignoffPathSteps(newVal);
         }
@@ -185,7 +162,6 @@ function documentCreationCtrl($scope, $rootScope, $window, $state, documentCreat
                 if ($scope.signoffRequired) {
                     $scope.loadSignoffPaths();
                     $scope.newDocumentForm = 2;
-                    $scope.loadSignoffPaths();
                 }
                 else {
                     $scope.newDocumentForm = 3;
@@ -203,7 +179,7 @@ function documentCreationCtrl($scope, $rootScope, $window, $state, documentCreat
             $scope.processDropzone();
 
             if ($scope.signoffRequired) {
-                $scope.updatedSignoffPath = documentCreationService.document.addSignoffPath({documentId: data.id, signoffPathId: $scope.chosenSignoffPath.key.pathId});
+                $scope.updatedSignoffPath = documentCreationService.document.addSignoffPath({documentId: data.id, signoffPathId: $scope.signoffPath.selected.key.pathId});
                 $scope.updatedSignoffPath.$promise.then( function(result) {
                     $state.go('process-viewer.document-lookup');
                 });
@@ -214,6 +190,7 @@ function documentCreationCtrl($scope, $rootScope, $window, $state, documentCreat
 
         }, function(data, status, headers, config) {
             $scope.err = status;
+            $scope.creatingDocument = false;
         });
     };
 

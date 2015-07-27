@@ -52,8 +52,12 @@
                                 <div class="form-group" ng-class="{ 'has-error' : fieldValidationFail.documentType }">
                                     <label class="col-md-2 control-label">Type</label>
                                     <div class="col-md-10 margin-bottom-30">
-                                        <select style="width:250px;" data-placeholder="Choose Document Type.." id="docTypeSelect" size="6" class="form-control chosen-select" ng-model="newDocument.documentType" ng-options="d.name for d in documentTypes">
-                                        </select>
+                                        <ui-select ng-model="newDocument.documentType" theme="selectize" style="width: 300px;">
+                                            <ui-select-match placeholder="Select Document Type">{{ $select.selected.name }}</ui-select-match>
+                                            <ui-select-choices repeat="documentType in documentTypes | filter: $select.search">
+                                                <div ng-bind-html="documentType.name | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
                                         <p class="text-danger" ng-show="fieldValidationFail.documentType">Please select a document type</p>
                                     </div>
                                 </div>
@@ -61,8 +65,12 @@
                                 <div class="form-group" ng-class="{ 'has-error' : fieldValidationFail.organization }">
                                     <label class="col-md-2 control-label">Organization</label>
                                     <div class="col-md-10 margin-bottom-30">
-                                        <select style="width:250px;" data-placeholder="Choose Owning Organization.." id="orgSelect" size="6" class="form-control chosen-select" ng-model="newDocument.organization" ng-options="o.name for o in organizations">
-                                        </select>
+                                        <ui-select ng-model="newDocument.organization" theme="selectize" style="width: 300px;">
+                                            <ui-select-match placeholder="Choose Owning Organization">{{ $select.selected.name }}</ui-select-match>
+                                            <ui-select-choices repeat="organization in organizations | filter: $select.search">
+                                                <div ng-bind-html="organization.name | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
                                         <p class="text-danger" ng-show="fieldValidationFail.organization">Please select an organization</p>
                                     </div>
                                 </div>
@@ -115,8 +123,12 @@
                         <div class="form-group">
                             <h3><label class="col-md-2 control-label margin-left-10">Signoff Path</label></h3>
                             <div class="col-md-8 margin-bottom-30">
-                                <select style="width:250px;" data-placeholder="Choose Signoff Path.." id="pathSelect" size="6" class="form-control chosen-select" ng-model="chosenSignoffPath" ng-options="s.name for s in signoffPathChoices">
-                                </select>
+                                <ui-select ng-model="signoffPath.selected" theme="selectize" style="width: 300px;">
+                                    <ui-select-match placeholder="Choose Signoff Path">{{ $select.selected.name }}</ui-select-match>
+                                    <ui-select-choices repeat="signoffPath in signoffPaths | filter: $select.search">
+                                        <div ng-bind-html="signoffPath.name | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
                                 <p class="text-danger" ng-show="">Please select a signoff path</p>
                             </div>
                         </div>
@@ -186,7 +198,7 @@
                                 <div class="widget style1 gray-bg text-center">
                                     <div class="row vertical-align">
                                         <h4 class="font-bold">
-                                            {{ chosenSignoffPath.name }}
+                                            {{ signoffPath.selected.name }}
                                         </h4>
                                     </div>
                                 </div>

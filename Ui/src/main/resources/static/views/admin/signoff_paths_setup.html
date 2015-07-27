@@ -28,8 +28,12 @@
                         <div class="form-group" ng-class="{ 'has-error' : newPathValidationFail.organization }">
                             <label class="col-sm-2 control-label">Use With Organization</label>
                             <div class="col-lg-6 col-sm-10">
-                                <select ng-disabled="newPath.applyToAll" style="width:250px;" data-placeholder="Choose Organization" size="6" class="chosen-select" ng-model="newPath.organization" ng-options="o.name for o in organizations">
-                                </select>
+                                <ui-select ng-disabled="newPath.applyToAll" ng-model="newPath.organization" theme="selectize" style="width: 300px;">
+                                    <ui-select-match placeholder="Choose Organization">{{ $select.selected.name }}</ui-select-match>
+                                    <ui-select-choices repeat="organization in organizations | filter: $select.search">
+                                        <div ng-bind-html="organization.name | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
                                 <p class="text-danger" ng-show="newPathValidationFail.organization">Please select a primary organization</p>
                             </div>
                             <div class="col-sm-10 col-sm-offset-2 margin-top-20">
@@ -40,8 +44,12 @@
                         <div class="form-group" ng-class="{ 'has-error' : newPathValidationFail.initialApprover }">
                             <label class="col-sm-2 control-label">Initial Approver</label>
                             <div class="col-lg-6 col-sm-10">
-                                <select style="width:250px;" data-placeholder="Choose Initial Approver" size="6" class="chosen-select"  ng-model="newPath.initialApprover" ng-options="u.firstName + ' ' + u.lastName for u in users">
-                                </select>
+                                <ui-select ng-model="newPath.initialApprover" theme="selectize" style="width: 300px;">
+                                    <ui-select-match placeholder="Choose Initial Approver">{{ $select.selected.firstName }} {{ $select.selected.lastName }}</ui-select-match>
+                                    <ui-select-choices repeat="user in users | filter: $select.search">
+                                        <div ng-bind-html="user.firstName + ' ' + user.lastName | highlight: $select.search"></div>
+                                    </ui-select-choices>
+                                </ui-select>
                                 <p class="text-danger" ng-show="newPathValidationFail.initialApprover">Please select an initial approver</p>
                             </div>
                         </div>

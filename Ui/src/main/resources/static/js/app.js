@@ -8,7 +8,8 @@
         'ui.bootstrap',                 // Ui Bootstrap
         'ngResource',
         'ngAnimate',
-        'ngCookies'
+        'ngCookies',
+        'ngSanitize'
     ])
 })();
 

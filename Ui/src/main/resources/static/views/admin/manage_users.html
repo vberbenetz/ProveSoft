@@ -222,8 +222,12 @@
                                             Primary Organization
                                         </label>
                                         <div class="col-lg-6">
-                                            <select chosen style="width:250px;" data-placeholder="Choose Primary Organization" id="newUserPrimaryOrg" size="6" class="chosen-select"  ng-model="newUser.primaryOrg" ng-options="o.name for o in organizations">
-                                            </select>
+                                            <ui-select ng-model="newUser.primaryOrg" theme="selectize" style="width: 300px;">
+                                                <ui-select-match placeholder="Choose Primary Organization">{{ $select.selected.name }}</ui-select-match>
+                                                <ui-select-choices repeat="organization in organizations | filter: $select.search">
+                                                    <div ng-bind-html="organization.name | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
                                             <p class="text-danger" ng-show="newUserValidationFail.primaryOrg">Please select a primary organization</p>
                                         </div>
                                     </div>
@@ -232,8 +236,12 @@
                                             Additional Organizations
                                         </label>
                                         <div class="col-lg-6">
-                                            <select chosen multiple style="width:250px;" data-placeholder="Choose Additional Organizations" id="newUserAdditionalOrgs" size="6" class="chosen-select" ng-model="newUser.additionalOrgs" ng-options="o.name for o in organizations">
-                                            </select>
+                                            <ui-select multiple ng-model="newUser.additionalOrgs" theme="select2" style="width: 300px;">
+                                                <ui-select-match placeholder="Choose Additional Organizations">{{ $item.name }}</ui-select-match>
+                                                <ui-select-choices repeat="organization in organizations | filter: $select.search">
+                                                    <div ng-bind-html="organization.name | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
                                         </div>
                                     </div>
                                     <div class="form-group" ng-class="{ 'has-error' : newUserValidationFail.roles }">
@@ -241,8 +249,12 @@
                                             User Roles
                                         </label>
                                         <div class="col-lg-6">
-                                            <select chosen multiple style="width:250px;" data-placeholder="Choose Roles" id="newUserRoles" class="chosen-select" size="6" ng-model="newUser.roles" ng-options="r.name for r in roles">
-                                            </select>
+                                            <ui-select multiple ng-model="newUser.roles" theme="select2" style="width: 300px;">
+                                                <ui-select-match placeholder="Choose Roles">{{ $item.name }}</ui-select-match>
+                                                <ui-select-choices repeat="role in roles | filter: $select.search">
+                                                    <div ng-bind-html="role.name | highlight: $select.search"></div>
+                                                </ui-select-choices>
+                                            </ui-select>
                                             <p class="text-danger" ng-show="newUserValidationFail.roles">Please select at least one role</p>
                                         </div>
                                     </div>
@@ -308,8 +320,12 @@
                                                             <tbody>
                                                             <tr>
                                                                 <td>
-                                                                    <select chosen style="width:250px;" data-placeholder="Edit primary organization" id="editUserPriOrg" class="chosen-select" size="6" ng-model="editUser.primaryOrg" ng-options="o.name for o in organizations">
-                                                                    </select>
+                                                                    <ui-select ng-model="editUser.primaryOrg" theme="selectize" style="width: 300px;">
+                                                                        <ui-select-match placeholder="Edit primary organization">{{ $select.selected.name }}</ui-select-match>
+                                                                        <ui-select-choices repeat="organization in organizations | filter: $select.search">
+                                                                            <div ng-bind-html="organization.name | highlight: $select.search"></div>
+                                                                        </ui-select-choices>
+                                                                    </ui-select>
                                                                 </td>
                                                                 <td>
                                                                     <button ng-click="updateUserPrimaryOrganization()" class="btn btn-sm btn-primary" type="button">
@@ -344,8 +360,12 @@
                                                             <tbody>
                                                             <tr>
                                                                 <td>
-                                                                    <select chosen multiple style="width:250px;" data-placeholder="Add alt organizations" id="editUserAltOrgs" class="chosen-select" size="6" ng-model="editUser.altOrgs" ng-options="o.name for o in organizations">
-                                                                    </select>
+                                                                    <ui-select multiple ng-model="editUser.altOrgs" theme="select2" style="width: 300px;">
+                                                                        <ui-select-match placeholder="Choose Additional Organizations">{{ $item.name }}</ui-select-match>
+                                                                        <ui-select-choices repeat="organization in organizations | filter: $select.search">
+                                                                            <div ng-bind-html="organization.name | highlight: $select.search"></div>
+                                                                        </ui-select-choices>
+                                                                    </ui-select>
                                                                 </td>
                                                                 <td>
                                                                     <button ng-click="updateUserAlternateOrganizations()" class="btn btn-sm btn-primary" type="button">
@@ -380,8 +400,12 @@
                                                             <tbody>
                                                             <tr>
                                                                 <td>
-                                                                    <select chosen multiple style="width:250px;" data-placeholder="Add roles" id="editUserRoles" class="chosen-select" size="6" ng-model="editUser.roles" ng-options="r.name for r in roles">
-                                                                    </select>
+                                                                    <ui-select multiple ng-model="editUser.roles" theme="select2" style="width: 300px;">
+                                                                        <ui-select-match placeholder="Choose Roles">{{ $item.name }}</ui-select-match>
+                                                                        <ui-select-choices repeat="role in roles | filter: $select.search">
+                                                                            <div ng-bind-html="role.name | highlight: $select.search"></div>
+                                                                        </ui-select-choices>
+                                                                    </ui-select>
                                                                 </td>
                                                                 <td>
                                                                     <button ng-click="updateUserRoles()" class="btn btn-sm btn-primary" type="button">
@@ -525,22 +549,15 @@
                                                 <form role="search">
                                                     <div class="form-group">
                                                         <div class="input-group">
-
-                                                            <!--
-                                                            <span class="input-group-btn">
-                                                                <button class="btn btn-primary" type="button">
-                                                                    <i class="fa fa-plus"> Add</i>
-                                                                </button>
-                                                            </span>
-                                                            <input type="text" placeholder="Start typing to find user..." class="form-control" name="userSearch2" id="userSearch2">
-                                                            -->
-
-                                                            <select chosen style="width:250px;" data-placeholder="Choose member to add" id="addOrgMember" class="chosen-select" size="6" ng-model="editOrg.newMember" ng-options="u.firstName + ' ' + u.lastName for u in users">
-                                                            </select>
+                                                            <ui-select ng-model="editOrg.newMember" theme="selectize" style="width: 300px;">
+                                                                <ui-select-match placeholder="Choose Member To Add">{{ $select.selected.firstName }} {{ $select.selected.lastName }}</ui-select-match>
+                                                                <ui-select-choices repeat="user in users | filter: $select.search">
+                                                                    <div ng-bind-html="user.firstName + ' ' + user.lastName | highlight: $select.search"></div>
+                                                                </ui-select-choices>
+                                                            </ui-select>
                                                             <button ng-click="addMember()" class="btn btn-primary" type="button">
                                                                 <i class="fa fa-plus"> Add</i>
                                                             </button>
-
                                                         </div>
                                                     </div>
                                                 </form>
@@ -609,8 +626,12 @@
                                         Organization
                                     </label>
                                     <div class="col-sm-10 margin-bottom-20 padding-left-15 ">
-                                        <select chosen id="states" class="chosen-select" style="width:350px;" size="6" ng-model="permission.organization" ng-options="o.name for o in organizations">
-                                        </select>
+                                        <ui-select ng-model="permission.organization" theme="selectize" style="width: 300px;">
+                                            <ui-select-match placeholder="Add Organization To Role">{{ $select.selected.name }}</ui-select-match>
+                                            <ui-select-choices repeat="organization in organizations | filter: $select.search">
+                                                <div ng-bind-html="organization.name | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
                                         <p class="text-danger" ng-show="newRoleValidationFail.permissions">Please include at least one organization</p>
                                     </div>
                                     <div class="text-right">
