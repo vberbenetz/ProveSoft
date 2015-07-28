@@ -10,9 +10,9 @@
                 <div class="ibox-content">
                     <div class="clients-list">
                         <ul class="nav nav-tabs">
-                            <li ng-class="{'active' : tab == 1}"><a ng-click="tab = 1; rightPanel.view = 'new-user'" ng-init="tab = 1"><i class="fa fa-users"></i> Users</a></li>
-                            <li ng-class="{'active' : tab == 2}"><a ng-click="tab = 2; rightPanel.view = 'new-org'"><i class="fa fa-sitemap"></i> Organizations</a></li>
-                            <li ng-class="{'active' : tab == 3}"><a ng-click="tab = 3; rightPanel.view = 'new-role'; loadOrgs();"><i class="fa fa-user-secret"></i> Roles</a></li>
+                            <li ng-class="{'active' : tab == 1}"><a ng-click="tab = 1; rightPanel.view = ''" ng-init="tab = 1"><i class="fa fa-users"></i> Users</a></li>
+                            <li ng-class="{'active' : tab == 2}"><a ng-click="tab = 2; rightPanel.view = ''"><i class="fa fa-sitemap"></i> Organizations</a></li>
+                            <li ng-class="{'active' : tab == 3}"><a ng-click="tab = 3; rightPanel.view = ''"><i class="fa fa-user-secret"></i> Roles</a></li>
                         </ul>
                         <div class="tab-content">
                             <div id="tab-1" class="tab-pane active" ng-show="tab == 1">
