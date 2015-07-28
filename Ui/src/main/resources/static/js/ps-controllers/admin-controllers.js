@@ -55,7 +55,7 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
 
     // Set the starting view for the right panel
     $scope.rightPanel = {
-        view: 'new-user',
+        view: '',
         data: {}
     };
 
@@ -594,24 +594,37 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
 
         var permToAdd = $scope.permission;
 
-        $scope.newRolePermissions.push({
-            key: {
-                organizationId: permToAdd.organization.organizationId
-            },
-            organizationName: permToAdd.organization.name,      // Temporary variable so user can see name (will be deleted on save)
-            viewPerm: permToAdd.viewPerm,
-            revisePerm: permToAdd.revisePerm,
-            commentPerm: permToAdd.commentPerm,
-            adminPerm: permToAdd.adminPerm
-        });
+        // Check if user selected an organization before adding to permissions
+        if (Object.getOwnPropertyNames(permToAdd.organization).length !== 0) {
 
-        $scope.permission = {
-            organization: {},
-            viewPerm: true,
-            revisePerm: false,
-            commentPerm: false,
-            adminPerm: false
-        };
+            // Check if organization has been added to role already
+            var addedPerms = $scope.newRolePermissions;
+            for (var i = 0; i < addedPerms.length; i++) {
+                if (addedPerms[i].key.organizationId === permToAdd.organization.organizationId) {
+                    $scope.permission.organization = {};
+                    return;
+                }
+            }
+
+            $scope.newRolePermissions.push({
+                key: {
+                    organizationId: permToAdd.organization.organizationId
+                },
+                organizationName: permToAdd.organization.name,      // Temporary variable so user can see name (will be deleted on save)
+                viewPerm: permToAdd.viewPerm,
+                revisePerm: permToAdd.revisePerm,
+                commentPerm: permToAdd.commentPerm,
+                adminPerm: permToAdd.adminPerm
+            });
+
+            $scope.permission = {
+                organization: {},
+                viewPerm: true,
+                revisePerm: false,
+                commentPerm: false,
+                adminPerm: false
+            };
+        }
     };
 
     /*

@@ -6,6 +6,7 @@ function documentLookupCtrl($scope, $rootScope, $window, $timeout, documentLooku
         $window.location.href = '/';
     }
 
+    $scope.noResultsFound = false;
     $scope.searchString = '';
     $scope.prevSearchString = '';
     $scope.documentSearchResults = [];
@@ -21,13 +22,8 @@ function documentLookupCtrl($scope, $rootScope, $window, $timeout, documentLooku
 
     $scope.$watch('searchString', function(newVal, oldVal) {
 
-        // Clear search results
-        if ($scope.documentSearchResults.length > 0) {
-            $scope.documentSearchResults = [];
-        }
-
-        // Only perform search if string is greater than 4 characters
-        if (newVal.length > 4) {
+        // Only perform search if string is greater than 0 characters
+        if (newVal.length > 0) {
             $scope.executeSearch();
         }
     });
@@ -43,12 +39,20 @@ function documentLookupCtrl($scope, $rootScope, $window, $timeout, documentLooku
                 $scope.prevSearchString = $scope.searchString;
 
                 documentLookupService.lookup.query({searchString: $scope.searchString}, function(data, status, headers, config) {
-                    $scope.documentSearchResults = data;
+                    if (data.length > 0) {
+                        $scope.noResultsFound = false;
+                        $scope.documentSearchResults = data;
+                    }
+                    else {
+                        $scope.documentSearchResults.length = 0;    // Clear previous search results
+                        $scope.noResultsFound = true;
+                    }
+
                 }, function(data, status, headers, config) {
                     $scope.error = status;
                 });
             }
-        } , 700);
+        } , 500);
     };
 
     $scope.getRevisions = function(documentId) {

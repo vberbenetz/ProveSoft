@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.TransactionRolledbackException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -76,7 +77,12 @@ public class DocumentController {
         List<Document> documentsByTitle = documentService.findByTitle(companyName, searchString);
         List<Document> documentsById = documentService.findById(companyName, searchString);
 
-        documentsByTitle.addAll(documentsById);
+        // Remove duplicates
+        for (Document doc : documentsById) {
+            if (!documentsByTitle.contains(doc)) {
+                documentsByTitle.add(doc);
+            }
+        }
 
         return documentsByTitle;
     }

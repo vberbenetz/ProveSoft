@@ -19,12 +19,12 @@
                     <!-- Search results table -->
                     <div class="col-md-8">
                         <div class="search-form">
-                            <form action="">
+                            <form>
                                 <div class="input-group">
                                     <input ng-model="searchString" type="text" placeholder="Search All Documents.." name="search" class="form-control input-lg">
 
                                     <div class="input-group-btn">
-                                        <button class="btn btn-lg btn-primary" type="submit">
+                                        <button class="btn btn-lg btn-primary" ng-click="executeSearch()">
                                             Search
                                         </button>
                                     </div>
@@ -32,7 +32,11 @@
                             </form>
                         </div>
 
-                        <div class="table-responsive">
+                        <div ng-show="noResultsFound" class="margin-top-30">
+                            <h3>No Results Found</h3>
+                        </div>
+
+                        <div ng-hide="noResultsFound" class="table-responsive margin-top-30">
                             <table class="table table-hover issue-tracker">
                                 <thead>
                                 <tr>
