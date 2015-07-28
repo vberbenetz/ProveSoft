@@ -1,5 +1,6 @@
 package com.provesoft.resource.service;
 
+import com.provesoft.resource.entity.Organizations;
 import com.provesoft.resource.entity.UserDetails;
 import com.provesoft.resource.entity.UserPermissions;
 import com.provesoft.resource.repository.UserDetailsRepository;
@@ -59,10 +60,6 @@ public class UserDetailsService {
 
     public UserDetails addUser(UserDetails newUser) {
         return userDetailsRepository.saveAndFlush(newUser);
-    }
-
-    public void updatePrimaryOrganization(Long primaryOrgId, Long userId, String companyName) {
-        userDetailsRepository.updatePrimaryOrganization(primaryOrgId, userId, companyName);
     }
 
     public void deleteByUserId(String companyName, Long userId) {

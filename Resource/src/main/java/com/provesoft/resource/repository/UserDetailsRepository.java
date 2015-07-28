@@ -37,19 +37,6 @@ public interface UserDetailsRepository extends JpaRepository<UserDetails, Long> 
     List<UserDetails> findByCompanyAndPartialName(@Param("companyName") String companyName,
                                                   @Param("name") String name);
 
-    // Update the primary organization id relating to the user
-    @Query(
-            "UPDATE UserDetails u " +
-            "SET u.primaryOrgId=:primaryOrgId " +
-            "WHERE u.companyName=:companyName " +
-            "AND u.userId=:userId"
-    )
-    @Modifying
-    @Transactional
-    int updatePrimaryOrganization(@Param("primaryOrgId") Long primaryOrgId,
-                                   @Param("userId") Long userId,
-                                   @Param("companyName") String companyName);
-
     // Delete user by userId
     @Query(
             "DELETE FROM UserDetails u " +

@@ -15,21 +15,28 @@ function manageUsersService($resource) {
             }
         ),
 
+        userWildSearch: $resource('/resource/admin/user/wildSearch'),
+
         allUsers: $resource('/resource/admin/user/all'),
 
         first10: $resource('/resource/admin/users/first10'),
 
-        userProperties: $resource('/resource/admin/user/properties',
+        userPrimaryOrg: $resource('/resource/admin/user/primaryOrg',
             {},
             {
                 updatePrimaryOrg: {
-                    method: 'PUT',
+                    method: 'POST',
                     params: {
-                        userId: '@userId',
-                        primaryOrgId: '@primaryOrgId'
+                        userId: '@userId'
                     },
                     isArray: false
-                },
+                }
+            }
+        ),
+
+        userProperties: $resource('/resource/admin/user/properties',
+            {},
+            {
                 updateAltOrgs: {
                     method: 'PUT',
                     params: {

@@ -1,6 +1,6 @@
 'use strict';
 
-function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
+function manageUsersCtrl($scope, $rootScope, $window, $timeout, manageUsersService) {
 
     if (!$rootScope.authenticated) {
         $window.location.href = '/';
@@ -15,10 +15,13 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
         email: '',
         title: '',
         roles: [],
-        primaryOrg: '',
+        primaryOrganization: {},
         additionalOrgs: []
     };
     $scope.newUserValidationFail = {};
+
+    $scope.userSearchString = '';
+    $scope.noResultsFound = false;
 
     $scope.editUser = {
         primaryOrg: '',
@@ -99,49 +102,6 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
 
     // ------------------ Methods -------------------- //
 
-    // Need to load users twice for chosen dropdown watcher to register collection of options
-    $scope.loadUsers = function() {
-        if (!$scope.populatedUserDropdown) {
-            manageUsersService.allUsers.query(function(users) {
-
-                // Append organization name to user
-                for (var i = 0; i < users.length; i++) {
-                    users[i].primaryOrgName = $scope.getOrgNameById($scope.users[i].primaryOrgId);
-                }
-
-                $scope.users = users;
-                $scope.populatedUserDropdown = true;
-
-            }, function(error) {
-                $scope.err = error;
-            });
-        }
-    };
-
-    // Need to load orgs twice for chosen dropdown watcher to register collection of options
-    $scope.loadOrgs = function() {
-        if (!$scope.populatedOrgDropdown) {
-            manageUsersService.allOrganizations.query(function(orgs) {
-                $scope.organizations = orgs;
-                $scope.populatedOrgDropdown = true;
-            }, function(error) {
-                $scope.err = error;
-            });
-        }
-    };
-
-    // Need to load roles twice for chosen dropdown watcher to register collection of options
-    $scope.loadRoles = function() {
-        if (!$scope.populatedRoleDropdown) {
-            manageUsersService.allRoles.query(function(roles) {
-                $scope.roles = roles;
-                $scope.populatedRoleDropdown = true;
-            }, function(error) {
-                $scope.err = error;
-            });
-        }
-    };
-
     $scope.changeRightPanel = function(view, data) {
 
         // Switch view and ignore if view name is incorrect
@@ -214,6 +174,37 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
 
     /* ----------- User Related ------------ */
 
+    $scope.$watch('userSearchString', function(newVal, oldVal) {
+        $scope.executeUserSearch();
+    });
+
+
+    /* ---------- Controller Methods ----------- */
+
+    $scope.executeUserSearch = function() {
+        $timeout( function() {
+
+            // Run if search strings are different
+            if ($scope.userSearchString !== $scope.prevUserSearchString) {
+                $scope.prevUserSearchString = $scope.userSearchString;
+
+                manageUsersService.userWildSearch.query({name: $scope.userSearchString}, function(data, status, headers, config) {
+                    if (data.length > 0) {
+                        $scope.noResultsFound = false;
+                        $scope.users = data;
+                    }
+                    else {
+                        $scope.users.length = 0;    // Clear previous search results
+                        $scope.noResultsFound = true;
+                    }
+
+                }, function(data, status, headers, config) {
+                    $scope.error = status;
+                });
+            }
+        } , 500);
+    };
+
     $scope.validateNewUserForm = function() {
 
         var validationFail = false;
@@ -222,7 +213,7 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
         var email = $scope.newUser.email;
         var title = $scope.newUser.title;
         var roles = $scope.newUser.roles;
-        var primaryOrg = $scope.newUser.primaryOrg;
+        var primaryOrganization = $scope.newUser.primaryOrganization;
 
         // Reset form validation error messages
         $scope.newUserValidationFail = {};
@@ -247,8 +238,8 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
             $scope.newUserValidationFail.roles = true;
             validationFail = true;
         }
-        if ( (typeof primaryOrg === 'undefined') || (primaryOrg === '') ) {
-            $scope.newUserValidationFail.primaryOrg = true;
+        if ( (typeof primaryOrganization === 'undefined') || (Object.getOwnPropertyNames(primaryOrganization).length === 0) ) {
+            $scope.newUserValidationFail.primaryOrganization = true;
             validationFail = true;
         }
 
@@ -268,14 +259,11 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
             }
 
             // Format userDetails object
-            $scope.newUser.primaryOrgId = $scope.newUser.primaryOrg.organizationId;
-            delete $scope.newUser.primaryOrg;
             delete $scope.newUser.roles;
             delete $scope.newUser.additionalOrgs;
 
             manageUsersService.user.save($scope.newUser, function(data, status, headers, config) {
                 savedUser = data;
-                savedUser.primaryOrgName = $scope.getOrgNameById(savedUser.primaryOrgId);
                 $scope.users.push(savedUser);
 
                 manageUsersService.userPermissions.save({userId: savedUser.userId, roleIds: newUserRoles},
@@ -291,7 +279,7 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
                             $scope.newUser.email = '';
                             $scope.newUser.title = '';
                             $scope.newUser.roles = [];
-                            $scope.newUser.primaryOrg = '';
+                            $scope.newUser.primaryOrganization = {};
                             $scope.newUser.additionalOrgs = [];
 
                             // Send out success alert notification
@@ -311,7 +299,7 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
                             $scope.newUser.email = '';
                             $scope.newUser.title = '';
                             $scope.newUser.roles = [];
-                            $scope.newUser.primaryOrg = '';
+                            $scope.newUser.primaryOrganization = {};
                             $scope.newUser.additionalOrgs = [];
                         });
 
@@ -324,7 +312,7 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
                         $scope.newUser.email = '';
                         $scope.newUser.title = '';
                         $scope.newUser.roles = [];
-                        $scope.newUser.primaryOrg = '';
+                        $scope.newUser.primaryOrganization = {};
                         $scope.newUser.additionalOrgs = [];
                     });
 
@@ -337,29 +325,28 @@ function manageUsersCtrl($scope, $rootScope, $window, manageUsersService) {
                 $scope.newUser.email = '';
                 $scope.newUser.title = '';
                 $scope.newUser.roles = [];
-                $scope.newUser.primaryOrg = '';
+                $scope.newUser.primaryOrganization = {};
                 $scope.newUser.additionalOrgs = [];
             });
         }
     };
 
     $scope.updateUserPrimaryOrganization = function() {
-        if (($scope.editUser.primaryOrg !== '') &&
-            (typeof $scope.editUser.primaryOrg !== 'undefined') &&
-            ($scope.editUser.primaryOrg !== null)
+        if ((Object.getOwnPropertyNames($scope.editUser.primaryOrganization).length !== 0) &&
+            (typeof $scope.editUser.primaryOrganization !== 'undefined') &&
+            ($scope.editUser.primaryOrganization !== null)
         ) {
 
             var userId = $scope.rightPanel.data.userId;
-            var primaryOrgId = $scope.editUser.primaryOrg.organizationId;
+            var newPrimaryOrg = $scope.editUser.primaryOrganization;
 
-            manageUsersService.userProperties.updatePrimaryOrg({userId: userId, primaryOrgId: primaryOrgId}, function(data) {
+            manageUsersService.userPrimaryOrg.update({userId: userId}, newPrimaryOrg, function(data) {
 
                 // Reset primaryOrg edit ng-model
-                $scope.editUser.primaryOrg = '';
+                $scope.editUser.primaryOrganization = {};
 
                 // Refresh front end user data
-                $scope.rightPanel.data.primaryOrgId = primaryOrgId;
-                $scope.rightPanel.data.primaryOrgName = $scope.getOrgNameById(primaryOrgId);
+                $scope.rightPanel.data = data;
 
                 // Send out success alert notification
                 $scope.successfullyModifiedUser = true;

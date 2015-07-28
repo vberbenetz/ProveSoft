@@ -21,11 +21,7 @@ function documentLookupCtrl($scope, $rootScope, $window, $timeout, documentLooku
     });
 
     $scope.$watch('searchString', function(newVal, oldVal) {
-
-        // Only perform search if string is greater than 0 characters
-        if (newVal.length > 0) {
-            $scope.executeSearch();
-        }
+        $scope.executeSearch();
     });
 
 

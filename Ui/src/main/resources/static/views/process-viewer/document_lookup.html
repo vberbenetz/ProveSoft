@@ -52,7 +52,7 @@
                         </div>
 
                         <accordion close-other="true">
-                            <accordion-group ng-repeat="n in documentSearchResults">
+                            <accordion-group ng-repeat="n in documentSearchResults" is-open="n.active" ng-class="{'accordion-group-active' : n.active}">
                                 <accordion-heading>
                                     <div class="row">
                                         <button ui-sref="process-viewer.document-revision({documentId: n.id})" class="btn btn-lg btn-warning" type="button">

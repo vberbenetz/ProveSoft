@@ -11,7 +11,7 @@ public class UserDetails {
                        String lastName,
                        String email,
                        String title,
-                       Long primaryOrgId)
+                       Organizations primaryOrganization)
     {
         this.companyName = companyName;
         this.userName = userName;
@@ -19,7 +19,7 @@ public class UserDetails {
         this.lastName = lastName;
         this.email = email;
         this.title = title;
-        this.primaryOrgId = primaryOrgId;
+        this.primaryOrganization = primaryOrganization;
     }
 
     public UserDetails() {
@@ -36,7 +36,10 @@ public class UserDetails {
     private String firstName;
     private String lastName;
     private String title;
-    private Long primaryOrgId;
+
+    @ManyToOne
+    @JoinColumn
+    private Organizations primaryOrganization;
 
     public Long getUserId() {
         return userId;
@@ -94,12 +97,11 @@ public class UserDetails {
         this.title = title;
     }
 
-    public Long getPrimaryOrgId() {
-        return primaryOrgId;
+    public Organizations getPrimaryOrganization() {
+        return primaryOrganization;
     }
 
-    public void setPrimaryOrgId(Long primaryOrgId) {
-        this.primaryOrgId = primaryOrgId;
+    public void setPrimaryOrganization(Organizations primaryOrganization) {
+        this.primaryOrganization = primaryOrganization;
     }
-
 }

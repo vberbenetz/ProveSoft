@@ -243,6 +243,50 @@ public class AdminController {
 
     }
 
+    /*
+        Update primary organization
+     */
+    @RequestMapping(
+            value = "/admin/user/primaryOrg",
+            method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public UserDetails updateUserPrimaryOrg(@RequestParam("userId") Long userId,
+                                            @RequestBody String json,
+                                            Authentication auth) {
+
+        if (UserHelpers.isSuperAdmin(auth)) {
+
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                Organizations org = mapper.readValue(json, Organizations.class);
+
+                String companyName = UserHelpers.getCompany(auth);
+
+                // Verify org and user belongs to company
+                Organizations orgToAdd = organizationsService.findByOrganizationIdAndCompanyName(org.getOrganizationId(), companyName);
+                UserDetails user = userDetailsService.findByCompanyNameAndUserId(companyName, userId);
+
+                if (orgToAdd == null || user == null) {
+                    throw new ResourceNotFoundException();
+                }
+
+                user.setPrimaryOrganization(orgToAdd);
+
+                return userDetailsService.addUser(user);
+
+            }
+            catch (IOException | NullPointerException ex) {
+                throw new ResourceNotFoundException();
+            }
+
+        }
+
+        throw new ForbiddenException();
+    }
+
+
     // -------------------------------------------------- PUT ------------------------------------------------------- //
 
     /*
@@ -252,7 +296,6 @@ public class AdminController {
             method = RequestMethod.PUT
     )
     public ResponseEntity updateUserProperties ( @RequestParam(value = "userId", required = true) Long userId,
-                                                 @RequestParam(value = "primaryOrgId", required = false) Long primaryOrgId,
                                                  @RequestParam(value = "altOrgIds", required = false) Long[] alternateOrgIds,
                                                  @RequestParam(value = "roleIds", required = false) Long[] roleIds,
                                                  Authentication auth
@@ -263,12 +306,8 @@ public class AdminController {
 
             String companyName = UserHelpers.getCompany(auth);
 
-            if ( (primaryOrgId == null) && (alternateOrgIds == null) && (roleIds == null) ) {
+            if ( (alternateOrgIds == null) && (roleIds == null) ) {
                 throw new ResourceNotFoundException();
-            }
-
-            if (primaryOrgId != null) {
-                userDetailsService.updatePrimaryOrganization(primaryOrgId, userId, companyName);
             }
 
             // Generate new list of OrgUsers for new alternate organizations

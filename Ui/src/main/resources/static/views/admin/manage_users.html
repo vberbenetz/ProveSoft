@@ -32,9 +32,9 @@
                                     <form role="search">
                                         <div class="form-group">
                                             <div class="input-group">
-                                                <input type="text" placeholder="Start typing to find user..." class="form-control" name="userSearch" id="userSearch">
+                                                <input type="text" ng-model="userSearchString" placeholder="Start typing to find user..." class="form-control" name="userSearch" id="userSearch">
                                                 <span class="input-group-btn">
-                                                    <button class="btn btn-primary">
+                                                    <button class="btn btn-primary" ng-click="executeUserSearch()">
                                                         <i class="fa fa-search"></i>
                                                     </button>
                                                 </span>
@@ -44,7 +44,11 @@
                                 </div>
 
                                 <div class="full-height-scroll" full-scroll>
-                                    <div class="table-responsive">
+                                    <div ng-show="noResultsFound" class="margin-top-30">
+                                        <h3>No Results Found</h3>
+                                    </div>
+
+                                    <div ng-hide="noResultsFound" class="table-responsive">
                                         <table class="table table-striped table-hover">
                                             <thead>
                                             <tr>
@@ -60,7 +64,7 @@
                                                 <td><a href="" ng-click="changeRightPanel('user', n)" class="client-link">{{ n.firstName }}</a></td>
                                                 <td><a href="" ng-click="changeRightPanel('user', n)" class="client-link">{{ n.lastName }}</a></td>
                                                 <td><a href="" ng-click="changeRightPanel('user', n)" class="client-link">{{ n.email }}</a></td>
-                                                <td>{{ n.primaryOrgName }}</td>
+                                                <td>{{ n.primaryOrganization.name }}</td>
                                                 <td>
                                                     <button ng-click="changeRightPanel('user', n)" class="btn btn-xs btn-warning margin-top-10" type="button">
                                                         <i class="fa fa-pencil"></i> Edit
@@ -222,7 +226,7 @@
                                             Primary Organization
                                         </label>
                                         <div class="col-lg-6">
-                                            <ui-select ng-model="newUser.primaryOrg" theme="selectize" style="width: 300px;">
+                                            <ui-select ng-model="newUser.primaryOrganization" theme="selectize" style="width: 300px;">
                                                 <ui-select-match placeholder="Choose Primary Organization">{{ $select.selected.name }}</ui-select-match>
                                                 <ui-select-choices repeat="organization in organizations | filter: $select.search">
                                                     <div ng-bind-html="organization.name | highlight: $select.search"></div>
@@ -310,7 +314,7 @@
                                                     </div>
                                                     <div class="panel-body">
                                                         <ul class="list-group margin-bottom-20 margin-left-10">
-                                                            <li class="list-item"><strong>{{ rightPanel.data.primaryOrgName }}</strong></li>
+                                                            <li class="list-item"><strong>{{ rightPanel.data.primaryOrganization.name }}</strong></li>
                                                         </ul>
                                                         <table class="table table-striped table-hover">
                                                             <colgroup>
