@@ -73,18 +73,7 @@ public class DocumentController {
         // Add wildcard characters
         searchString = "%" + searchString + "%";
 
-        // Join results
-        List<Document> documentsByTitle = documentService.findByTitle(companyName, searchString);
-        List<Document> documentsById = documentService.findById(companyName, searchString);
-
-        // Remove duplicates
-        for (Document doc : documentsById) {
-            if (!documentsByTitle.contains(doc)) {
-                documentsByTitle.add(doc);
-            }
-        }
-
-        return documentsByTitle;
+        return documentService.documentWildCardSearch(companyName, searchString);
     }
 
     /*

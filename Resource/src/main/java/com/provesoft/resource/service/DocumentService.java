@@ -1,6 +1,7 @@
 package com.provesoft.resource.service;
 
 import com.provesoft.resource.entity.Document.*;
+import com.provesoft.resource.entity.Organizations;
 import com.provesoft.resource.repository.*;
 import com.provesoft.resource.utils.DocumentHelpers;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +49,13 @@ public class DocumentService {
     // Search method will use wildcards for the title
     public List<Document> findById(String companyName, String id) {
         return documentRepository.searchById(companyName, id);
+    }
+
+    /*
+        Complete wildcard search
+     */
+    public List<Document> documentWildCardSearch(String companyName, String searchString) {
+        return documentRepository.wildCardSearch(companyName, searchString);
     }
 
     /*

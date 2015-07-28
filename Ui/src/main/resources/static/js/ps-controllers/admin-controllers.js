@@ -963,39 +963,43 @@ function moduleSettingsCtrl($scope, $rootScope, $window, adminModuleSettingsServ
 
     // Watch for redline settings change
     $scope.$watch('redline', function(newVal, oldVal) {
-        if (newVal != oldVal) {
+        if (typeof oldVal !== 'undefined') {
+            if (newVal != oldVal) {
 
-            var payload = {
-                key: {
-                    setting: 'redline'
-                },
-                value: $scope.redline
-            };
+                var payload = {
+                    key: {
+                        setting: 'redline'
+                    },
+                    value: $scope.redline
+                };
 
-            adminModuleSettingsService.setting.save(payload, function(data, status, headers, config) {
+                adminModuleSettingsService.setting.save(payload, function(data, status, headers, config) {
 
-            }, function(data, status, headers, config) {
-                $scope.err = status;
-            });
+                }, function(data, status, headers, config) {
+                    $scope.err = status;
+                });
+            }
         }
     });
 
     // Watch signoff paths setting change
     $scope.$watch('signoff', function(newVal, oldVal) {
-        if (newVal != oldVal) {
+        if (typeof oldVal !== 'undefined') {
+            if (newVal != oldVal) {
 
-            var payload = {
-                key: {
-                    setting: 'signoff'
-                },
-                value: $scope.signoff
-            };
+                var payload = {
+                    key: {
+                        setting: 'signoff'
+                    },
+                    value: $scope.signoff
+                };
 
-            adminModuleSettingsService.setting.save(payload, function(data, status, headers, config) {
+                adminModuleSettingsService.setting.save(payload, function(data, status, headers, config) {
 
-            }, function(data, status, headers, config) {
-                $scope.err = status;
-            });
+                }, function(data, status, headers, config) {
+                    $scope.err = status;
+                });
+            }
         }
     });
 
