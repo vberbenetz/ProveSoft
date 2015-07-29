@@ -120,7 +120,7 @@
                         <td>
                             {{ n.user.firstName }} {{ n.user.lastName }}
                         </td>
-                        <td>{{ getOrgNameById(n.user.primaryOrgId) }}</td>
+                        <td>{{ n.user.primaryOrganization.name }}</td>
                         <td>
                             <button ng-if="n.action!='START'" ng-click="removeStep(n, $parent.$index)" class="btn btn-sm btn-danger">
                                 <span class="fa fa-times"></span>
