@@ -24,7 +24,6 @@ function documentLookupCtrl($scope, $rootScope, $window, $timeout, documentLooku
         $scope.executeSearch();
     });
 
-
     /* ---------- Controller Methods ----------- */
 
     $scope.executeSearch = function() {
