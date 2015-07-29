@@ -22,10 +22,11 @@ public interface SignoffPathRepository extends JpaRepository<SignoffPath, Signof
             "SELECT s " +
             "FROM SignoffPath s " +
             "WHERE s.key.companyName=:companyName " +
-            "AND " +
+            "AND (" +
                 "(s.organization.organizationId=:organizationId " +
                 "AND s.applyToAll=false) " +
-            "OR s.applyToAll=true"
+                "OR s.applyToAll=true " +
+            ")"
     )
     List<SignoffPath> getPathsByCompanyNameAndOrganizationId(@Param("companyName") String companyName,
                                                              @Param("organizationId") Long organizationId);

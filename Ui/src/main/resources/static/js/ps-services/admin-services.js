@@ -24,7 +24,7 @@ function manageUsersService($resource) {
         userPrimaryOrg: $resource('/resource/admin/user/primaryOrg',
             {},
             {
-                updatePrimaryOrg: {
+                update: {
                     method: 'POST',
                     params: {
                         userId: '@userId'

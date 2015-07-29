@@ -221,7 +221,7 @@
                                             <p class="text-danger" ng-show="newUserValidationFail.email">Please enter an email</p>
                                         </div>
                                     </div>
-                                    <div class="form-group" ng-class="{ 'has-error' : newUserValidationFail.primaryOrg }">
+                                    <div class="form-group" ng-class="{ 'has-error' : newUserValidationFail.primaryOrganization }">
                                         <label class="col-sm-2 control-label">
                                             Primary Organization
                                         </label>
@@ -232,7 +232,7 @@
                                                     <div ng-bind-html="organization.name | highlight: $select.search"></div>
                                                 </ui-select-choices>
                                             </ui-select>
-                                            <p class="text-danger" ng-show="newUserValidationFail.primaryOrg">Please select a primary organization</p>
+                                            <p class="text-danger" ng-show="newUserValidationFail.primaryOrganization">Please select a primary organization</p>
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -324,7 +324,7 @@
                                                             <tbody>
                                                             <tr>
                                                                 <td>
-                                                                    <ui-select ng-model="editUser.primaryOrg" theme="selectize" style="width: 300px;">
+                                                                    <ui-select ng-model="editUser.primaryOrganization" theme="selectize" style="width: 300px;">
                                                                         <ui-select-match placeholder="Edit primary organization">{{ $select.selected.name }}</ui-select-match>
                                                                         <ui-select-choices repeat="organization in organizations | filter: $select.search">
                                                                             <div ng-bind-html="organization.name | highlight: $select.search"></div>

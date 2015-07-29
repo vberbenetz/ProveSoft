@@ -54,16 +54,21 @@ function($scope, $http, $window) {
 
     $scope.reg = {};
     $scope.register = function() {
-        $http.post('register', {email: $scope.reg.email, companyName: $scope.reg.companyName, password: $scope.reg.password})
-            .success(function(newUser) {
-                $scope.credentials = {
-                    username: newUser.username,
-                    password: newUser.password
-                };
-                $scope.login();
-            }).error(function(error) {
-
-            });
+        $http.post('register', {
+            firstName: $scope.reg.firstName,
+            lastName: $scope.reg.lastName,
+            email: $scope.reg.email,
+            companyName: $scope.reg.companyName,
+            title: $scope.reg.title,
+            password: $scope.reg.password
+        }).success(function(newUser) {
+            $scope.credentials = {
+                username: newUser.username,
+                password: newUser.password
+            };
+            $scope.login();
+        }).error(function(error) {
+        });
     }
 
 });

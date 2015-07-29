@@ -139,24 +139,6 @@ public class AdminController {
 
     // -------------------------------------------------- POST ------------------------------------------------------ //
 
-    // Test user addition
-    @RequestMapping(
-            value = "/test",
-            method = RequestMethod.GET
-    )
-    public void test () {
-        Users user = new Users("test", "test", true);
-        Users u = usersService.saveUser(user);
-
-        Authorities authority = new Authorities("ROLE_USER", u);
-        Authorities authority2 = new Authorities("ROLE_SUPER_ADMIN", u);
-        Authorities authority3 = new Authorities("__Company", u);
-
-        usersService.saveAuthority(authority);
-        usersService.saveAuthority(authority2);
-        usersService.saveAuthority(authority3);
-    }
-
     /*
         Create a new user.
         Currently generates a default password, but are able to login as the new user

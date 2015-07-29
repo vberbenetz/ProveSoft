@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.provesoft.gateway.entity.Authorities;
 import com.provesoft.gateway.entity.SignoffPathId;
+import com.provesoft.gateway.entity.UserDetails;
 import com.provesoft.gateway.entity.Users;
 import com.provesoft.gateway.exceptions.ResourceNotFoundException;
 import com.provesoft.gateway.service.SignoffPathIdService;
+import com.provesoft.gateway.service.UserDetailsService;
 import com.provesoft.gateway.service.UsersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,6 +31,9 @@ public class AuthController {
     UsersService usersService;
 
     @Autowired
+    UserDetailsService userDetailsService;
+
+    @Autowired
     SignoffPathIdService signoffPathIdService;
 
     @RequestMapping("/user")
@@ -49,8 +54,11 @@ public class AuthController {
         ObjectMapper mapper = new ObjectMapper();
         try {
             JsonNode rootNode = mapper.readTree(json);
+            String firstName = rootNode.get("firstName").textValue();
+            String lastName = rootNode.get("lastName").textValue();
             String email = rootNode.get("email").textValue();
             String companyName = rootNode.get("companyName").textValue();
+            String title = rootNode.get("title").textValue();
             String password = rootNode.get("password").textValue();
 
             if (password.equals("pass123")) {
@@ -66,6 +74,10 @@ public class AuthController {
                 usersService.saveAuthority(newUserAuth);
                 usersService.saveAuthority(newAdminAuth);
                 usersService.saveAuthority(newCompanyAuth);
+
+                // Create user details for user
+                UserDetails userDetails = new UserDetails(companyName, firstName, lastName, email, title, null);
+                userDetailsService.addUser(userDetails);
 
                 // Initialize signoffPathId for new company
                 SignoffPathId intialSignoffPathId = new SignoffPathId(companyName, 1L);
