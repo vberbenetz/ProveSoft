@@ -20,7 +20,7 @@ public interface UserDetailsRepository extends JpaRepository<UserDetails, Long> 
 
     UserDetails findByCompanyNameAndUserId(String companyName, Long userId);
 
-    UserDetails findByCompanyNameAndUserName(String companyName, String userName);
+    UserDetails findByCompanyNameAndEmail(String companyName, String email);
 
     List<UserDetails> findByCompanyNameAndUserIdIn(String companyName, List<Long> userId);
 

@@ -32,8 +32,8 @@ public class UserDetailsService {
         return userDetailsRepository.findByCompanyNameAndUserId(companyName, userId);
     }
 
-    public UserDetails findByCompanyNameAndUserName(String companyName, String userName) {
-        return userDetailsRepository.findByCompanyNameAndUserName(companyName, userName);
+    public UserDetails findByCompanyNameAndEmail(String companyName, String email) {
+        return userDetailsRepository.findByCompanyNameAndEmail(companyName, email);
     }
 
     public List<UserDetails> findByCompanyNameAndUserIdList(String companyName, List<Long> userIds) {

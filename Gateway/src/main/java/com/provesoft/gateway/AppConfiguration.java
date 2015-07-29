@@ -19,7 +19,7 @@ public class AppConfiguration {
         BasicDataSource dataSource = new BasicDataSource();
         dataSource.setTestOnBorrow(true);
         dataSource.setValidationQuery("SELECT 1");
-        dataSource.setUrl("jdbc:mysql://localhost:3306/provesoftauth");
+        dataSource.setUrl("jdbc:mysql://localhost:3306/provesoft");
         dataSource.setUsername("psgateway");
         dataSource.setPassword("P$G@t3w@y");
         return dataSource;

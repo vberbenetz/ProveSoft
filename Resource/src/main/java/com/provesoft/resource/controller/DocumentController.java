@@ -178,7 +178,7 @@ public class DocumentController {
                             }
 
                             // Get user for revision details
-                            UserDetails user = userDetailsService.findByCompanyNameAndUserName(companyName, auth.getName());
+                            UserDetails user = userDetailsService.findByCompanyNameAndEmail(companyName, auth.getName());
 
                             String currentDate = SystemHelpers.getCurrentDate();
 
@@ -241,12 +241,12 @@ public class DocumentController {
             JsonNode rootNode = mapper.readTree(json);
             String documentId = rootNode.get("documentId").textValue();
             String changeReason = rootNode.get("changeReason").textValue();
-            String changeUserName = rootNode.get("changeUserName").textValue();
+            String changeUserEmail = rootNode.get("changeUserEmail").textValue();
 
             String companyName = UserHelpers.getCompany(auth);
             String currentDate = SystemHelpers.getCurrentDate();
 
-            UserDetails changeUser = userDetailsService.findByCompanyNameAndUserName(companyName, changeUserName);
+            UserDetails changeUser = userDetailsService.findByCompanyNameAndEmail(companyName, changeUserEmail);
 
             if (changeUser == null) {
                 throw new ResourceNotFoundException();

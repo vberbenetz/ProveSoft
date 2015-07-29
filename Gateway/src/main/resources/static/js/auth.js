@@ -50,6 +50,20 @@ function($scope, $http, $window) {
 			console.log("Logout failed");
 			$scope.authenticated = false;
 		});
-	}
+	};
+
+    $scope.reg = {};
+    $scope.register = function() {
+        $http.post('register', {email: $scope.reg.email, companyName: $scope.reg.companyName, password: $scope.reg.password})
+            .success(function(newUser) {
+                $scope.credentials = {
+                    username: newUser.username,
+                    password: newUser.password
+                };
+                $scope.login();
+            }).error(function(error) {
+
+            });
+    }
 
 });

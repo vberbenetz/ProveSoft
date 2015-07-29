@@ -30,6 +30,9 @@ import java.util.concurrent.TimeUnit;
 public class AdminController {
 
     @Autowired
+    UsersService usersService;
+
+    @Autowired
     UserDetailsService userDetailsService;
 
     @Autowired
@@ -136,8 +139,27 @@ public class AdminController {
 
     // -------------------------------------------------- POST ------------------------------------------------------ //
 
+    // Test user addition
+    @RequestMapping(
+            value = "/test",
+            method = RequestMethod.GET
+    )
+    public void test () {
+        Users user = new Users("test", "test", true);
+        Users u = usersService.saveUser(user);
+
+        Authorities authority = new Authorities("ROLE_USER", u);
+        Authorities authority2 = new Authorities("ROLE_SUPER_ADMIN", u);
+        Authorities authority3 = new Authorities("__Company", u);
+
+        usersService.saveAuthority(authority);
+        usersService.saveAuthority(authority2);
+        usersService.saveAuthority(authority3);
+    }
+
     /*
-        Create a new user. Only generates UserDetails and not actual login credentials.
+        Create a new user.
+        Currently generates a default password, but are able to login as the new user
      */
     @RequestMapping(value = "/admin/user",
             method = RequestMethod.POST,
@@ -158,7 +180,19 @@ public class AdminController {
 
                 newUser.setCompanyName(company);
 
-                userDetailsService.addUser(newUser);
+                // Create user details
+                newUser = userDetailsService.addUser(newUser);
+
+                // Create new user gateway login
+                Users newGatewayUser = new Users(newUser.getEmail(), "pass123", true);
+                usersService.saveUser(newGatewayUser);
+
+                // Create user authorities
+                Authorities userAuth = new Authorities("ROLE_USER", newGatewayUser);
+                Authorities companyAuth = new Authorities("__" + company, newGatewayUser);
+
+                usersService.saveAuthority(userAuth);
+                usersService.saveAuthority(companyAuth);
 
             }
             catch (IOException | NullPointerException ex) {

@@ -36,8 +36,7 @@ Activate MySQL and finish up with secure install. Remove anonymous users, disall
   sudo /usr/bin/mysql_secure_installation
 ```
 Login as root and create a blank provesoft database. Follow up by creating two database with two users, one of which will be used for the Gateway, and the other for Resource.
-```
-  CREATE DATABASE provesoftauth CHARCTER SET utf8 COLLATE utf8_unicode_ci;
+```  
   CREATE DATABASE provesoft CHARACTER SET utf8 COLLATE utf8_unicode_ci;
   CREATE USER 'psgateway'@'localhost' IDENTIFIED BY 'P$G@t3w@y';            (Used by the Gateway for authentication)
   CREATE USER 'provesoft'@'localhost' IDENTIFIED BY 'Pr0v3$0ft';            (Used by the Resource component)
@@ -46,7 +45,8 @@ Login as root and create a blank provesoft database. Follow up by creating two d
 To segregate the user authentication and application components, the two users will have separate access rights to the databases. Provesoftauth will retain access to the provesoftauth database for authenticating users in Gateway, and provesoft will only access the provesoft database for the business login in Resource.
 In order to allow read only external access, grant select permissions on the same tables as provesoft@localhost to provesoft@%
 ```
-  GRANT ALL PRIVILEGES ON provesoftauth.* TO 'psgateway'@'localhost';
+  GRANT ALL PRIVILEGES ON provesoft.Users TO 'psgateway'@'localhost';
+  GRANT ALL PRIVILEGES ON provesoft.Authorities TO 'psgateway'@'localhost';
   GRANT ALL PRIVILEGES ON provesoft.* TO 'provesoft'@'localhost';
   GRANT SELECT ON provesoft.* TO 'provesoft'@'%';
   FLUSH PRIVILEGES;

@@ -401,7 +401,7 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
         var revisionPayload = {
             documentId: $scope.documentId,
             changeReason: $scope.revision.changeReason,
-            changeUserName: $rootScope.user.userName
+            changeUserName: $rootScope.user.email
         };
 
         documentRevisionService.revision.save(revisionPayload, function(data, status, headers, config) {
