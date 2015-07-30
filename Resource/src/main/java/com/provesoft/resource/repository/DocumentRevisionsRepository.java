@@ -9,4 +9,6 @@ import java.util.List;
 public interface DocumentRevisionsRepository extends JpaRepository<DocumentRevisions, DocumentRevisionsKey> {
 
     List<DocumentRevisions> findByKeyCompanyNameAndKeyDocumentId(String companyName, String documentId);
+
+    DocumentRevisions findByKeyCompanyNameAndKeyDocumentIdAndKeyRevisionId(String companyName, String documentId, String revisionId);
 }

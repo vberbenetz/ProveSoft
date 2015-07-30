@@ -187,12 +187,24 @@ function dropzone($cookies) {
             'sending': function (file, xhr, formData) {
                 formData.append('documentId', scope.documentId);
                 formData.append('isRedline', scope.isRedline);
+                formData.append('tempUpload', scope.tempUpload);
+                formData.append('tempRevId', scope.tempRevId);
             },
 
             'success': function (file, response) {
                 scope.$apply(function(){
                     scope.uploadSuccessful = true;
+                    scope.tempRevId = response.tempRevId;
                 });
+            },
+
+            'error': function (file, message) {
+                scope.$apply(function(){
+                    scope.uploadSuccessful = false;
+                    scope.uploadingDocument = false;
+                    scope.fileAdded = false;
+                    scope.tempRevId = message.tempRevId;
+                })
             }
         };
 

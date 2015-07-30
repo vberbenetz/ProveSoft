@@ -1,6 +1,7 @@
 package com.provesoft.resource.controller;
 
 import com.provesoft.resource.entity.Document.Document;
+import com.provesoft.resource.entity.Document.DocumentRevisions;
 import com.provesoft.resource.entity.Document.DocumentUpload;
 import com.provesoft.resource.exceptions.InternalServerErrorException;
 import com.provesoft.resource.exceptions.ResourceNotFoundException;
@@ -18,6 +19,8 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 public class UploadController {
@@ -30,6 +33,7 @@ public class UploadController {
             method = RequestMethod.GET
     )
     public ResponseEntity<byte[]> downloadFile(@RequestParam("documentId") String documentId,
+                                               @RequestParam("revisionId") String revisionId,
                                                @RequestParam(value = "isRedline", required= false) Boolean isRedline,
                                                Authentication auth) {
 
@@ -38,10 +42,10 @@ public class UploadController {
         DocumentUpload documentUpload;
 
         if (isRedline == null) {
-            documentUpload = documentService.findUploadByCompanyNameAndDocumentIdAndRedline(companyName, documentId, false);
+            documentUpload = documentService.findUploadByCompanyNameAndDocumentIdAndRevisionAndRedline(companyName, documentId, revisionId, false);
         }
         else {
-            documentUpload = documentService.findUploadByCompanyNameAndDocumentIdAndRedline(companyName, documentId, isRedline);
+            documentUpload = documentService.findUploadByCompanyNameAndDocumentIdAndRevisionAndRedline(companyName, documentId, revisionId, isRedline);
         }
 
         if (documentUpload == null) {
@@ -72,6 +76,8 @@ public class UploadController {
     )
     public ResponseEntity uploadFile(@RequestParam("documentId") String documentId,
                                      @RequestParam("isRedline") Boolean isRedline,
+                                     @RequestParam("tempUpload") Boolean tempUpload,
+                                     @RequestParam(value = "tempRevId", required = false) String tempRevId,
                                      MultipartHttpServletRequest request,
                                      Authentication auth) {
 
@@ -93,7 +99,17 @@ public class UploadController {
                 String filename = file.getOriginalFilename();
                 byte[] bytes = file.getBytes();
 
-                DocumentUpload newUploadedFile = new DocumentUpload(companyName, documentId, bytes, filename, mimeType, isRedline);
+                DocumentUpload newUploadedFile;
+
+                if (tempUpload) {
+                    if (tempRevId.equals("null")) {
+                        tempRevId = UUID.randomUUID().toString();
+                    }
+                    newUploadedFile = new DocumentUpload(companyName, documentId, bytes, filename, mimeType, tempRevId, isRedline);
+                }
+                else {
+                    newUploadedFile = new DocumentUpload(companyName, documentId, bytes, filename, mimeType, document.getRevision(), isRedline);
+                }
 
                 documentService.addDocumentFile(newUploadedFile);
             }
@@ -104,6 +120,31 @@ public class UploadController {
         catch (Exception e) {
             throw new InternalServerErrorException();
         }
+
+        return new ResponseEntity<>("{\"tempRevId\":\"" + tempRevId + "\"}", HttpStatus.OK);
+    }
+
+
+    /*
+        Update the revision Id after the document revision has been created (Id has been generated)
+     */
+    @RequestMapping(
+            value = "/upload/updateRevId",
+            method = RequestMethod.PUT
+    )
+    public ResponseEntity updateUploadRevId(@RequestParam("documentId") String documentId,
+                                            @RequestParam("tempRevId") String tempRevId,
+                                            @RequestParam("newRevId") String newRevId,
+                                            Authentication auth) {
+
+        String companyName = UserHelpers.getCompany(auth);
+
+        DocumentRevisions docRev = documentService.findDocRevByCompanyNameAndDocumentIdAndRevisionId(companyName, documentId, newRevId);
+        if (docRev == null) {
+            throw new ResourceNotFoundException();
+        }
+
+        documentService.updateRevisionId(companyName, tempRevId, newRevId);
 
         return new ResponseEntity<>("{}", HttpStatus.OK);
     }

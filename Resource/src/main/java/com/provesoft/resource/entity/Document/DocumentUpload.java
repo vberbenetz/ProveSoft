@@ -12,9 +12,10 @@ public class DocumentUpload {
                           byte[] file,
                           String filename,
                           String mimeType,
+                          String revision,
                           Boolean redline) {
 
-        this.key = new DocumentUploadKey(companyName, documentId, redline);
+        this.key = new DocumentUploadKey(companyName, documentId, revision, redline);
         this.file = file;
         this.filename = filename;
         this.mimeType = mimeType;

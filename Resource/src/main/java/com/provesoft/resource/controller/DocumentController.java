@@ -282,10 +282,6 @@ public class DocumentController {
 
                     documentService.updateDocument(docToChange);
 
-// TODO: UPDATE REVISION WITH RED-LINE DOCUMENT
-
-// TODO: UPDATE DOCUMENT WITH NEW: DOCUMENT
-
                     return newRevision;
 
                 } catch (CannotAcquireLockException | LockAcquisitionException | TransactionRolledbackException ex) {

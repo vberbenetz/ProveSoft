@@ -112,8 +112,8 @@ public class DocumentService {
     /*
         Retrieve uploaded file
      */
-    public DocumentUpload findUploadByCompanyNameAndDocumentIdAndRedline(String companyName, String documentId, Boolean redline) {
-        return documentUploadRepository.findByKeyCompanyNameAndKeyDocumentIdAndKeyRedline(companyName, documentId, redline);
+    public DocumentUpload findUploadByCompanyNameAndDocumentIdAndRevisionAndRedline(String companyName, String documentId, String revision, Boolean redline) {
+        return documentUploadRepository.findByKeyCompanyNameAndKeyDocumentIdAndKeyRevisionAndKeyRedline(companyName, documentId, revision, redline);
     }
 
     /*
@@ -121,6 +121,13 @@ public class DocumentService {
      */
     public void addDocumentFile(DocumentUpload documentUpload) {
         documentUploadRepository.saveAndFlush(documentUpload);
+    }
+
+    /*
+        Update the temporary revision id of the temporary documents after a commit
+     */
+    public void updateRevisionId(String companyName, String tempRevId, String newRevId) {
+        documentUploadRepository.updateRevisionId(companyName, tempRevId, newRevId);
     }
 
 
@@ -169,15 +176,22 @@ public class DocumentService {
         return documentRevisionsRepository.saveAndFlush(documentRevision);
     }
 
-
-    /* ------------------------ DocumentRevisionIds -------------------------- */
-
     /*
         Retrieve DocumentRevision by userId (and companyName)
      */
     public List<DocumentRevisions> findDocRevByCompanyNameAndDocumentId (String companyName, String documentId) {
         return documentRevisionsRepository.findByKeyCompanyNameAndKeyDocumentId(companyName, documentId);
     }
+
+    /*
+        Retrieve a single DocumentRevision by companyname, documentId, and revisionId
+     */
+    public DocumentRevisions findDocRevByCompanyNameAndDocumentIdAndRevisionId (String companyName, String documentId, String revisionId) {
+        return documentRevisionsRepository.findByKeyCompanyNameAndKeyDocumentIdAndKeyRevisionId(companyName, documentId, revisionId);
+    }
+
+
+    /* ------------------------ DocumentRevisionIds -------------------------- */
 
     /*
         Generate a new revisionId for the document

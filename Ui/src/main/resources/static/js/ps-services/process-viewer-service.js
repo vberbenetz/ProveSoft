@@ -76,7 +76,22 @@ function documentLookupService($resource) {
 
 function documentRevisionService($resource) {
     return {
-        revision: $resource('/resource/document/revision')
+        revision: $resource('/resource/document/revision'),
+
+        updateUploadRevisionId: $resource('/resource/upload/updateRevId',
+            {},
+            {
+                update: {
+                    method: 'PUT',
+                    params: {
+                        documentId: '@documentId',
+                        tempRevId: '@tempRevId',
+                        newRevId: '@newRevId'
+                    },
+                    isArray: false
+                }
+            }
+        )
     }
 }
 

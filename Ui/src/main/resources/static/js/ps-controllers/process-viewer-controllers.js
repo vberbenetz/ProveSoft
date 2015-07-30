@@ -175,6 +175,8 @@ function documentCreationCtrl($scope, $rootScope, $window, $state, documentCreat
 
         documentCreationService.document.save($scope.newDocument, function(data, status, headers, config) {
             $scope.documentId = data.id;
+
+            $scope.tempUpload = false;
             $scope.processDropzone();
 
             if ($scope.signoffRequired) {
@@ -242,6 +244,7 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
 
     // Default set redline flag to true
     $scope.redlineRequired = true;
+    $scope.tempRevId = null;
     $scope.signoffRequired = false;
     $scope.docDownloadLink = '/resource/download?documentId=' + $scope.documentId;
     $scope.redlineDownloadLink = '/resource/download?documentId=' + $scope.documentId + '&isRedline=true';
@@ -299,7 +302,7 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
                 // Get list of organizations relating to step users
                 var orgIds = [];
                 for (var i = 0; i < steps.length; i++) {
-                    orgIds.push(steps[i].user.primaryOrgId);
+                    orgIds.push(steps[i].user.primaryOrganization.organizationId);
                 }
 
                 documentCreationService.organizations.query({orgIds: orgIds}, function(assocOrgs) {
@@ -332,6 +335,7 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
                 ((!isRedline) && ($scope.uploadedRedline != $scope.file.name))) {
                 isRedline ? $scope.isRedline = true : $scope.isRedline = false;
 
+                $scope.tempUpload = true;
                 $scope.uploadingDocument = true;
                 $scope.processDropzone();
 
@@ -343,7 +347,7 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
 
     // Watch directive for when upload completes
     $scope.$watch('uploadSuccessful', function(newVal, oldVal) {
-        if (newVal != oldVal) {
+        if (newVal !== oldVal) {
             if (newVal == true) {
                 $scope.uploadSuccessful = false;        // Reset flag
                 $scope.uploadingDocument = false;
@@ -361,6 +365,10 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
                 // Check for required sign-off
                 if ($scope.signoffRequired) {
                     $scope.reviseDocumentForm = 2;
+
+                    // Update document download links
+                    $scope.docDownloadLink += '&revisionId=' + $scope.tempRevId;
+                    $scope.redlineDownloadLink += '&revisionId=' + $scope.tempRevId;
                 }
                 else {
                     $scope.reviseDocumentForm = 3;
@@ -400,11 +408,18 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
         var revisionPayload = {
             documentId: $scope.documentId,
             changeReason: $scope.revision.changeReason,
-            changeUserName: $rootScope.user.email
+            changeUserEmail: $rootScope.user.userName
         };
 
         documentRevisionService.revision.save(revisionPayload, function(data, status, headers, config) {
-            $state.go('process-viewer.document-lookup');
+            $scope.revision = data.key.revisionId;
+
+            documentRevisionService.updateUploadRevisionId.update({documentId: $scope.documentId, tempRevId: $scope.tempRevId, newRevId: data.key.revisionId},
+                function(data) {
+                    $state.go('process-viewer.document-lookup');
+                }, function(error) {
+                });
+
         }, function(data, status, headers, config) {
             $scope.err = status;
         });

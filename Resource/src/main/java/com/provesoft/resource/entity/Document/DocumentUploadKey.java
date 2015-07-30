@@ -6,9 +6,10 @@ import java.io.Serializable;
 @Embeddable
 public class DocumentUploadKey implements Serializable {
 
-    public DocumentUploadKey(String companyName, String documentId, Boolean redline) {
+    public DocumentUploadKey(String companyName, String documentId, String revision, Boolean redline) {
         this.companyName = companyName;
         this.documentId = documentId;
+        this.revision = revision;
         this.redline = redline;
     }
 
@@ -18,6 +19,7 @@ public class DocumentUploadKey implements Serializable {
 
     private String companyName;
     private String documentId;
+    private String revision;
     private Boolean redline;
 
     public String getCompanyName() {
@@ -34,6 +36,14 @@ public class DocumentUploadKey implements Serializable {
 
     public void setDocumentId(String documentId) {
         this.documentId = documentId;
+    }
+
+    public String getRevision() {
+        return revision;
+    }
+
+    public void setRevision(String revision) {
+        this.revision = revision;
     }
 
     public Boolean getRedline() {
