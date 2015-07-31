@@ -11,12 +11,14 @@ public class DocumentRevisions {
                              String revisionId,
                              String changeReason,
                              Long changeUserId,
-                             String changeDate) {
+                             String changeDate,
+                             Boolean redlineDocPresent) {
 
         this.key = new DocumentRevisionsKey(companyName, documentId, revisionId);
         this.changeReason = changeReason;
         this.changeUserId = changeUserId;
         this.changeDate = changeDate;
+        this.redlineDocPresent = redlineDocPresent;
     }
 
     public DocumentRevisions() {
@@ -29,6 +31,7 @@ public class DocumentRevisions {
     private String changeReason;
     private Long changeUserId;
     private String changeDate;
+    private Boolean redlineDocPresent;
 
     public DocumentRevisionsKey getKey() {
         return key;
@@ -60,5 +63,13 @@ public class DocumentRevisions {
 
     public void setChangeDate(String changeDate) {
         this.changeDate = changeDate;
+    }
+
+    public Boolean getRedlineDocPresent() {
+        return redlineDocPresent;
+    }
+
+    public void setRedlineDocPresent(Boolean redlineDocPresent) {
+        this.redlineDocPresent = redlineDocPresent;
     }
 }

@@ -124,12 +124,12 @@
                                                 <td>{{ r.changeUserId }}</td>
                                                 <td>{{ r.changeDate }}</td>
                                                 <td class="text-center">
-                                                    <a href="" class="btn btn-success" ng-href="{{ '/resource/download?documentId=' + r.key.documentId + '&revisionId=' + r.key.revisionId }}">
+                                                    <a target="_blank" href="" class="btn btn-success" ng-href="{{ '/resource/download?documentId=' + r.key.documentId + '&revisionId=' + r.key.revisionId }}">
                                                         <span class="fa fa-file"></span>
                                                     </a>
                                                 </td>
                                                 <td class="text-center">
-                                                    <a href="" class="btn btn-danger" ng-href="{{ '/resource/download?documentId=' + r.key.documentId + '&revisionId=' + r.key.revisionId + '&isRedline=true' }}">
+                                                    <a ng-disabled="!r.redlineDocPresent" ng-hide="r.key.revisionId=='A'" href="" class="btn btn-danger" ng-href="{{ '/resource/download?documentId=' + r.key.documentId + '&revisionId=' + r.key.revisionId + '&isRedline=true' }}">
                                                         <span class="fa fa-file"></span>
                                                     </a>
                                                 </td>

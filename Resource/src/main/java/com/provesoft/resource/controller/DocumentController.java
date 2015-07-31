@@ -242,6 +242,7 @@ public class DocumentController {
             String documentId = rootNode.get("documentId").textValue();
             String changeReason = rootNode.get("changeReason").textValue();
             String changeUserEmail = rootNode.get("changeUserEmail").textValue();
+            Boolean redlineDocPresent = rootNode.get("redlineDocPresent").booleanValue();
 
             String companyName = UserHelpers.getCompany(auth);
             String currentDate = SystemHelpers.getCurrentDate();
@@ -272,7 +273,8 @@ public class DocumentController {
                             documentRevisionId,
                             changeReason,
                             changeUser.getUserId(),
-                            currentDate
+                            currentDate,
+                            redlineDocPresent
                     );
 
                     newRevision = documentService.addNewRevision(newRevision);

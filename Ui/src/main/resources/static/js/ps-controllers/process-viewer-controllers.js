@@ -1,6 +1,6 @@
 'use strict';
 
-function documentLookupCtrl($scope, $rootScope, $window, $timeout, documentLookupService) {
+function documentLookupCtrl($scope, $rootScope, $window, $timeout, documentLookupService, generalSettingsService) {
 
     if (!$rootScope.authenticated) {
         $window.location.href = '/';
@@ -59,6 +59,10 @@ function documentLookupCtrl($scope, $rootScope, $window, $timeout, documentLooku
             });
             $scope.lastFetchedRevisions = documentId;
         }
+    };
+
+    $scope.downloadFile = function(revKey) {
+
     }
 
 }
@@ -410,6 +414,13 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
             changeReason: $scope.revision.changeReason,
             changeUserEmail: $rootScope.user.userName
         };
+
+        if ($scope.redlineRequired) {
+            revisionPayload.redlineDocPresent = true;
+        }
+        else {
+            revisionPayload.redlineDocPresent = false;
+        }
 
         documentRevisionService.revision.save(revisionPayload, function(data, status, headers, config) {
             $scope.revision = data.key.revisionId;

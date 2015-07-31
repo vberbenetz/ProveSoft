@@ -89,7 +89,8 @@ public class DocumentService {
                                                                 "A",
                                                                 "Document Created",
                                                                 userId,
-                                                                document.getDate());
+                                                                document.getDate(),
+                                                                false);
 
         DocumentRevisionIds initialRevId = new DocumentRevisionIds(document.getCompanyName(), document.getId(), "A");
 
