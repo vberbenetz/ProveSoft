@@ -188,7 +188,7 @@ public class DocumentService {
         Retrieve DocumentRevision by userId (and companyName)
      */
     public List<DocumentRevisions> findDocRevByCompanyNameAndDocumentId (String companyName, String documentId) {
-        return documentRevisionsRepository.findByKeyCompanyNameAndKeyDocumentId(companyName, documentId);
+        return documentRevisionsRepository.findByKeyCompanyNameAndKeyDocumentIdOrderByKeyRevisionIdDesc(companyName, documentId);
     }
 
     /*
