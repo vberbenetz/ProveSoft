@@ -1157,6 +1157,15 @@ function signoffPathsSetupCtrl ($scope, $rootScope, $window, manageUsersService,
                 });
             }
 
+            // Update existing steps if new user was selected
+            for (var i = 0; i < $scope.rightPanel.steps.length; i++) {
+                delete $scope.rightPanel.steps[i].edit;
+            }
+            adminSignoffPathsService.steps.save($scope.rightPanel.steps, function(data, status, headers, config) {
+            }, function(data, status, headers, config) {
+                $scope.error = status;
+            });
+
         }
     };
 
@@ -1182,6 +1191,12 @@ function signoffPathsSetupCtrl ($scope, $rootScope, $window, manageUsersService,
         $scope.rightPanel.steps = steps;
         $scope.stepsToRemove.length = 0;
         $scope.newSteps.length = 0;
+
+        // Reset edit flags
+        for (var i = 0; i < $scope.rightPanel.steps.length; i++) {
+            delete $scope.rightPanel.steps[i].edit;
+        }
+
     };
 
     $scope.extractStepIds = function(steps) {

@@ -108,19 +108,38 @@
                         <th>User</th>
                         <th>Primary Organization</th>
                         <th></th>
+                        <th></th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="n in rightPanel.steps">
-                        <td>
+                    <tr ng-repeat="n in rightPanel.steps" ng-init="n.edit=false">
+                        <td ng-show="!n.edit">
                             <button ng-if="n.action=='START'" class="btn btn-primary">START</button>
                             <button ng-if="n.action=='THEN'" class="btn btn-success">THEN</button>
                             <button ng-if="n.action=='OR'" class="btn btn-warning">OR</button>
                         </td>
-                        <td>
+                        <td ng-show="n.edit">
+                            <button class="btn btn-success" ng-class="{ 'btn-default': rightPanel.steps[$index].action != 'THEN' }" ng-model="rightPanel.steps[$index].action" btn-radio="'THEN'">THEN</button>
+                            <button class="btn btn-default" ng-class="{ 'btn-warning': rightPanel.steps[$index].action == 'OR' }" ng-model="rightPanel.steps[$index].action" btn-radio="'OR'">OR</button>
+                        </td>
+                        <td ng-show="!n.edit">
                             {{ n.user.firstName }} {{ n.user.lastName }}
                         </td>
+                        <td ng-show="n.edit">
+                            <ui-select ng-model="rightPanel.steps[$index].user" theme="selectize" style="width: 300px;">
+                                <ui-select-match placeholder="Choose User For Step">{{ $select.selected.firstName }} {{ $select.selected.lastName }}</ui-select-match>
+                                <ui-select-choices repeat="user in users | filter: $select.search">
+                                    <div ng-bind-html="user.firstName + ' ' + user.lastName | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
+                        </td>
                         <td>{{ n.user.primaryOrganization.name }}</td>
+                        <td>
+                            <button ng-click="n.edit = true" class="btn btn-sm btn-warning">
+                                <span class="fa fa-pencil"></span>
+                                &nbsp;Edit
+                            </button>
+                        </td>
                         <td>
                             <button ng-if="n.action!='START'" ng-click="removeStep(n, $parent.$index)" class="btn btn-sm btn-danger">
                                 <span class="fa fa-times"></span>
@@ -134,8 +153,12 @@
                             <button class="btn btn-default" ng-class="{ 'btn-warning': newStep.action == 'OR' }" ng-model="newStep.action" btn-radio="'OR'">OR</button>
                         </td>
                         <td>
-                            <select chosen style="width:250px;" data-placeholder="Choose User" size="6" class="chosen-select"  ng-model="newStep.user" ng-options="u.firstName + ' ' + u.lastName for u in users">
-                            </select>
+                            <ui-select ng-model="newStep.user" theme="selectize" style="width: 300px;">
+                                <ui-select-match placeholder="Choose User For Step">{{ $select.selected.firstName }} {{ $select.selected.lastName }}</ui-select-match>
+                                <ui-select-choices repeat="user in users | filter: $select.search">
+                                    <div ng-bind-html="user.firstName + ' ' + user.lastName | highlight: $select.search"></div>
+                                </ui-select-choices>
+                            </ui-select>
                         </td>
                         <td>{{ newStep.user.primaryOrganization.name }}</td>
                         <td></td>
@@ -144,7 +167,7 @@
                 </table>
             </div>
         </div>
-        <div class="text-right">
+        <div class="text-right margin-top-30">
             <button ng-click="addStep()" class="btn btn-sm btn-primary">
                 <span class="fa fa-plus"></span>
                 &nbsp;Add Step
