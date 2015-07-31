@@ -1,4 +1,4 @@
-package com.provesoft.resource.entity;
+package com.provesoft.gateway.entity;
 
 import javax.persistence.Embeddable;
 import java.io.Serializable;

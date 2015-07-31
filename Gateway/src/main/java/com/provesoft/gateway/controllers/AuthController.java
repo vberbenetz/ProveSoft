@@ -2,21 +2,13 @@ package com.provesoft.gateway.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.provesoft.gateway.entity.Authorities;
-import com.provesoft.gateway.entity.SignoffPathId;
-import com.provesoft.gateway.entity.UserDetails;
-import com.provesoft.gateway.entity.Users;
+import com.provesoft.gateway.entity.*;
 import com.provesoft.gateway.exceptions.ResourceNotFoundException;
-import com.provesoft.gateway.service.SignoffPathIdService;
-import com.provesoft.gateway.service.UserDetailsService;
-import com.provesoft.gateway.service.UsersService;
+import com.provesoft.gateway.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.IOException;
@@ -34,7 +26,17 @@ public class AuthController {
     UserDetailsService userDetailsService;
 
     @Autowired
+    OrganizationsService organizationsService;
+
+    @Autowired
+    DocumentService documentService;
+
+    @Autowired
     SignoffPathIdService signoffPathIdService;
+
+    @Autowired
+    SystemSettingsService systemSettingsService;
+
 
     @RequestMapping("/user")
     @ResponseBody
@@ -75,13 +77,12 @@ public class AuthController {
                 usersService.saveAuthority(newAdminAuth);
                 usersService.saveAuthority(newCompanyAuth);
 
-                // Create user details for user
-                UserDetails userDetails = new UserDetails(companyName, firstName, lastName, email, title, null);
-                userDetailsService.addUser(userDetails);
+                // Initialize the company
+                Organizations defaultOrg = initialize(companyName);
 
-                // Initialize signoffPathId for new company
-                SignoffPathId intialSignoffPathId = new SignoffPathId(companyName, 1L);
-                signoffPathIdService.intializeSignoffPathId(intialSignoffPathId);
+                // Create user details for user
+                UserDetails userDetails = new UserDetails(companyName, firstName, lastName, email, title, defaultOrg);
+                userDetailsService.addUser(userDetails);
 
                 return newUser;
             }
@@ -93,6 +94,33 @@ public class AuthController {
 
         throw new ResourceNotFoundException();
     }
+
+    /*
+        Perform all the initialization steps for a new company
+     */
+    private Organizations initialize(String companyName) {
+
+        // Initialize signoffPathId for new company
+        SignoffPathId intialSignoffPathId = new SignoffPathId(companyName, 1L);
+        signoffPathIdService.intializeSignoffPathId(intialSignoffPathId);
+
+        SystemSettings redlineSetting = new SystemSettings(companyName, "redline", "off");
+        SystemSettings signoff = new SystemSettings(companyName, "signoff", "off");
+
+        systemSettingsService.saveSetting(redlineSetting);
+        systemSettingsService.saveSetting(signoff);
+
+        // Initialize Default Organization
+        Organizations organization = new Organizations("Default", companyName, "Default Organization");
+        organization = organizationsService.saveOrg(organization);
+
+        // Initialize Default DocumentType
+        DocumentType docType = new DocumentType(companyName, "Training Instructions", "Training Document", "TI", 10, 1L);
+        documentService.addDocumentType(docType);
+
+        return organization;
+    }
+
 
 }
 

@@ -39,9 +39,9 @@
                         <div ng-hide="noResultsFound" class="table-responsive margin-top-30">
                             <table class="table table-hover issue-tracker">
                                 <colgroup>
-                                    <col style="width:1%" />
+                                    <col style="width:5%" />
                                     <col style="width:15%" />
-                                    <col style="width:19%" />
+                                    <col style="width:15%" />
                                     <col style="width:15%" />
                                     <col style="width:10%" />
                                     <col style="width:15%" />
@@ -70,8 +70,9 @@
                                         <div class="col-md-12" ng-click="getRevisions(n.id)">
                                             <table class="table">
                                                 <colgroup>
+                                                    <col style="width:2%" />
                                                     <col style="width:15%" />
-                                                    <col style="width:20%" />
+                                                    <col style="width:18%" />
                                                     <col style="width:15%" />
                                                     <col style="width:10%" />
                                                     <col style="width:15%" />
@@ -80,6 +81,11 @@
                                                 </colgroup>
                                                 <tbody>
                                                 <tr>
+                                                    <td>
+                                                        <button class="btn btn-xs btn-rounded btn-primary">
+                                                            <span class="fa fa-plus" ng-class="{ 'fa-minus' : n.active}"></span>
+                                                        </button>
+                                                    </td>
                                                     <td>{{ n.id }}</td>
                                                     <td>{{ n.title }}</td>
                                                     <td>{{ n.organization.name }}</td>
@@ -107,6 +113,8 @@
                                             <th>Reason For Change</th>
                                             <th>Changed By</th>
                                             <th>Change Date</th>
+                                            <th class="text-center">Document Download</th>
+                                            <th class="text-center">Redline Download</th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -115,6 +123,16 @@
                                                 <td>{{ r.changeReason }}</td>
                                                 <td>{{ r.changeUserId }}</td>
                                                 <td>{{ r.changeDate }}</td>
+                                                <td class="text-center">
+                                                    <a href="" class="btn btn-success" ng-href="{{ '/resource/download?documentId=' + r.key.documentId + '&revisionId=' + r.key.revisionId }}">
+                                                        <span class="fa fa-file"></span>
+                                                    </a>
+                                                </td>
+                                                <td class="text-center">
+                                                    <a href="" class="btn btn-danger" ng-href="{{ '/resource/download?documentId=' + r.key.documentId + '&revisionId=' + r.key.revisionId + '&isRedline=true' }}">
+                                                        <span class="fa fa-file"></span>
+                                                    </a>
+                                                </td>
                                             </tr>
                                         </tbody>
                                     </table>

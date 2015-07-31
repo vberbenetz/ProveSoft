@@ -1,4 +1,4 @@
-package com.provesoft.resource.entity;
+package com.provesoft.gateway.entity;
 
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
@@ -7,8 +7,8 @@ import javax.persistence.Entity;
 @Entity
 public class SystemSettings {
 
-    public SystemSettings (String company, String setting, String value) {
-        this.key = new SystemSettingsKey(company, setting);
+    public SystemSettings (String companyName, String setting, String value) {
+        this.key = new SystemSettingsKey(companyName, setting);
         this.value = value;
     }
 

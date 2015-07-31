@@ -30,7 +30,9 @@ public class SystemSettingsController {
 
         String companyName = UserHelpers.getCompany(auth);
 
-        return systemSettingsService.getSettingByCompanyNameAndSetting(companyName, setting);
+        SystemSettings s = systemSettingsService.getSettingByCompanyNameAndSetting(companyName, setting);
+
+        return s;
     }
 
 }
