@@ -130,6 +130,14 @@ public class DocumentService {
         documentUploadRepository.updateRevisionId(companyName, tempRevId, newRevId);
     }
 
+    /*
+        Delete temporary document uploads
+     */
+    public void deleteTempUploads(String companyName, String documentId, String tempRevId) {
+        //documentUploadRepository.deleteByKeyCompanyNameAndKeyDocumentIdAndKeyRevision(companyName, documentId, tempRevId);
+        documentUploadRepository.deleteTempUpload(companyName, documentId, tempRevId);
+    }
+
 
     /* ------------------------ DocumentType -------------------------- */
 

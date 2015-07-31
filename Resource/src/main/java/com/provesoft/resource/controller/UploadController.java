@@ -3,6 +3,7 @@ package com.provesoft.resource.controller;
 import com.provesoft.resource.entity.Document.Document;
 import com.provesoft.resource.entity.Document.DocumentRevisions;
 import com.provesoft.resource.entity.Document.DocumentUpload;
+import com.provesoft.resource.exceptions.ForbiddenException;
 import com.provesoft.resource.exceptions.InternalServerErrorException;
 import com.provesoft.resource.exceptions.ResourceNotFoundException;
 import com.provesoft.resource.service.DocumentService;
@@ -148,4 +149,57 @@ public class UploadController {
 
         return new ResponseEntity<>("{}", HttpStatus.OK);
     }
+
+
+    /*
+        Delete Uploaded Document (Only Used For Temporary Docs. Called upon cancelled revision)
+     */
+    @RequestMapping(
+            value = "/upload",
+            method = RequestMethod.DELETE
+    )
+    public ResponseEntity deleteDocument(@RequestParam("documentId") String documentId,
+                                         @RequestParam("tempRevId") String tempRevId,
+                                         Authentication auth) {
+
+        String companyName = UserHelpers.getCompany(auth);
+
+        // Verify tempRevId is a UUID string and not a legitimate revision
+        if (!tempRevId.contains("-")) {
+            throw new ForbiddenException();
+        }
+
+        documentService.deleteTempUploads(companyName, documentId, tempRevId);
+
+        return new ResponseEntity<>("{}", HttpStatus.OK);
+    }
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

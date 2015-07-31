@@ -76,6 +76,20 @@ function documentLookupService($resource) {
 
 function documentRevisionService($resource) {
     return {
+        upload: $resource('/resource/upload',
+            {},
+            {
+                remove: {
+                    method: 'DELETE',
+                    params: {
+                        documentId: '@documentId',
+                        tempRevId: '@tempRevId'
+                    },
+                    isArray: false
+                }
+            }
+        ),
+
         revision: $resource('/resource/document/revision'),
 
         updateUploadRevisionId: $resource('/resource/upload/updateRevId',

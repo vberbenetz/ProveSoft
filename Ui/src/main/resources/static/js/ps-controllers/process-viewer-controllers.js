@@ -425,6 +425,19 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
         });
     };
 
+    $scope.cancelRevision = function() {
+
+        // Delete temporary documents upon cancel
+        if ($scope.tempRevId != null) {
+            documentRevisionService.upload.remove({documentId: $scope.documentId, tempRevId: $scope.tempRevId}, function(data) {
+                $state.go('process-viewer.document-lookup');
+            }, function(error) {
+                $scope.error = error;
+                $state.go('process-viewer.document-lookup');
+            });
+        }
+    };
+
     /* ----------- Helpers ------------ */
 
     $scope.getOrgNameById = function(organizationId) {
