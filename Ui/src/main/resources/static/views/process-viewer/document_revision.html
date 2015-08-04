@@ -71,7 +71,7 @@
                                     </div>
                                 </div>
 
-                                <div class="form-group" ng-class="{ 'has-error' : fieldValidationFail.uploadedRedline }">
+                                <div ng-show="redlineRequired" class="form-group" ng-class="{ 'has-error' : fieldValidationFail.uploadedRedline }">
                                     <h3><label class="col-md-2 control-label">Uploaded Redline</label></h3>
                                     <div class="col-md-6 margin-bottom-30 margin-left-15 text-center" ng-class="{ 'alert alert-success' : uploadedRedline, 'alert alert-danger' : fieldValidationFail.uploadedRedline }">
                                         <h4 class="form-control-static font-bold">
@@ -96,7 +96,7 @@
                                         </form>
                                         <div class="text-right">
                                             <button class="btn btn-success" ng-disabled="!fileAdded" ng-click="uploadDocument(false)" ng-class="{ 'disabled btn-default' : uploadingDocument }">Upload Document</button>
-                                            <button class="btn btn-success" ng-disabled="!fileAdded" ng-click="uploadDocument(true)" ng-class="{ 'disabled btn-default' : uploadingDocument }">Upload Redline</button>
+                                            <button ng-show="redlineRequired" class="btn btn-success" ng-disabled="!fileAdded" ng-click="uploadDocument(true)" ng-class="{ 'disabled btn-default' : uploadingDocument }">Upload Redline</button>
                                         </div>
                                     </div>
                                 </div>
@@ -233,7 +233,7 @@
                             </div>
                         </div>
 
-                        <div class="form-group">
+                        <div ng-show="redlineRequired" class="form-group">
                             <h3><label class="col-md-2 control-label">Uploaded Redline</label></h3>
                             <div class="col-md-6 margin-bottom-30 margin-left-15 text-center" ng-class="{ 'alert alert-success' : uploadedRedline }">
                                 <h4 class="form-control-static font-bold">
