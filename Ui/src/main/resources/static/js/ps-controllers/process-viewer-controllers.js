@@ -93,7 +93,7 @@ function documentCreationCtrl($scope, $rootScope, $window, $state, documentCreat
     $scope.organizations = [];
     $scope.populatedDocumentTypesDropdown = false;
     $scope.populatedOrganizationsDropdown = false;
-    $scope.signoffPathChoices =[];
+    $scope.signoffPathChoices = [];
     $scope.loadedPathsForOrg = 0;
 
     $scope.newDocument = {};
@@ -104,28 +104,28 @@ function documentCreationCtrl($scope, $rootScope, $window, $state, documentCreat
     $scope.fieldValidationFail = {};
 
     // Get signoff setting
-    generalSettingsService.setting.get({setting: 'signoff'}, function(data) {
+    generalSettingsService.setting.get({setting: 'signoff'}, function (data) {
         if (data.value === 'on') {
             $scope.signoffRequired = true;
         }
         else {
             $scope.signoffRequired = false;
         }
-    }, function(error) {
+    }, function (error) {
         $scope.err = error;
     });
 
     // Get initial data for form
-    documentCreationService.documentType.query(function(documentTypes) {
+    documentCreationService.documentType.query(function (documentTypes) {
         $scope.documentTypes = documentTypes;
 
-        documentCreationService.organization.query(function(organizations) {
+        documentCreationService.organization.query(function (organizations) {
             $scope.organizations = organizations;
-        }, function(error) {
+        }, function (error) {
             $scope.err = error;
         });
 
-    }, function(error) {
+    }, function (error) {
         $scope.err = error;
     });
 
@@ -133,32 +133,32 @@ function documentCreationCtrl($scope, $rootScope, $window, $state, documentCreat
     // ------------------ Methods ------------------- //
 
     // Load sign off paths if organization choice changes
-    $scope.loadSignoffPaths = function() {
+    $scope.loadSignoffPaths = function () {
         if ($scope.loadedPathsForOrg != $scope.newDocument.organization.organizationId) {
-            signoffPathsService.pathMulti.query({orgId: $scope.newDocument.organization.organizationId}, function(data) {
+            signoffPathsService.pathMulti.query({orgId: $scope.newDocument.organization.organizationId}, function (data) {
                 $scope.signoffPaths = data;
                 $scope.loadedPathsForOrg = $scope.newDocument.organization.organizationId;
-            }, function(error) {
+            }, function (error) {
                 $scope.error = error;
             });
         }
     };
 
-    $scope.$watch('signoffPath.selected.key.pathId', function(newVal, oldVal) {
+    $scope.$watch('signoffPath.selected.key.pathId', function (newVal, oldVal) {
         if (newVal != oldVal) {
             $scope.loadSignoffPathSteps(newVal);
         }
     });
 
-    $scope.loadSignoffPathSteps = function(pathId) {
-        signoffPathsService.steps.query({pathId: pathId}, function(steps) {
-             $scope.signoffPathSteps = steps;
-        }, function(error) {
+    $scope.loadSignoffPathSteps = function (pathId) {
+        signoffPathsService.steps.query({pathId: pathId}, function (steps) {
+            $scope.signoffPathSteps = steps;
+        }, function (error) {
             $scope.error = error;
         });
     };
 
-    $scope.goToStage = function(nextStage) {
+    $scope.goToStage = function (nextStage) {
         if (nextStage == 2) {
             if ($scope.validateForm()) {
 
@@ -173,19 +173,22 @@ function documentCreationCtrl($scope, $rootScope, $window, $state, documentCreat
         }
     };
 
-    $scope.createNewDocument = function() {
+    $scope.createNewDocument = function () {
 
         $scope.creatingDocument = true;
 
-        documentCreationService.document.save($scope.newDocument, function(data, status, headers, config) {
+        documentCreationService.document.save($scope.newDocument, function (data, status, headers, config) {
             $scope.documentId = data.id;
 
             $scope.tempUpload = false;
             $scope.processDropzone();
 
             if ($scope.signoffRequired) {
-                $scope.updatedSignoffPath = documentCreationService.document.addSignoffPath({documentId: data.id, signoffPathId: $scope.signoffPath.selected.key.pathId});
-                $scope.updatedSignoffPath.$promise.then( function(result) {
+                $scope.updatedSignoffPath = documentCreationService.document.addSignoffPath({
+                    documentId: data.id,
+                    signoffPathId: $scope.signoffPath.selected.key.pathId
+                });
+                $scope.updatedSignoffPath.$promise.then(function (result) {
                     $state.go('process-viewer.document-lookup');
                 });
             }
@@ -193,13 +196,13 @@ function documentCreationCtrl($scope, $rootScope, $window, $state, documentCreat
                 $scope.redirectToLookup();
             }
 
-        }, function(data, status, headers, config) {
+        }, function (data, status, headers, config) {
             $scope.err = status;
             $scope.creatingDocument = false;
         });
     };
 
-    $scope.validateForm = function() {
+    $scope.validateForm = function () {
         var validationFail = false;
         var title = $scope.newDocument.title;
         var documentType = $scope.newDocument.documentType;
@@ -208,15 +211,15 @@ function documentCreationCtrl($scope, $rootScope, $window, $state, documentCreat
         // Reset form validation error messages
         $scope.fieldValidationFail = {};
 
-        if ( (typeof title === 'undefined') || (title === '') || (title.length == 0) ) {
+        if ((typeof title === 'undefined') || (title === '') || (title.length == 0)) {
             $scope.fieldValidationFail.title = true;
             validationFail = true;
         }
-        if ( (typeof documentType === 'undefined') || (documentType === '') ) {
+        if ((typeof documentType === 'undefined') || (documentType === '')) {
             $scope.fieldValidationFail.documentType = true;
             validationFail = true;
         }
-        if ( (typeof organization === 'undefined') || (organization === '') ) {
+        if ((typeof organization === 'undefined') || (organization === '')) {
             $scope.fieldValidationFail.organization = true;
             validationFail = true;
         }
@@ -228,9 +231,9 @@ function documentCreationCtrl($scope, $rootScope, $window, $state, documentCreat
         return !validationFail;
     };
 
-    $scope.redirectToLookup = function() {
+    $scope.redirectToLookup = function () {
         $state.go('process-viewer.document-lookup');
-    }
+    };
 
 }
 

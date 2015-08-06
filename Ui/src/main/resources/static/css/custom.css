@@ -154,3 +154,12 @@ textarea {
     color: inherit;
     margin-bottom: 0;
 }
+
+.progress-thick {
+    height: 60px;
+}
+
+.progress-bar-plain {
+    background-color: #d1dade;
+    color: #5E5E5E;
+}
