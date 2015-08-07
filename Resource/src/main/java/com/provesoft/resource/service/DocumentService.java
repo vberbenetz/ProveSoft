@@ -33,6 +33,9 @@ public class DocumentService {
     @Autowired
     DocumentRevisionIdsRepository documentRevisionIdsRepository;
 
+    @Autowired
+    RevisionApprovalStatusRepository revisionApprovalStatusRepository;
+
 
     /* ------------------------ Document -------------------------- */
 
@@ -212,6 +215,23 @@ public class DocumentService {
         documentRevisionIdsRepository.incrementRevId(companyName, documentId, nextRevId);
         documentRevisionIdsRepository.flush();
         return nextRevId;
+    }
+
+
+    /* ------------------------ RevisionStatusApproval -------------------------- */
+
+    /*
+        Retrieve revision approval status
+     */
+    public RevisionApprovalStatus getApprovalStatusByCompanyAndDocumentId(String companyName, String documentId) {
+        return revisionApprovalStatusRepository.findByKeyCompanyNameAndKeyDocumentId(companyName, documentId);
+    }
+
+    /*
+        Create a new Approval Status record
+     */
+    public RevisionApprovalStatus addApprovalStatus(RevisionApprovalStatus revisionApprovalStatus) {
+        return revisionApprovalStatusRepository.saveAndFlush(revisionApprovalStatus);
     }
 
 }

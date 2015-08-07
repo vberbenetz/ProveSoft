@@ -5,13 +5,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.provesoft.resource.entity.Document.Document;
 import com.provesoft.resource.entity.Document.DocumentRevisions;
 import com.provesoft.resource.entity.Document.DocumentType;
+import com.provesoft.resource.entity.Document.RevisionApprovalStatus;
 import com.provesoft.resource.entity.SignoffPath.SignoffPath;
+import com.provesoft.resource.entity.SignoffPath.SignoffPathSeq;
+import com.provesoft.resource.entity.SystemSettings;
 import com.provesoft.resource.entity.UserDetails;
 import com.provesoft.resource.exceptions.ForbiddenException;
 import com.provesoft.resource.exceptions.InternalServerErrorException;
 import com.provesoft.resource.exceptions.ResourceNotFoundException;
 import com.provesoft.resource.service.DocumentService;
 import com.provesoft.resource.service.SignoffPathService;
+import com.provesoft.resource.service.SystemSettingsService;
 import com.provesoft.resource.service.UserDetailsService;
 import com.provesoft.resource.utils.SystemHelpers;
 import com.provesoft.resource.utils.UserHelpers;
@@ -24,7 +28,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.TransactionRolledbackException;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -39,6 +42,9 @@ public class DocumentController {
 
     @Autowired
     SignoffPathService signoffPathService;
+
+    @Autowired
+    SystemSettingsService systemSettingsService;
 
 
     /* -------------------------------------------------------- */
@@ -259,6 +265,9 @@ public class DocumentController {
                 throw new ResourceNotFoundException();
             }
 
+            // Get system setting to see if signoffs are required
+            SystemSettings signoffSetting = systemSettingsService.getSettingByCompanyNameAndSetting(companyName, "signoff");
+
             /* -------- Critical area starts here ---------- */
             // Multiple users may attempt to get new rev Id.
             // Retry until resource becomes free to generate new Id.
@@ -281,6 +290,17 @@ public class DocumentController {
 
                     docToChange.setRevision(documentRevisionId);
                     docToChange.setDate(currentDate);
+
+                    // Set document status to changing if signoffs are required
+                    if (signoffSetting.getValue().equals("on")) {
+                        docToChange.setState("Changing");
+
+                        // Create Approval Status Record
+                        SignoffPathSeq seq = signoffPathService.getPathSeq(companyName, docToChange.getSignoffPathId());
+
+                        RevisionApprovalStatus newApprovalStatus = new RevisionApprovalStatus(companyName, documentId, seq.getPathSequence());
+                        documentService.addApprovalStatus(newApprovalStatus);
+                    }
 
                     documentService.updateDocument(docToChange);
 

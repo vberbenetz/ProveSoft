@@ -1,6 +1,6 @@
 'use strict';
 
-function documentLookupCtrl($scope, $rootScope, $window, $timeout, documentLookupService, generalSettingsService) {
+function documentLookupCtrl($scope, $rootScope, $window, $timeout, $modal, documentLookupService, signoffPathsService) {
 
     if (!$rootScope.authenticated) {
         $window.location.href = '/';
@@ -12,6 +12,10 @@ function documentLookupCtrl($scope, $rootScope, $window, $timeout, documentLooku
     $scope.documentSearchResults = [];
     $scope.revisions = [];
     $scope.lastFetchedRevisions = '';      // Prevent the same revisions from being fetched again on-click
+
+    // Steps associated with signoff path, used in modal
+    $scope.signoffPathSteps = [];
+    $scope.prevDocIdStepsLookup = -1;
 
     // Get initial list of companies
     documentLookupService.first10.query(function(data) {
@@ -61,9 +65,39 @@ function documentLookupCtrl($scope, $rootScope, $window, $timeout, documentLooku
         }
     };
 
-    $scope.downloadFile = function(revKey) {
+    $scope.open = function(steps) {
+        var modalInstance = $modal.open({
+            templateUrl: 'views/process-viewer/signoffPathModal.html',
+            controller: signoffModalCtrl,
+            resolve: {
+                steps: function() {
+                    return $scope.signoffPathSteps;
+                }
+            }
+        });
+    };
 
-    }
+    $scope.openStepsModal = function(document) {
+
+        // Prevent lookup of steps if already loaded previously
+        if ($scope.prevDocIdStepsLookup == document.documentId) {
+            $scope.open();
+        }
+        else {
+            $scope.signoffPathSteps.length = 0;
+
+            signoffPathsService.steps.query({pathId: document.signoffPathId}, function (steps) {
+                $scope.signoffPathSteps = steps;
+                $scope.prevDocIdStepsLookup = document.documentId;
+
+                $scope.open();
+
+            }, function (error) {
+                $scope.error = error;
+            });
+        }
+
+    };
 
 }
 
@@ -467,8 +501,21 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
 
 }
 
+function signoffModalCtrl($scope, $modalInstance, steps) {
+    $scope.steps = steps;
+
+    $scope.ok = function() {
+        $modalInstance.close();
+    };
+
+    $scope.cancel = function() {
+        $modalInstance.dismiss('cancel');
+    }
+}
+
 angular
     .module('provesoft')
     .controller('documentLookupCtrl', documentLookupCtrl)
     .controller('documentCreationCtrl', documentCreationCtrl)
-    .controller('documentRevisionCtrl', documentRevisionCtrl);
+    .controller('documentRevisionCtrl', documentRevisionCtrl)
+    .controller('signoffModalCtrl', signoffModalCtrl);

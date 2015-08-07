@@ -113,12 +113,12 @@
                     </thead>
                     <tbody>
                     <tr ng-repeat="n in rightPanel.steps" ng-init="n.edit=false">
-                        <td ng-show="!n.edit">
+                        <td ng-show="!n.edit || n.action=='START'">
                             <button ng-if="n.action=='START'" class="btn btn-primary">START</button>
                             <button ng-if="n.action=='THEN'" class="btn btn-success">THEN</button>
                             <button ng-if="n.action=='OR'" class="btn btn-warning">OR</button>
                         </td>
-                        <td ng-show="n.edit">
+                        <td ng-show="n.edit && n.action!='START'">
                             <button class="btn btn-success" ng-class="{ 'btn-default': rightPanel.steps[$index].action != 'THEN' }" ng-model="rightPanel.steps[$index].action" btn-radio="'THEN'">THEN</button>
                             <button class="btn btn-default" ng-class="{ 'btn-warning': rightPanel.steps[$index].action == 'OR' }" ng-model="rightPanel.steps[$index].action" btn-radio="'OR'">OR</button>
                         </td>

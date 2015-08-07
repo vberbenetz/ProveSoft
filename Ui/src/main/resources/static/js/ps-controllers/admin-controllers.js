@@ -1101,7 +1101,7 @@ function signoffPathsSetupCtrl ($scope, $rootScope, $window, manageUsersService,
         var initialApproverId = $scope.newPath.initialApprover.userId;
         delete $scope.newPath.initialApprover;
 
-        // If applying to all, attache a placeholder organization
+        // If applying to all, attach a placeholder organization
         if ($scope.newPath.applyToAll) {
             $scope.newPath.organization = $scope.organizations[0];
         }
@@ -1161,7 +1161,7 @@ function signoffPathsSetupCtrl ($scope, $rootScope, $window, manageUsersService,
             for (var i = 0; i < $scope.rightPanel.steps.length; i++) {
                 delete $scope.rightPanel.steps[i].edit;
             }
-            adminSignoffPathsService.steps.save($scope.rightPanel.steps, function(data, status, headers, config) {
+            adminSignoffPathsService.steps.update($scope.rightPanel.steps, function(data, status, headers, config) {
             }, function(data, status, headers, config) {
                 $scope.error = status;
             });

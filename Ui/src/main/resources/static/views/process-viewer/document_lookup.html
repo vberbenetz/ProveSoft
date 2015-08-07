@@ -90,11 +90,18 @@
                                                     <td>{{ n.title }}</td>
                                                     <td>{{ n.organization.name }}</td>
                                                     <td>{{ n.revision }}</td>
-                                                    <td>{{ n.state }}</td>
+                                                    <td ng-if="n.state!='Changing'">
+                                                        {{ n.state }}
+                                                    </td>
+                                                    <td ng-if="n.state=='Changing'">
+                                                        <button class="btn btn-primary" ng-click="openStepsModal(n)">
+                                                            <span class="fa fa-list"></span>&nbsp;Changing
+                                                        </button>
+                                                    </td>
                                                     <td>{{ n.date }}</td>
                                                     <td>
                                                         <div class="text-right">
-                                                            <button ui-sref="process-viewer.document-revision({documentId: n.id})" class="btn btn-lg btn-warning" type="button">
+                                                            <button ng-disabled="n.state=='Changing'" ui-sref="process-viewer.document-revision({documentId: n.id})" class="btn btn-lg btn-warning" type="button">
                                                                 <span class="fa fa-pencil"></span>
                                                             </button>
                                                         </div>

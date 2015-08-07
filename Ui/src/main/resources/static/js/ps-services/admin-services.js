@@ -236,6 +236,11 @@ function adminSignoffPathsService ($resource) {
                     params: {},
                     isArray: true
                 },
+                update: {
+                    method: 'POST',
+                    params: {},
+                    isArray: true
+                },
                 remove: {
                     method: 'DELETE',
                     params: {

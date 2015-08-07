@@ -1290,6 +1290,7 @@ public class AdminController {
                         // Create initial START step
                         SignoffPathSteps newStep = new SignoffPathSteps(companyName, pathId, "START", user);
                         signoffPathService.createNewStep(newStep);
+                        signoffPathService.appendToPathSeq(companyName, Arrays.asList(newStep));
 
                         return newlyCreatedPath;
 
@@ -1333,13 +1334,26 @@ public class AdminController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public List<SignoffPathSteps> createNewSignoffPathStep(@RequestBody String json,
-                                                Authentication auth) {
+                                                           Authentication auth) {
 
         if (UserHelpers.isSuperAdmin(auth)) {
 
             ObjectMapper mapper = new ObjectMapper();
             try {
-                List<SignoffPathSteps> signoffPathSteps = mapper.readValue(json, new TypeReference<List<SignoffPathSteps>>() { } );
+                List<SignoffPathSteps> signoffPathSteps = mapper.readValue(json, new TypeReference<List<SignoffPathSteps>>() {
+                });
+
+                // Check if there are any steps to work with
+                // Set update flag if relevant
+                boolean updateSteps = false;
+                if (signoffPathSteps.size() > 0) {
+                    if (signoffPathSteps.get(0).getId() != null) {
+                        updateSteps = true;
+                    }
+                }
+                else {
+                    return new ArrayList<>();
+                }
 
                 String companyName = UserHelpers.getCompany(auth);
 
@@ -1349,7 +1363,10 @@ public class AdminController {
 
                 signoffPathSteps = signoffPathService.createNewSteps(signoffPathSteps);
 
-                signoffPathService.appendToPathSeq(companyName, signoffPathSteps);
+                // Not updating existing steps. Must append sequence string
+                if (!updateSteps) {
+                    signoffPathService.appendToPathSeq(companyName, signoffPathSteps);
+                }
 
                 return signoffPathSteps;
             }
@@ -1407,6 +1424,7 @@ public class AdminController {
             }
 
             signoffPathService.deleteSignoffSteps(stepsToDelete);
+            signoffPathService.removeFromPathSeq(companyName, pathId, stepsToDelete);
 
             return;
         }

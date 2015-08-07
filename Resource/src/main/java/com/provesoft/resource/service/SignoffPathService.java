@@ -15,6 +15,8 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.transaction.TransactionRolledbackException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -122,6 +124,13 @@ public class SignoffPathService {
     /* ------------------------ SignoffPathSeq -------------------------- */
 
     /*
+        Retrieve sign off path sequence
+     */
+    public SignoffPathSeq getPathSeq(String companyName, Long pathId) {
+        return signoffPathSeqRepository.findByKeyCompanyNameAndKeyPathId(companyName, pathId);
+    }
+
+    /*
         Update path steps sequence string
      */
     public void appendToPathSeq(String companyName, List<SignoffPathSteps> newSignoffPathSteps) {
@@ -140,14 +149,32 @@ public class SignoffPathService {
     }
 
     /*
-        Remove path step from sequence
+        Remove path steps from sequence
      */
-    public void removeFromPathSeq(String companyName, Long pathId, Long pathStepIdToRemove) {
+    public void removeFromPathSeq(String companyName, Long pathId, List<SignoffPathSteps> pathStepsToRemove) {
         SignoffPathSeq signoffPathSeq = signoffPathSeqRepository.findByKeyCompanyNameAndKeyPathId(companyName, pathId);
 
-        String pathSequence = signoffPathSeq.getPathSequence();
-        pathSequence = SignoffPathHelpers.removeFromStepSequence( pathSequence , pathStepIdToRemove );
-        signoffPathSeq.setPathSequence(pathSequence);
+        List<String> pathSeq = Arrays.asList( signoffPathSeq.getPathSequence().split("\\|") );
+        String newPathSeq = "";
+
+        for (String stepId: pathSeq) {
+
+            boolean removed = false;
+
+            for (SignoffPathSteps s: pathStepsToRemove) {
+                if ( s.getId().toString().equals(stepId) ) {
+                    removed = true;
+                    break;
+                }
+            }
+
+            if (!removed) {
+                newPathSeq = newPathSeq + stepId + "|";
+            }
+        }
+
+        signoffPathSeq.setPathSequence(newPathSeq);
+        signoffPathSeqRepository.saveAndFlush(signoffPathSeq);
     }
 
 }
