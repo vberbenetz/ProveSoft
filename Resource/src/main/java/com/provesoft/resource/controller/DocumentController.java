@@ -8,6 +8,7 @@ import com.provesoft.resource.entity.Document.DocumentType;
 import com.provesoft.resource.entity.Document.RevisionApprovalStatus;
 import com.provesoft.resource.entity.SignoffPath.SignoffPath;
 import com.provesoft.resource.entity.SignoffPath.SignoffPathSeq;
+import com.provesoft.resource.entity.SignoffPath.SignoffPathSteps;
 import com.provesoft.resource.entity.SystemSettings;
 import com.provesoft.resource.entity.UserDetails;
 import com.provesoft.resource.exceptions.ForbiddenException;
@@ -17,6 +18,7 @@ import com.provesoft.resource.service.DocumentService;
 import com.provesoft.resource.service.SignoffPathService;
 import com.provesoft.resource.service.SystemSettingsService;
 import com.provesoft.resource.service.UserDetailsService;
+import com.provesoft.resource.utils.SignoffPathHelpers;
 import com.provesoft.resource.utils.SystemHelpers;
 import com.provesoft.resource.utils.UserHelpers;
 import org.hibernate.exception.LockAcquisitionException;
@@ -298,7 +300,12 @@ public class DocumentController {
                         // Create Approval Status Record
                         SignoffPathSeq seq = signoffPathService.getPathSeq(companyName, docToChange.getSignoffPathId());
 
-                        RevisionApprovalStatus newApprovalStatus = new RevisionApprovalStatus(companyName, documentId, seq.getPathSequence());
+                        // Get path steps
+                        List<SignoffPathSteps> steps = signoffPathService.getStepsForPath(companyName, seq.getKey().getPathId());
+
+                        String seqWithActions = SignoffPathHelpers.generateSeqWithActions(seq.getPathSequence(), steps);
+
+                        RevisionApprovalStatus newApprovalStatus = new RevisionApprovalStatus(companyName, documentId, seqWithActions);
                         documentService.addApprovalStatus(newApprovalStatus);
                     }
 
