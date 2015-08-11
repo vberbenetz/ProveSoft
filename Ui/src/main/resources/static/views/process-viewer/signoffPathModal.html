@@ -12,10 +12,11 @@
                         <th>Sequence</th>
                         <th>User</th>
                         <th>Primary Organization</th>
+                        <th>Status</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="n in steps">
+                    <tr ng-repeat="n in steps" ng-class="{ 'row-primary' : n.approved }">
                         <td>
                             <button ng-if="n.action=='START'" class="btn btn-primary">START</button>
                             <button ng-if="n.action=='THEN'" class="btn btn-success">THEN</button>
@@ -25,6 +26,8 @@
                             {{ n.user.firstName }} {{ n.user.lastName }}
                         </td>
                         <td>{{ n.user.primaryOrganization.name }}</td>
+                        <td ng-show="n.approved">Approved</td>
+                        <td ng-show="!n.approved">Pending</td>
                     </tr>
                     </tbody>
                 </table>

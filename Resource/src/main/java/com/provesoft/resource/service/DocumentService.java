@@ -2,6 +2,9 @@ package com.provesoft.resource.service;
 
 import com.provesoft.resource.entity.Document.*;
 import com.provesoft.resource.entity.Organizations;
+import com.provesoft.resource.entity.SignoffPath.SignoffPath;
+import com.provesoft.resource.entity.SignoffPath.SignoffPathSteps;
+import com.provesoft.resource.entity.UserDetails;
 import com.provesoft.resource.repository.*;
 import com.provesoft.resource.utils.DocumentHelpers;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +13,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.transaction.TransactionRolledbackException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -36,6 +40,9 @@ public class DocumentService {
     @Autowired
     RevisionApprovalStatusRepository revisionApprovalStatusRepository;
 
+    @Autowired
+    SignoffPathStepsRepository signoffPathStepsRepository;
+
 
     /* ------------------------ Document -------------------------- */
 
@@ -49,10 +56,13 @@ public class DocumentService {
         return documentRepository.findByCompanyNameAndId(companyName, id);
     }
 
-    // Search method will use wildcards for the title
-    public List<Document> findById(String companyName, String id) {
-        return documentRepository.searchById(companyName, id);
+    /*
+        Find by list of document ids
+     */
+    public List<Document> findDocumentByIdList(String companyName, List<String> ids) {
+        return documentRepository.findByCompanyNameAndIdIn(companyName, ids);
     }
+
 
     /*
         Complete wildcard search
@@ -217,21 +227,5 @@ public class DocumentService {
         return nextRevId;
     }
 
-
-    /* ------------------------ RevisionStatusApproval -------------------------- */
-
-    /*
-        Retrieve revision approval status
-     */
-    public RevisionApprovalStatus getApprovalStatusByCompanyAndDocumentId(String companyName, String documentId) {
-        return revisionApprovalStatusRepository.findByKeyCompanyNameAndKeyDocumentId(companyName, documentId);
-    }
-
-    /*
-        Create a new Approval Status record
-     */
-    public RevisionApprovalStatus addApprovalStatus(RevisionApprovalStatus revisionApprovalStatus) {
-        return revisionApprovalStatusRepository.saveAndFlush(revisionApprovalStatus);
-    }
 
 }

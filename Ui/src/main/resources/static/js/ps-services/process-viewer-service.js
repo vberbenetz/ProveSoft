@@ -57,9 +57,35 @@ function documentLookupService($resource) {
             }
         ),
 
+        multiple: $resource('/resource/document/multiple',
+            {},
+            {
+                query: {
+                    method: 'GET',
+                    params: {
+                        documentIds: '@documentIds'
+                    },
+                    isArray: true
+                }
+            }
+        ),
+
         first10: $resource('/resource/document/first10'),
 
         revision: $resource('/resource/document/revision',
+            {},
+            {
+                query: {
+                    method: 'GET',
+                    params: {
+                        documentId: '@documentId'
+                    },
+                    isArray: true
+                }
+            }
+        ),
+
+        approvedSteps: $resource('/resource/signoffPath/approvals',
             {},
             {
                 query: {

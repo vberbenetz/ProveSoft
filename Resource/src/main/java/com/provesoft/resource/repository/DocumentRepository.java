@@ -11,6 +11,8 @@ public interface DocumentRepository extends JpaRepository<Document, String> {
 
     Document findByCompanyNameAndId(String companyName, String id);
 
+    List<Document> findByCompanyNameAndIdIn(String companyName, List<String> ids);
+
     List<Document> findFirst10ByCompanyNameOrderByTitleAsc(String companyName);
 
     @Query(

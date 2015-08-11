@@ -80,7 +80,7 @@ function documentLookupCtrl($scope, $rootScope, $window, $timeout, $modal, docum
     $scope.openStepsModal = function(document) {
 
         // Prevent lookup of steps if already loaded previously
-        if ($scope.prevDocIdStepsLookup == document.documentId) {
+        if ($scope.prevDocIdStepsLookup == document.id) {
             $scope.open();
         }
         else {
@@ -88,9 +88,14 @@ function documentLookupCtrl($scope, $rootScope, $window, $timeout, $modal, docum
 
             signoffPathsService.steps.query({pathId: document.signoffPathId}, function (steps) {
                 $scope.signoffPathSteps = steps;
-                $scope.prevDocIdStepsLookup = document.documentId;
+                $scope.prevDocIdStepsLookup = document.id;
 
-                $scope.open();
+                documentLookupService.approvedSteps.query({documentId: document.id}, function(approvedStepIds) {
+                    $scope.filterApprovedSteps(approvedStepIds);
+                    $scope.open();
+                }, function(error) {
+                    $scope.error = error;
+                });
 
             }, function (error) {
                 $scope.error = error;
@@ -98,6 +103,18 @@ function documentLookupCtrl($scope, $rootScope, $window, $timeout, $modal, docum
         }
 
     };
+
+    $scope.filterApprovedSteps = function(approvedStepIds) {
+        var steps = $scope.signoffPathSteps;
+        for (var i = 0; i < steps.length; i++) {
+            for (var j = 0; j < approvedStepIds.length; j++) {
+                if (steps[i].id === approvedStepIds[j]) {
+                    steps[i].approved = true;
+                }
+            }
+        }
+        $scope.signoffPathSteps = steps;
+    }
 
 }
 

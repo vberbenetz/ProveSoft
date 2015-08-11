@@ -3,6 +3,7 @@ package com.provesoft.resource.utils;
 import com.provesoft.resource.entity.SignoffPath.SignoffPathSteps;
 import com.provesoft.resource.exceptions.InternalServerErrorException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public final class SignoffPathHelpers {
@@ -52,6 +53,23 @@ public final class SignoffPathHelpers {
             }
 
             return retSeq;
+        }
+        catch (Exception ex) {
+            throw new InternalServerErrorException();
+        }
+    }
+
+    // Extract first set of sequence step Id's from action string
+    public static List<Long> extractInitialSetOfIdsFromActionString(String seq) {
+        try {
+            List<Long> retList = new ArrayList<>();
+
+            String[] firstGroup = seq.split("&")[0].split("\\|");
+            for (String id : firstGroup) {
+                retList.add(Long.parseLong(id));
+            }
+
+            return retList;
         }
         catch (Exception ex) {
             throw new InternalServerErrorException();

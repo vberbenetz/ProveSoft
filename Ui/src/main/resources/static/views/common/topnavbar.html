@@ -1,4 +1,4 @@
-<div class="row border-bottom">
+<div class="row border-bottom" ng-controller="NavBarCtrl">
     <nav class="navbar navbar-static-top white-bg" role="navigation" style="margin-bottom: 0">
         <div class="navbar-header">
             <span minimaliza-sidebar></span>
@@ -15,7 +15,7 @@
             <li class="dropdown" dropdown="">
                 <a href="" class="dropdown-toggle count-info" dropdown-toggle="" aria-haspopup="true" aria-expanded="false">
                     <i class="fa fa-envelope"></i> Messages
-                    <span class="label label-warning">2</span>
+                    <!-- <span class="label label-warning">2</span> -->
                 </a>
                 <ul class="dropdown-menu dropdown-messages">
                     <li>
@@ -64,41 +64,18 @@
             <li class="dropdown" dropdown="">
                 <a href="" class="dropdown-toggle count-info" dropdown-toggle="" aria-haspopup="true" aria-expanded="false">
                     <i class="fa fa-bell"></i> Notifications
-                    <span class="label label-warning">5</span>
+                    <span ng-hide="approvals.length==0" class="label label-warning">{{ approvals.length }}</span>
                 </a>
-                <ul class="dropdown-menu dropdown-alerts">
-                    <li>
-                        <a href="">
-                            <div>
-                                <i class="fa fa-envelope fa-fw"></i>
-                                You have 2 new messages
-                            </div>
-                        </a>
-                    </li>
-                    <li class="divider"></li>
-                    <li>
-                        <a href="">
-                            <div>
-                                <i class="fa fa-pencil fa-fw"></i>
-                                3 people edited your documents
-                            </div>
-                        </a>
-                    </li>
-                    <li class="divider"></li>
-                    <li>
-                        <a href="">
-                            <div>
-                                <i class="fa fa-check fa-fw"></i>
-                                2 document awaiting your approval
-                            </div>
-                        </a>
-                    </li>
-                    <li class="divider"></li>
-                    <li>
-                        <div class="text-center link-block">
-                            <a href="">
-                                <i class="fa fa-bell fa-fw"></i> <strong>See all alerts</strong>
-                            </a>
+                <ul ng-hide="approvals.length==0" class="dropdown-menu dropdown-alerts">
+                    <li class="row notification-divider" ng-repeat="n in approvals">
+                        <div class="col-xs-6">
+                            <strong>{{ n.document.title }}</strong>&nbsp;document revision needs approval&nbsp;
+                        </div>
+                        <div class="col-xs-3">
+                            <button ng-click="approve(n, $index)" class="btn btn-xs btn-primary">Approve</button>
+                        </div>
+                        <div class="col-xs-3">
+                            <button ng-click="deny(n)" class="btn btn-xs btn-danger">Reject</button>
                         </div>
                     </li>
                 </ul>

@@ -94,8 +94,9 @@
                                                         {{ n.state }}
                                                     </td>
                                                     <td ng-if="n.state=='Changing'">
-                                                        <button class="btn btn-primary" ng-click="openStepsModal(n)">
-                                                            <span class="fa fa-list"></span>&nbsp;Changing
+                                                        <p class="text-danger"><strong>Changing...</strong></p>
+                                                        <button class="btn btn-primary btn-sm" ng-click="openStepsModal(n)">
+                                                            <span class="fa fa-plus"></span>&nbsp;See Details
                                                         </button>
                                                     </td>
                                                     <td>{{ n.date }}</td>
@@ -125,7 +126,7 @@
                                         </tr>
                                         </thead>
                                         <tbody>
-                                            <tr ng-repeat="r in revisions">
+                                            <tr ng-repeat="r in revisions" ng-class="{ 'row-danger' : n.state=='Changing' && $index==0}">
                                                 <td>{{ r.key.revisionId }}</td>
                                                 <td>{{ r.changeReason }}</td>
                                                 <td>{{ r.changeUserId }}</td>
@@ -166,6 +167,7 @@
                     <!-- End search results table -->
 
                     <!-- Timeline -->
+                    <!--
                     <div class="col-md-4">
                         <div class="ibox-content inspinia-timeline">
                             <div class="timeline-item">
@@ -188,139 +190,9 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="timeline-item">
-                                <div class="row">
-                                    <div class="col-xs-3 date">
-                                        <i class="fa fa-file-text"></i>
-                                        7:00 am
-                                        <br/>
-                                        <small class="text-navy">3 hour ago</small>
-                                    </div>
-                                    <div class="col-xs-7 content">
-                                        <p class="m-b-xs"><strong>Send documents to Mike</strong></p>
-
-                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since.</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="timeline-item">
-                                <div class="row">
-                                    <div class="col-xs-3 date">
-                                        <i class="fa fa-coffee"></i>
-                                        8:00 am
-                                        <br/>
-                                    </div>
-                                    <div class="col-xs-7 content">
-                                        <p class="m-b-xs"><strong>Coffee Break</strong></p>
-
-                                        <p>
-                                            Go to shop and find some products.
-                                            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="timeline-item">
-                                <div class="row">
-                                    <div class="col-xs-3 date">
-                                        <i class="fa fa-phone"></i>
-                                        11:00 am
-                                        <br/>
-                                        <small class="text-navy">21 hour ago</small>
-                                    </div>
-                                    <div class="col-xs-7 content">
-                                        <p class="m-b-xs"><strong>Phone with Jeronimo</strong></p>
-
-                                        <p>
-                                            Lorem Ipsum has been the industry's standard dummy text ever since.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="timeline-item">
-                                <div class="row">
-                                    <div class="col-xs-3 date">
-                                        <i class="fa fa-user-md"></i>
-                                        09:00 pm
-                                        <br/>
-                                        <small>21 hour ago</small>
-                                    </div>
-                                    <div class="col-xs-7 content">
-                                        <p class="m-b-xs"><strong>Go to the doctor dr Smith</strong></p>
-
-                                        <p>
-                                            Find some issue and go to doctor.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="timeline-item">
-                                <div class="row">
-                                    <div class="col-xs-3 date">
-                                        <i class="fa fa-user-md"></i>
-                                        11:10 pm
-                                    </div>
-                                    <div class="col-xs-7 content">
-                                        <p class="m-b-xs"><strong>Chat with Sandra</strong></p>
-
-                                        <p>
-                                            Lorem Ipsum has been the industry's standard dummy text ever since.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="timeline-item">
-                                <div class="row">
-                                    <div class="col-xs-3 date">
-                                        <i class="fa fa-comments"></i>
-                                        12:50 pm
-                                        <br/>
-                                        <small class="text-navy">48 hour ago</small>
-                                    </div>
-                                    <div class="col-xs-7 content">
-                                        <p class="m-b-xs"><strong>Chat with Monica and Sandra</strong></p>
-
-                                        <p>
-                                            Web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="timeline-item">
-                                <div class="row">
-                                    <div class="col-xs-3 date">
-                                        <i class="fa fa-phone"></i>
-                                        08:50 pm
-                                        <br/>
-                                        <small class="text-navy">68 hour ago</small>
-                                    </div>
-                                    <div class="col-xs-7 content">
-                                        <p class="m-b-xs"><strong>Phone to James</strong></p>
-
-                                        <p>
-                                            Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="timeline-item">
-                                <div class="row">
-                                    <div class="col-xs-3 date">
-                                        <i class="fa fa-file-text"></i>
-                                        7:00 am
-                                        <br/>
-                                        <small class="text-navy">3 hour ago</small>
-                                    </div>
-                                    <div class="col-xs-7 content">
-                                        <p class="m-b-xs"><strong>Send documents to Mike</strong></p>
-
-                                        <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since.</p>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
-
                     </div>
+                    -->
                     <!-- End timeline -->
 
                 </div>

@@ -2,10 +2,7 @@ package com.provesoft.resource.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.provesoft.resource.entity.Document.Document;
-import com.provesoft.resource.entity.Document.DocumentRevisions;
-import com.provesoft.resource.entity.Document.DocumentType;
-import com.provesoft.resource.entity.Document.RevisionApprovalStatus;
+import com.provesoft.resource.entity.Document.*;
 import com.provesoft.resource.entity.SignoffPath.SignoffPath;
 import com.provesoft.resource.entity.SignoffPath.SignoffPathSeq;
 import com.provesoft.resource.entity.SignoffPath.SignoffPathSteps;
@@ -14,10 +11,7 @@ import com.provesoft.resource.entity.UserDetails;
 import com.provesoft.resource.exceptions.ForbiddenException;
 import com.provesoft.resource.exceptions.InternalServerErrorException;
 import com.provesoft.resource.exceptions.ResourceNotFoundException;
-import com.provesoft.resource.service.DocumentService;
-import com.provesoft.resource.service.SignoffPathService;
-import com.provesoft.resource.service.SystemSettingsService;
-import com.provesoft.resource.service.UserDetailsService;
+import com.provesoft.resource.service.*;
 import com.provesoft.resource.utils.SignoffPathHelpers;
 import com.provesoft.resource.utils.SystemHelpers;
 import com.provesoft.resource.utils.UserHelpers;
@@ -30,6 +24,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.TransactionRolledbackException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -48,6 +44,9 @@ public class DocumentController {
     @Autowired
     SystemSettingsService systemSettingsService;
 
+    @Autowired
+    ApprovalService approvalService;
+
 
     /* -------------------------------------------------------- */
     /* ------------------------ GET --------------------------- */
@@ -65,6 +64,18 @@ public class DocumentController {
         String companyName = UserHelpers.getCompany(auth);
 
         return documentService.findDocumentById(companyName, documentId);
+    }
+
+    // Find by document Id list
+    @RequestMapping(value = "/document/multiple",
+            method = RequestMethod.GET
+    )
+    public List<Document> getDocumentByIdList (@RequestParam("documentIds") String[] documentIds,
+                                               Authentication auth) {
+
+        String companyName = UserHelpers.getCompany(auth);
+
+        return documentService.findDocumentByIdList(companyName, Arrays.asList(documentIds));
     }
 
     // Find all documents by the user's company, and join the like list of Id's and Titles
@@ -267,6 +278,11 @@ public class DocumentController {
                 throw new ResourceNotFoundException();
             }
 
+            // Check if document is currently under revision
+            if (docToChange.getState().equals("Changing")) {
+                throw new ForbiddenException();
+            }
+
             // Get system setting to see if signoffs are required
             SystemSettings signoffSetting = systemSettingsService.getSettingByCompanyNameAndSetting(companyName, "signoff");
 
@@ -306,7 +322,19 @@ public class DocumentController {
                         String seqWithActions = SignoffPathHelpers.generateSeqWithActions(seq.getPathSequence(), steps);
 
                         RevisionApprovalStatus newApprovalStatus = new RevisionApprovalStatus(companyName, documentId, seqWithActions);
-                        documentService.addApprovalStatus(newApprovalStatus);
+                        approvalService.addApprovalStatus(newApprovalStatus);
+
+                        // Create notifications
+                        // Extract initial sequence Ids
+                        List<Long> firstSetOfStepIds = SignoffPathHelpers.extractInitialSetOfIdsFromActionString(seqWithActions);
+                        List<ApprovalNotification> notifications = new ArrayList<>();
+
+                        for (int i = 0; i < firstSetOfStepIds.size(); i++) {
+                            ApprovalNotification notification = new ApprovalNotification(companyName, steps.get(i).getUser().getUserId(), firstSetOfStepIds.get(i), documentId);
+                            notifications.add(notification);
+                        }
+                        approvalService.addApprovalNotifications(notifications);
+
                     }
 
                     documentService.updateDocument(docToChange);

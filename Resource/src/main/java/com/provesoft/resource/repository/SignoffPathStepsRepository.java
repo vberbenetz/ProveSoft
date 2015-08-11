@@ -7,7 +7,9 @@ import java.util.List;
 
 public interface SignoffPathStepsRepository extends JpaRepository<SignoffPathSteps, Long> {
 
-    List<SignoffPathSteps> findByCompanyNameAndPathIdOrderByIdAsc(String companyName, Long pathId);
-
     SignoffPathSteps findByCompanyNameAndPathIdAndId(String companyName, Long pathId, Long id);
+
+    List<SignoffPathSteps> findByIdIn(Long[] ids);
+
+    List<SignoffPathSteps> findByCompanyNameAndPathIdOrderByIdAsc(String companyName, Long pathId);
 }

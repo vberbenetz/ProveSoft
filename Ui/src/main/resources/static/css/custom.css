@@ -24,6 +24,14 @@ textarea {
     width: 100%;
 }
 
+.row-danger {
+    background-color: rgba(237, 85, 101, 0.3) !important;
+}
+
+.row-primary {
+    background-color: rgba(26, 179, 148, 0.3) !important;
+}
+
 .margin-top-10 { margin-top: 10px; }
 .margin-top-15 { margin-top: 15px; }
 .margin-top-20 { margin-top: 20px; }
@@ -162,4 +170,15 @@ textarea {
 .progress-bar-plain {
     background-color: #d1dade;
     color: #5E5E5E;
+}
+
+.notification-divider {
+    margin-bottom: 5px;
+    margin-top: 5px;
+    border-bottom: 1px solid #5E5E5E;
+}
+
+.row .w-margin {
+    margin-left: 10px;
+    margin-right: 10px;
 }
