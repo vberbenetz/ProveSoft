@@ -93,7 +93,7 @@
                                                     <td ng-if="n.state=='Released'">
                                                         {{ n.state }}
                                                     </td>
-                                                    <td ng-if="n.state!='Released'">
+                                                    <td ng-if="n.state!='Released'" ng-click="$parent.n.active = !$parent.n.active">
                                                         <p ng-show="n.revision!='A'" class="text-danger">
                                                             <strong>Changing...</strong>
                                                         </p>
