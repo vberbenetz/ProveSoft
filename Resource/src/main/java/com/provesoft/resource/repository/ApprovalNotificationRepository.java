@@ -14,17 +14,17 @@ public interface ApprovalNotificationRepository extends JpaRepository<ApprovalNo
 
     ApprovalNotification findById(Long id);
 
+    ApprovalNotification findByCompanyNameAndDocumentIdAndStepId(String companyName, String documentId, Long stepId);
+
     List<ApprovalNotification> findByCompanyNameAndUserId(String companyName, Long userId);
 
     @Query(
             "DELETE FROM ApprovalNotification an " +
             "WHERE an.companyName=:companyName " +
-            "AND an.documentId=:documentId " +
-            "AND an.stepId IN :stepIds"
+            "AND an.documentId=:documentId"
     )
     @Modifying
     @Transactional
-    void deleteByCompanyNameAndDocumentIdAndStepIds(@Param("companyName") String companyName,
-                                                    @Param("documentId") String documentId,
-                                                    @Param("stepIds") List<Long> stepIds);
+    void deleteByCompanyNameAndDocumentId(@Param("companyName") String companyName,
+                                          @Param("documentId") String documentId);
 }

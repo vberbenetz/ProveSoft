@@ -943,68 +943,6 @@ function documentTypeSetupCtrl($scope, $rootScope, $window, documentTypeService)
 
 }
 
-function moduleSettingsCtrl($scope, $rootScope, $window, adminModuleSettingsService, generalSettingsService) {
-
-    if (!$rootScope.authenticated) {
-        $window.location.href = '/';
-    }
-
-    // ------------------ Initialize -------------------- //
-
-    generalSettingsService.setting.get({setting: 'redline'}, function(data) {
-        $scope.redline = data.value;
-    });
-
-    generalSettingsService.setting.get({setting: 'signoff'}, function(data) {
-        $scope.signoff = data.value;
-    });
-
-    // ---------------- Methods ----------------- //
-
-    // Watch for redline settings change
-    $scope.$watch('redline', function(newVal, oldVal) {
-        if (typeof oldVal !== 'undefined') {
-            if (newVal != oldVal) {
-
-                var payload = {
-                    key: {
-                        setting: 'redline'
-                    },
-                    value: $scope.redline
-                };
-
-                adminModuleSettingsService.setting.save(payload, function(data, status, headers, config) {
-
-                }, function(data, status, headers, config) {
-                    $scope.err = status;
-                });
-            }
-        }
-    });
-
-    // Watch signoff paths setting change
-    $scope.$watch('signoff', function(newVal, oldVal) {
-        if (typeof oldVal !== 'undefined') {
-            if (newVal != oldVal) {
-
-                var payload = {
-                    key: {
-                        setting: 'signoff'
-                    },
-                    value: $scope.signoff
-                };
-
-                adminModuleSettingsService.setting.save(payload, function(data, status, headers, config) {
-
-                }, function(data, status, headers, config) {
-                    $scope.err = status;
-                });
-            }
-        }
-    });
-
-}
-
 function signoffPathsSetupCtrl ($scope, $rootScope, $window, manageUsersService, signoffPathsService, adminSignoffPathsService) {
 
     if (!$rootScope.authenticated) {
@@ -1223,9 +1161,228 @@ function signoffPathsSetupCtrl ($scope, $rootScope, $window, manageUsersService,
 
 }
 
+function pendingApprovalsCtrl($scope, $rootScope, manageUsersService, adminDocumentService, adminApprovalService, signoffPathsService, documentLookupService) {
+
+    if (!$rootScope.authenticated) {
+        $window.location.href = '/';
+    }
+
+    $scope.inProgressDocuments = [];
+    $scope.prevDocIdStepsLookup = -1;
+    $scope.rightPanel = {
+        document: {},
+        steps: []
+    };
+    $scope.showRightPanel = false;
+    $scope.newSteps = [];
+
+    manageUsersService.allUsers.query(function(users) {
+        $scope.users = users;
+    }, function(error) {
+        $scope.err = error;
+    });
+
+    adminDocumentService.document.queryByState({state: 'Changing'}, function(inProgressDocs) {
+        $scope.inProgressDocuments = inProgressDocs;
+    }, function(error) {
+        $scope.error = error;
+    });
+
+
+    $scope.changeRightPanel = function(document) {
+
+        // Prevent lookup of steps if already loaded previously
+        if ($scope.prevDocIdStepsLookup !== document.id) {
+
+            $scope.rightPanel.document = document;
+            $scope.rightPanel.steps.length = 0;
+
+            signoffPathsService.steps.query({pathId: document.signoffPathId}, function(steps) {
+                $scope.rightPanel.steps = steps;
+                $scope.prevDocIdStepsLookup = document.id;
+
+                documentLookupService.approvedSteps.query({documentId: document.id}, function(approvedStepIds) {
+                    $scope.filterApprovedSteps(approvedStepIds);
+                    $scope.showRightPanel = true;
+
+                }, function(error) {
+                    $scope.error = error;
+                });
+
+            }, function(error) {
+                $scope.err = error;
+            });
+        }
+
+    };
+
+    $scope.filterApprovedSteps = function(approvedStepIds) {
+        var steps = $scope.rightPanel.steps;
+        for (var i = 0; i < steps.length; i++) {
+            for (var j = 0; j < approvedStepIds.length; j++) {
+                if (steps[i].id === approvedStepIds[j]) {
+                    steps[i].approved = true;
+                }
+            }
+        }
+        $scope.rightPanel.steps = steps;
+    };
+
+    $scope.markStepApproved = function(stepId) {
+        var steps = $scope.rightPanel.steps;
+        for (var i = 0; i < steps.length; i++) {
+            if (steps[i].id === stepId) {
+                $scope.rightPanel.steps[i].approved = true;
+
+                // Mark other steps in this group as approved
+                // OR steps can only come after
+                if ( (steps[i].action === 'THEN') || (steps[i].action === 'START') ) {
+                    for (var j = i+1; j < steps.length; j++) {
+                        if (steps[j].action === 'OR') {
+                            $scope.rightPanel.steps[j].approved = true;
+                        }
+                        else {
+                            break;
+                        }
+                    }
+                }
+
+                // OR steps are before and after
+                if (steps[i].action === 'OR') {
+                    // Do steps after
+                    for (var k = i+1; k < steps.length; k++) {
+                        if (steps[k].action === 'OR') {
+                            $scope.rightPanel.steps[k].approved = true;
+                        }
+                        else {
+                            break;
+                        }
+                    }
+
+                    // Do steps before
+                    for (var l = i-1; l > -1; l--) {
+                        if (steps[l].action === 'OR') {
+                            $scope.rightPanel.steps[l].approved = true;
+                        }
+                        else if ( (steps[l].action === 'THEN') || (steps[l].action === 'START') ) {
+                            $scope.rightPanel.steps[l].approved = true;
+                            break;
+                        }
+                        else {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    // Admin approve step button override function
+    $scope.overrideStep = function(step) {
+        var documentId = $scope.rightPanel.document.id;
+        var stepId = step.id;
+
+        adminApprovalService.approval.override({documentId: documentId, stepId: stepId}, function(data) {
+            $scope.markStepApproved(stepId);
+        }, function(error) {
+            $scope.error = error;
+        })
+    };
+
+    $scope.addStep = function() {
+        $scope.newSteps.push({
+            pathId: $scope.rightPanel.document.signoffPathId,
+            action: '',
+            temp: true,
+            user: {}
+        });
+    };
+
+    $scope.saveNewSteps = function() {
+
+        if ($scope.newSteps.length > 0) {
+            adminApprovalService.tempSteps.save({documentId: $scope.rightPanel.document.id}, $scope.newSteps, function(data, status, headers, config) {
+                $scope.rightPanel.steps = $scope.rightPanel.steps.concat(data);
+                $scope.newSteps.length = 0;                 // Clear array
+            }, function(data, status, headers, config) {
+                $scope.error = status;
+            });
+        }
+    };
+
+    $scope.discardNewSteps = function() {
+        $scope.newSteps.length = 0;
+    };
+
+}
+
+function moduleSettingsCtrl($scope, $rootScope, $window, adminModuleSettingsService, generalSettingsService) {
+
+    if (!$rootScope.authenticated) {
+        $window.location.href = '/';
+    }
+
+    // ------------------ Initialize -------------------- //
+
+    generalSettingsService.setting.get({setting: 'redline'}, function(data) {
+        $scope.redline = data.value;
+    });
+
+    generalSettingsService.setting.get({setting: 'signoff'}, function(data) {
+        $scope.signoff = data.value;
+    });
+
+    // ---------------- Methods ----------------- //
+
+    // Watch for redline settings change
+    $scope.$watch('redline', function(newVal, oldVal) {
+        if (typeof oldVal !== 'undefined') {
+            if (newVal != oldVal) {
+
+                var payload = {
+                    key: {
+                        setting: 'redline'
+                    },
+                    value: $scope.redline
+                };
+
+                adminModuleSettingsService.setting.save(payload, function(data, status, headers, config) {
+
+                }, function(data, status, headers, config) {
+                    $scope.err = status;
+                });
+            }
+        }
+    });
+
+    // Watch signoff paths setting change
+    $scope.$watch('signoff', function(newVal, oldVal) {
+        if (typeof oldVal !== 'undefined') {
+            if (newVal != oldVal) {
+
+                var payload = {
+                    key: {
+                        setting: 'signoff'
+                    },
+                    value: $scope.signoff
+                };
+
+                adminModuleSettingsService.setting.save(payload, function(data, status, headers, config) {
+
+                }, function(data, status, headers, config) {
+                    $scope.err = status;
+                });
+            }
+        }
+    });
+
+}
+
+
 angular
     .module('provesoft')
     .controller('manageUsersCtrl', manageUsersCtrl)
     .controller('documentTypeSetupCtrl', documentTypeSetupCtrl)
     .controller('signoffPathsSetupCtrl', signoffPathsSetupCtrl)
+    .controller('pendingApprovalsCtrl', pendingApprovalsCtrl)
     .controller('moduleSettingsCtrl', moduleSettingsCtrl);

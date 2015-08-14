@@ -29,7 +29,7 @@ public final class SignoffPathHelpers {
         }
     }
 
-    public static String generateSeqWithActions(String seq, List<SignoffPathSteps> steps) {
+    public static String convertSeqToActions(String seq, List<SignoffPathSteps> steps) {
         try {
             String retSeq = "";
             String[] sequences = seq.split("\\|");
@@ -57,6 +57,27 @@ public final class SignoffPathHelpers {
         catch (Exception ex) {
             throw new InternalServerErrorException();
         }
+    }
+
+    public static String generateSeqWithActions(List<SignoffPathSteps> steps) {
+
+        String retSeq = "";
+
+        for (SignoffPathSteps step : steps) {
+            switch(step.getAction()) {
+                case "THEN":
+                    retSeq += "&" + step.getId();
+                    break;
+                case "OR":
+                    retSeq += "|" + step.getId();
+                    break;
+                default:
+                    retSeq += step.getId();
+                    break;
+            }
+        }
+
+        return retSeq;
     }
 
     // Extract first set of sequence step Id's from action string

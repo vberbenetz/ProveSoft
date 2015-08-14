@@ -207,6 +207,37 @@ public class DocumentController {
                             newDocument.setState("Released");
                             newDocument.setDate(currentDate);
 
+                            // Get system setting to see if signoffs are required
+                            SystemSettings signoffSetting = systemSettingsService.getSettingByCompanyNameAndSetting(companyName, "signoff");
+
+                            // Signoffs required. Make new document signoff compliant
+                            if (signoffSetting.getValue().equals("on")) {
+                                newDocument.setState("Changing");
+
+                                // Create Approval Status Record
+                                SignoffPathSeq seq = signoffPathService.getPathSeq(companyName, newDocument.getSignoffPathId());
+
+                                // Get path steps
+                                List<SignoffPathSteps> steps = signoffPathService.getStepsForPath(companyName, seq.getKey().getPathId());
+
+                                String seqWithActions = SignoffPathHelpers.convertSeqToActions(seq.getPathSequence(), steps);
+
+                                RevisionApprovalStatus newApprovalStatus = new RevisionApprovalStatus(companyName, documentId, seqWithActions);
+                                approvalService.addApprovalStatus(newApprovalStatus);
+
+                                // Create notifications
+                                // Extract initial sequence Ids
+                                List<Long> firstSetOfStepIds = SignoffPathHelpers.extractInitialSetOfIdsFromActionString(seqWithActions);
+                                List<ApprovalNotification> notifications = new ArrayList<>();
+
+                                for (int i = 0; i < firstSetOfStepIds.size(); i++) {
+                                    ApprovalNotification notification = new ApprovalNotification(companyName, steps.get(i).getUser().getUserId(), firstSetOfStepIds.get(i), documentId);
+                                    notifications.add(notification);
+                                }
+                                approvalService.addApprovalNotifications(notifications);
+
+                            }
+
                             return documentService.addDocument(newDocument, suffix, user.getUserId());
                         }
 
@@ -319,7 +350,7 @@ public class DocumentController {
                         // Get path steps
                         List<SignoffPathSteps> steps = signoffPathService.getStepsForPath(companyName, seq.getKey().getPathId());
 
-                        String seqWithActions = SignoffPathHelpers.generateSeqWithActions(seq.getPathSequence(), steps);
+                        String seqWithActions = SignoffPathHelpers.convertSeqToActions(seq.getPathSequence(), steps);
 
                         RevisionApprovalStatus newApprovalStatus = new RevisionApprovalStatus(companyName, documentId, seqWithActions);
                         approvalService.addApprovalStatus(newApprovalStatus);

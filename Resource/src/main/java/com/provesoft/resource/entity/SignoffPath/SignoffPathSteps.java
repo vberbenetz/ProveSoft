@@ -1,16 +1,18 @@
 package com.provesoft.resource.entity.SignoffPath;
 
 import com.provesoft.resource.entity.UserDetails;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import javax.persistence.*;
 
 @Entity
 public class SignoffPathSteps {
 
-    public SignoffPathSteps (String companyName, Long pathId, String action, UserDetails user) {
+    public SignoffPathSteps (String companyName, Long pathId, String action, Boolean temp, UserDetails user) {
         this.companyName = companyName;
         this.pathId = pathId;
         this.action = action;
+        this.temp = temp;
         this.user = user;
     }
 
@@ -25,6 +27,7 @@ public class SignoffPathSteps {
     private String companyName;
     private Long pathId;
     private String action;
+    private Boolean temp;
 
     @ManyToOne
     @JoinColumn
@@ -56,6 +59,14 @@ public class SignoffPathSteps {
 
     public String getAction() {
         return action;
+    }
+
+    public Boolean getTemp() {
+        return temp;
+    }
+
+    public void setTemp(Boolean temp) {
+        this.temp = temp;
     }
 
     public void setAction(String action) {

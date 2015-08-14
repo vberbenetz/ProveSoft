@@ -90,11 +90,16 @@
                                                     <td>{{ n.title }}</td>
                                                     <td>{{ n.organization.name }}</td>
                                                     <td>{{ n.revision }}</td>
-                                                    <td ng-if="n.state!='Changing'">
+                                                    <td ng-if="n.state=='Released'">
                                                         {{ n.state }}
                                                     </td>
-                                                    <td ng-if="n.state=='Changing'">
-                                                        <p class="text-danger"><strong>Changing...</strong></p>
+                                                    <td ng-if="n.state!='Released'">
+                                                        <p ng-show="n.revision!='A'" class="text-danger">
+                                                            <strong>Changing...</strong>
+                                                        </p>
+                                                        <p ng-show="n.revision=='A'" class="text-danger">
+                                                            <strong>New Release</strong>
+                                                        </p>
                                                         <button class="btn btn-primary btn-sm" ng-click="openStepsModal(n)">
                                                             <span class="fa fa-plus"></span>&nbsp;See Details
                                                         </button>

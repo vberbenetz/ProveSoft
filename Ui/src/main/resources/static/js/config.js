@@ -159,6 +159,29 @@ function config($stateProvider, $locationProvider, $urlRouterProvider, $ocLazyLo
                 }
             }
         })
+        .state('admin.pendingApprovals', {
+            url: "/pending-approvals",
+            templateUrl: "views/admin/pending_approvals.html",
+            controller: pendingApprovalsCtrl,
+            data: {
+                pageTitle: 'Admin | Pending Approvals'
+            },
+            resolve: {
+                loadPlugin: function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        {
+                            name:'ui.select',
+                            files: [
+                                'css/plugins/ui-select/select.min.css',
+                                'css/plugins/ui-select/select2.min.css',
+                                'css/plugins/ui-select/selectize.min.css',
+                                'js/plugins/ui-select/select.min.js'
+                            ]
+                        }
+                    ]);
+                }
+            }
+        })
         .state('admin.moduleSettings', {
             url: "/module-settings",
             templateUrl: "views/admin/module_settings.html",

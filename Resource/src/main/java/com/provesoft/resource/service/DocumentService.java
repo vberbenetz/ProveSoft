@@ -56,6 +56,11 @@ public class DocumentService {
         return documentRepository.findByCompanyNameAndId(companyName, id);
     }
 
+    // Find documents by state
+    public List<Document> findDocumentByState(String companyName, String state) {
+        return documentRepository.findByCompanyNameAndState(companyName, state);
+    }
+
     /*
         Find by list of document ids
      */

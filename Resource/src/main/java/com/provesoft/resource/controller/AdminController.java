@@ -3,6 +3,7 @@ package com.provesoft.resource.controller;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.provesoft.resource.entity.*;
+import com.provesoft.resource.entity.Document.Document;
 import com.provesoft.resource.entity.Document.DocumentType;
 import com.provesoft.resource.entity.SignoffPath.SignoffPath;
 import com.provesoft.resource.entity.SignoffPath.SignoffPathKey;
@@ -49,6 +50,9 @@ public class AdminController {
 
     @Autowired
     SignoffPathService signoffPathService;
+
+    @Autowired
+    ApprovalService approvalService;
 
 
 /* ------------------------------------------------------------------------------------------------------------------ */
@@ -1040,6 +1044,40 @@ public class AdminController {
 
 
 /* ------------------------------------------------------------------------------------------------------------------ */
+/* ----------------------------------------------- DOCUMENT RELATED ------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+    // -------------------------------------------------- GET ------------------------------------------------------- //
+
+    /*
+        Retrieve Document By State
+     */
+    @RequestMapping(
+            value = "/admin/document",
+            method = RequestMethod.GET
+    )
+    public List<Document> getDocumentByState(@RequestParam(value = "state", required = false) String state,
+                                             Authentication auth) {
+
+        // Check if super admin
+        if (UserHelpers.isSuperAdmin(auth)) {
+            String companyName = UserHelpers.getCompany(auth);
+
+            if (state != null) {
+                return documentService.findDocumentByState(companyName, state);
+            }
+            else {
+                throw new ResourceNotFoundException();
+            }
+
+        }
+
+        throw new ForbiddenException();
+    }
+
+
+
+/* ------------------------------------------------------------------------------------------------------------------ */
 /* ------------------------------------------- DOCUMENTTYPE RELATED ------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------ */
 
@@ -1176,7 +1214,7 @@ public class AdminController {
 
 
 /* ------------------------------------------------------------------------------------------------------------------ */
-/* ------------------------------------------- PERMISSIONS RELATED -------------------------------------------------- */
+/* ---------------------------------------------- SETTINGS RELATED -------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------ */
 
     // -------------------------------------------------- GET ------------------------------------------------------- //
@@ -1288,7 +1326,7 @@ public class AdminController {
                         SignoffPath newlyCreatedPath = signoffPathService.createNewPath(signoffPath);
 
                         // Create initial START step
-                        SignoffPathSteps newStep = new SignoffPathSteps(companyName, pathId, "START", user);
+                        SignoffPathSteps newStep = new SignoffPathSteps(companyName, pathId, "START", false, user);
                         signoffPathService.createNewStep(newStep);
                         signoffPathService.appendToPathSeq(companyName, Arrays.asList(newStep));
 
@@ -1382,6 +1420,56 @@ public class AdminController {
         throw new ForbiddenException();
     }
 
+    /*
+        Create new signoff path step
+     */
+    @RequestMapping(
+            value = "/admin/signoffPath/tempSteps",
+            method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public List<SignoffPathSteps> createNewTempSignoffPathSteps(@RequestParam("documentId") String documentId,
+                                                                @RequestBody String json,
+                                                                Authentication auth) {
+
+        if (UserHelpers.isSuperAdmin(auth)) {
+
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                List<SignoffPathSteps> signoffPathSteps = mapper.readValue(json, new TypeReference<List<SignoffPathSteps>>() {
+                });
+
+                if (signoffPathSteps.size() == 0) {
+                    return signoffPathSteps;
+                }
+
+                String companyName = UserHelpers.getCompany(auth);
+
+                for (SignoffPathSteps s : signoffPathSteps) {
+                    s.setCompanyName(companyName);
+                }
+
+                signoffPathSteps = signoffPathService.createNewSteps(signoffPathSteps);
+
+                // Update sequence string of this particular RevisionApproval
+                approvalService.appendStepsToApprovalStatus(companyName, documentId, signoffPathSteps);
+
+                return signoffPathSteps;
+            }
+            catch (IOException | NullPointerException ex) {
+                throw new ResourceNotFoundException();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                throw new InternalServerErrorException();
+            }
+        }
+
+        throw new ForbiddenException();
+    }
+
+
     // -------------------------------------------------- PUT ------------------------------------------------------- //
 
     // ------------------------------------------------- DELETE ----------------------------------------------------- //
@@ -1431,6 +1519,66 @@ public class AdminController {
 
         throw new ForbiddenException();
     }
+
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+/* ---------------------------------------------- APPROVALS RELATED ------------------------------------------------- */
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+    /*
+        Approve step on behalf of a user by overriding the request
+     */
+    @RequestMapping(
+            value = "/admin/approvals",
+            method = RequestMethod.PUT
+    )
+    public ResponseEntity<?> overrideApproval(@RequestParam("documentId") String documentId,
+                                              @RequestParam("stepId") Long stepId,
+                                              Authentication auth) {
+
+        if (UserHelpers.isSuperAdmin(auth)) {
+
+            String companyName = UserHelpers.getCompany(auth);
+
+
+        }
+
+        throw new ForbiddenException();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

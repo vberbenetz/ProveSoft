@@ -73,7 +73,8 @@ public class ApprovalController {
 
     /*
         Approve request in notification.
-        1) Check if this notification approval belongs to user
+        1a) Check if this notification approval belongs to user
+        1b) User is super admin and will fetch notification for this step. DocumentId is already provided
         2) Update RevisionApprovalStatus
         3) Remove notification from queue
         4) Call method to clean up other "OR" notifications if they exist
@@ -84,69 +85,93 @@ public class ApprovalController {
             value = "/notifications/approvals",
             method = RequestMethod.PUT
     )
-    public ResponseEntity<?> approveRevision(@RequestParam("notificationId") Long notificationId,
+    public ResponseEntity<?> approveRevision(@RequestParam(value = "notificationId", required = false) Long notificationId,
+                                             @RequestParam(value = "documentId", required = false) String documentId,
+                                             @RequestParam(value = "stepId", required = false) Long stepId,
                                              Authentication auth) {
 
         String companyName = UserHelpers.getCompany(auth);
-        String myEmail = auth.getName();
+        ApprovalNotification notification;
 
-        // Check if notification belongs to this user ----------------------------------------------
-        ApprovalNotification notification = approvalService.getApprovalNotification(notificationId);
+        // Check if parameters are missing
+        if (notificationId != null) {
 
-        if (notification == null) {
-            throw new ResourceNotFoundException();
+            String myEmail = auth.getName();
+
+            // Check if notification belongs to this user ----------------------------------------------
+            notification = approvalService.getApprovalNotification(notificationId);
+
+            if (notification == null) {
+                throw new ResourceNotFoundException();
+            }
+
+            documentId = notification.getDocumentId();
+            stepId = notification.getStepId();
+
+            UserDetails notificationUser = userDetailsService.findByCompanyNameAndUserId(companyName, notification.getUserId());
+
+            if (!notificationUser.getEmail().equals(myEmail) || !notificationUser.getCompanyName().equals(companyName)) {
+                throw new ForbiddenException();
+            }
         }
-
-        String documentId = notification.getDocumentId();
-
-        UserDetails notificationUser = userDetailsService.findByCompanyNameAndUserId(companyName, notification.getUserId());
-
-        if (!notificationUser.getEmail().equals(myEmail) || !notificationUser.getCompanyName().equals(companyName)) {
-            throw new ForbiddenException();
+        // Used by admin.
+        // Fetch notification to update below
+        else if (documentId != null && stepId != null) {
+            if (!UserHelpers.isSuperAdmin(auth)) {
+                throw new ForbiddenException();
+            }
+        }
+        else {
+            throw new ResourceNotFoundException();
         }
 
         // Update RevisionApprovalStatus ------------------------------------------------------------------
         RevisionApprovalStatus revApproval = approvalService.getApprovalStatusByCompanyAndDocumentId(companyName, documentId);
-        String updatedApprovedSeq = revApproval.getApprovedSeq() + "&" + notification.getStepId();
-        revApproval.setApprovedSeq(updatedApprovedSeq);
 
-        // Remove this notification from user's queue
-        approvalService.removeApprovalNotification(notification);
+        // Retrieve group of other steps id's, part of OR group. Mark as approved
+        List<Long> notificationStepIdsForRemoval = approvalService.getCurrentGroupOfStepIds(companyName, documentId, stepId);
 
-        // Remove other notifications part of this notification's "OR" group --------------------------------------------------
-        List<Long> notificationStepIdsForRemoval = approvalService.getCurrentApproversIds(companyName, documentId, notification.getStepId());
+        // Next iteration of approvals if applicable
+        List<SignoffPathSteps> nextApprovalSteps = null;
 
-        // Issue with sequence because current Id is not part of it
-        if (notificationStepIdsForRemoval == null) {
-            throw new InternalServerErrorException();
-        }
+        // Case where admin approves a step in a group down the line from the current one
+        if (notificationStepIdsForRemoval != null) {
 
-        approvalService.removeApprovalNotifications(companyName, notification.getDocumentId(), notificationStepIdsForRemoval);
-
-        // Generate next iteration of notifications or mark document as released ---------------------------------------
-        List<SignoffPathSteps> nextApprovalSteps = approvalService.getNextApprovalSteps(companyName, documentId);
-
-        // No more approvers needed.
-        // Mark document as released.
-        // Delete RevisionApprovalStatus for this document
-        if (nextApprovalSteps == null) {
-            Document doc = documentService.findDocumentById(companyName, documentId);
-            doc.setState("Released");
-
-            approvalService.removeRevisionApprovalStatusByCompanyNameAndDocumentId(companyName, documentId);
-        }
-        // Add next set of notifications
-        else {
-
-            List<ApprovalNotification> newNotifications = new ArrayList<>();
-
-            // Create a new notification for each approver in the next group
-            for (SignoffPathSteps step : nextApprovalSteps) {
-                ApprovalNotification newNotification = new ApprovalNotification(companyName, step.getUser().getUserId(), step.getId(), documentId);
-                newNotifications.add(newNotification);
+            // Append all id's which were part of this "OR" group
+            String updatedApprovedSeq = revApproval.getApprovedSeq();
+            for (Long s : notificationStepIdsForRemoval) {
+                updatedApprovedSeq = updatedApprovedSeq + "&" + s;
             }
+            revApproval.setApprovedSeq(updatedApprovedSeq);
 
-            approvalService.addApprovalNotifications(newNotifications);
+            // Remove all notifications part of this notification's "OR" group ---------------------------------------------
+            approvalService.removeApprovalNotifications(companyName, documentId);
+
+            // Generate next iteration of notifications or mark document as released ---------------------------------------
+            nextApprovalSteps = approvalService.getNextApprovalSteps(companyName, documentId);
+
+            // No more approvers needed.
+            // Mark document as released.
+            // Delete RevisionApprovalStatus for this document
+            if (nextApprovalSteps == null) {
+                Document doc = documentService.findDocumentById(companyName, documentId);
+                doc.setState("Released");
+
+                approvalService.removeRevisionApprovalStatusByCompanyNameAndDocumentId(companyName, documentId);
+            }
+            // Add next set of notifications
+            else {
+
+                List<ApprovalNotification> newNotifications = new ArrayList<>();
+
+                // Create a new notification for each approver in the next group
+                for (SignoffPathSteps step : nextApprovalSteps) {
+                    ApprovalNotification newNotification = new ApprovalNotification(companyName, step.getUser().getUserId(), step.getId(), documentId);
+                    newNotifications.add(newNotification);
+                }
+
+                approvalService.addApprovalNotifications(newNotifications);
+            }
         }
 
         return new ResponseEntity<>("{}", HttpStatus.OK);

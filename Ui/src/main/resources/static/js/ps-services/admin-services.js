@@ -205,6 +205,53 @@ function documentTypeService ($resource) {
     }
 }
 
+function adminDocumentService($resource) {
+    return {
+        document: $resource('/resource/admin/document',
+            {},
+            {
+                queryByState: {
+                    method: 'GET',
+                    params: {
+                        state: '@state'
+                    },
+                    isArray: true
+                }
+            }
+        )
+    }
+}
+
+function adminApprovalService($resource) {
+    return {
+        approval: $resource('/resource/notifications/approvals',
+            {},
+            {
+                override: {
+                    method: 'PUT',
+                    params: {
+                        documentId: '@documentId',
+                        stepId: '@stepId'
+                    },
+                    isArray: false
+                }
+            }
+        ),
+        tempSteps: $resource('/resource/admin/signoffPath/tempSteps',
+            {},
+            {
+                save: {
+                    method: 'POST',
+                    params: {
+                        documentId: '@documentId'
+                    },
+                    isArray: true
+                }
+            }
+        )
+    }
+}
+
 function adminModuleSettingsService ($resource) {
     return {
         setting: $resource('/resource/admin/setting')
@@ -258,5 +305,7 @@ angular
     .module('provesoft')
     .factory('manageUsersService', manageUsersService)
     .factory('documentTypeService', documentTypeService)
+    .factory('adminDocumentService', adminDocumentService)
+    .factory('adminApprovalService', adminApprovalService)
     .factory('adminSignoffPathsService', adminSignoffPathsService)
     .factory('adminModuleSettingsService', adminModuleSettingsService);

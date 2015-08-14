@@ -129,7 +129,7 @@ function documentCreationCtrl($scope, $rootScope, $window, $state, documentCreat
     // Initialize file upload (dropzone)
     $scope.fileAdded = false;
     $scope.submitClicked = false;
-    $scope.uploadedSuccessfully = false;
+    $scope.uploadSuccessful = false;
     $scope.creatingDocument = false;
     $scope.isRedline = false;   // Only true for revisions
     $scope.signoffRequired = false;
@@ -228,30 +228,39 @@ function documentCreationCtrl($scope, $rootScope, $window, $state, documentCreat
 
         $scope.creatingDocument = true;
 
+        // Append signoff path id
+        if (typeof $scope.signoffPath.selected.key.pathId !== 'undefined') {
+            $scope.newDocument.signoffPathId = $scope.signoffPath.selected.key.pathId;
+        }
+        else {
+            $scope.newDocument.signoffPathId = null;
+        }
+
         documentCreationService.document.save($scope.newDocument, function (data, status, headers, config) {
             $scope.documentId = data.id;
-
+            $scope.uploadSuccessful = null; // Set to null because it will be set to true/false based on upload outcome
             $scope.tempUpload = false;
             $scope.processDropzone();
-
-            if ($scope.signoffRequired) {
-                $scope.updatedSignoffPath = documentCreationService.document.addSignoffPath({
-                    documentId: data.id,
-                    signoffPathId: $scope.signoffPath.selected.key.pathId
-                });
-                $scope.updatedSignoffPath.$promise.then(function (result) {
-                    $state.go('process-viewer.document-lookup');
-                });
-            }
-            else {
-                $scope.redirectToLookup();
-            }
 
         }, function (data, status, headers, config) {
             $scope.err = status;
             $scope.creatingDocument = false;
         });
     };
+
+    // Redirect after file uploaded via dropzone
+    $scope.$watch('uploadSuccessful', function(newVal, oldVal) {
+        if (newVal !== oldVal) {
+            if (typeof oldVal !== 'undefined') {
+                if (newVal === true) {
+                    $scope.redirectToLookup();
+                }
+                if (newVal === false) {
+                    $scope.creatingDocument = false;
+                }
+            }
+        }
+    });
 
     $scope.validateForm = function () {
         var validationFail = false;
@@ -500,6 +509,9 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
                 $scope.error = error;
                 $state.go('process-viewer.document-lookup');
             });
+        }
+        else {
+            $state.go('process-viewer.document-lookup');
         }
     };
 

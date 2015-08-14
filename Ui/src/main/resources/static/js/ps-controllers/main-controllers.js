@@ -30,7 +30,7 @@ function MainCtrl($scope, $rootScope, $window, authService) {
 
 }
 
-function NavBarCtrl($scope, $rootScope, navBarService, documentLookupService) {
+function NavBarCtrl($scope, $rootScope, $window, navBarService, documentLookupService) {
 
     if (!$rootScope.authenticated) {
         $window.location.href = '/';
