@@ -23,6 +23,7 @@ function config($stateProvider, $locationProvider, $urlRouterProvider, $ocLazyLo
         .state('home.news-feed', {
             url: "news-feed",
             templateUrl: "views/news_feed.html",
+            controller: NewsFeedCtrl,
             data: { pageTitle: 'News Feed' }
         })
 

@@ -1,13 +1,7 @@
 package com.provesoft.resource.service;
 
-import com.provesoft.resource.entity.SignoffPath.SignoffPath;
-import com.provesoft.resource.entity.SignoffPath.SignoffPathId;
-import com.provesoft.resource.entity.SignoffPath.SignoffPathSeq;
-import com.provesoft.resource.entity.SignoffPath.SignoffPathSteps;
-import com.provesoft.resource.repository.SignoffPathIdRepository;
-import com.provesoft.resource.repository.SignoffPathRepository;
-import com.provesoft.resource.repository.SignoffPathSeqRepository;
-import com.provesoft.resource.repository.SignoffPathStepsRepository;
+import com.provesoft.resource.entity.SignoffPath.*;
+import com.provesoft.resource.repository.*;
 import com.provesoft.resource.utils.SignoffPathHelpers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,6 +27,9 @@ public class SignoffPathService {
 
     @Autowired
     SignoffPathStepsRepository signoffPathStepsRepository;
+
+    @Autowired
+    TemporaryPathStepsRepository temporaryPathStepsRepository;
 
 
     /* ------------------------ SignoffPath -------------------------- */
@@ -176,5 +173,35 @@ public class SignoffPathService {
         signoffPathSeq.setPathSequence(newPathSeq);
         signoffPathSeqRepository.saveAndFlush(signoffPathSeq);
     }
+
+
+    /* ------------------------ TemporaryPathSteps -------------------------- */
+
+    /*
+        Retrieve list of temporary path steps
+     */
+    public List<TemporaryPathSteps> getTempSteps(String companyName, String documentId, Long pathId) {
+        return temporaryPathStepsRepository.findByCompanyNameAndDocumentIdAndPathIdOrderByIdAsc(companyName, documentId, pathId);
+    }
+
+    /*
+        Add new temporary steps
+     */
+    public List<TemporaryPathSteps> createNewTempSteps(List<TemporaryPathSteps> newTempSteps) {
+        List<TemporaryPathSteps> ret = temporaryPathStepsRepository.save(newTempSteps);
+        temporaryPathStepsRepository.flush();
+        return ret;
+    }
+
+
+
+
+
+
+
+
+
+
+
 
 }

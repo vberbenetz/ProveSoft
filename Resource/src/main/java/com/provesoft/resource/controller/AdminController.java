@@ -8,6 +8,7 @@ import com.provesoft.resource.entity.Document.DocumentType;
 import com.provesoft.resource.entity.SignoffPath.SignoffPath;
 import com.provesoft.resource.entity.SignoffPath.SignoffPathKey;
 import com.provesoft.resource.entity.SignoffPath.SignoffPathSteps;
+import com.provesoft.resource.entity.SignoffPath.TemporaryPathSteps;
 import com.provesoft.resource.exceptions.ForbiddenException;
 import com.provesoft.resource.exceptions.InternalServerErrorException;
 import com.provesoft.resource.exceptions.ResourceNotFoundException;
@@ -1326,7 +1327,7 @@ public class AdminController {
                         SignoffPath newlyCreatedPath = signoffPathService.createNewPath(signoffPath);
 
                         // Create initial START step
-                        SignoffPathSteps newStep = new SignoffPathSteps(companyName, pathId, "START", false, user);
+                        SignoffPathSteps newStep = new SignoffPathSteps(companyName, pathId, "START", user);
                         signoffPathService.createNewStep(newStep);
                         signoffPathService.appendToPathSeq(companyName, Arrays.asList(newStep));
 
@@ -1423,13 +1424,13 @@ public class AdminController {
     /*
         Create new signoff path step
      */
-    @RequestMapping(
+/*    @RequestMapping(
             value = "/admin/signoffPath/tempSteps",
             method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public List<SignoffPathSteps> createNewTempSignoffPathSteps(@RequestParam("documentId") String documentId,
+    public List<TemporaryPathSteps> createNewTempSignoffPathSteps(@RequestParam("documentId") String documentId,
                                                                 @RequestBody String json,
                                                                 Authentication auth) {
 
@@ -1437,25 +1438,25 @@ public class AdminController {
 
             ObjectMapper mapper = new ObjectMapper();
             try {
-                List<SignoffPathSteps> signoffPathSteps = mapper.readValue(json, new TypeReference<List<SignoffPathSteps>>() {
+                List<TemporaryPathSteps> tempPathSteps = mapper.readValue(json, new TypeReference<List<TemporaryPathSteps>>() {
                 });
 
-                if (signoffPathSteps.size() == 0) {
-                    return signoffPathSteps;
+                if (tempPathSteps.size() == 0) {
+                    return tempPathSteps;
                 }
 
                 String companyName = UserHelpers.getCompany(auth);
 
-                for (SignoffPathSteps s : signoffPathSteps) {
-                    s.setCompanyName(companyName);
+                for (TemporaryPathSteps t : tempPathSteps) {
+                    t.setCompanyName(companyName);
                 }
 
-                signoffPathSteps = signoffPathService.createNewSteps(signoffPathSteps);
+                tempPathSteps = signoffPathService.createNewTempSteps(tempPathSteps);
 
                 // Update sequence string of this particular RevisionApproval
-                approvalService.appendStepsToApprovalStatus(companyName, documentId, signoffPathSteps);
+                approvalService.appendStepsToApprovalStatus(companyName, documentId, tempPathSteps);
 
-                return signoffPathSteps;
+                return tempPathSteps;
             }
             catch (IOException | NullPointerException ex) {
                 throw new ResourceNotFoundException();
@@ -1468,7 +1469,7 @@ public class AdminController {
 
         throw new ForbiddenException();
     }
-
+*/
 
     // -------------------------------------------------- PUT ------------------------------------------------------- //
 

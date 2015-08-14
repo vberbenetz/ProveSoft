@@ -1301,7 +1301,7 @@ function pendingApprovalsCtrl($scope, $rootScope, manageUsersService, adminDocum
     $scope.saveNewSteps = function() {
 
         if ($scope.newSteps.length > 0) {
-            adminApprovalService.tempSteps.save({documentId: $scope.rightPanel.document.id}, $scope.newSteps, function(data, status, headers, config) {
+            adminSignoffPathsService.steps.save($scope.newSteps, function(data, status, headers, config) {
                 $scope.rightPanel.steps = $scope.rightPanel.steps.concat(data);
                 $scope.newSteps.length = 0;                 // Clear array
             }, function(data, status, headers, config) {

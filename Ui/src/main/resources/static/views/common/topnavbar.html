@@ -67,15 +67,15 @@
                     <span ng-hide="approvals.length==0" class="label label-warning">{{ approvals.length }}</span>
                 </a>
                 <ul ng-hide="approvals.length==0" class="dropdown-menu dropdown-alerts">
-                    <li class="row notification-divider" ng-repeat="n in approvals">
+                    <li class="row" ng-repeat="n in approvals" ng-class="{'margin-bottom-20' : !$last}">
                         <div class="col-xs-6">
                             <strong>{{ n.document.title }}</strong>&nbsp;document revision needs approval&nbsp;
                         </div>
-                        <div class="col-xs-3">
-                            <button ng-click="approve(n, $index)" class="btn btn-xs btn-primary">Approve</button>
-                        </div>
-                        <div class="col-xs-3">
-                            <button ng-click="deny(n)" class="btn btn-xs btn-danger">Reject</button>
+                        <div class="col-xs-6">
+                            <div class="text-right" ng-class="{'margin-right-minus-15' : $last}">
+                                <button ng-click="approve(n, $index)" class="btn btn-xs btn-primary">Approve</button>
+                                <button ng-click="deny(n)" class="btn btn-xs btn-danger">Reject</button>
+                            </div>
                         </div>
                     </li>
                 </ul>

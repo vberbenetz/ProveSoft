@@ -2,8 +2,6 @@
     <div class="col-lg-10">
         <h2>News Feed</h2>
     </div>
-    <pre>{{  }}</pre>
-    <div class="col-lg-2"></div>
 </div>
 <div class="wrapper wrapper-content">
     <div class="row animated fadeInRight">
@@ -53,12 +51,12 @@
                     <div class="ibox-title">
                         <h3>
                             Your Task List
-                            <span class="label label-warning-light pull-right">10 Tasks</span>
+                            <span class="label label-warning-light pull-right">{{ approvals.length }} Tasks</span>
                         </h3>
                     </div>
                     <div class="ibox-content">
-
-                        <div class="table-responsive">
+                        <h4 class="text-success" ng-show="approvals.length==0">No Pending Tasks</h4>
+                        <div class="table-responsive" ng-show="approvals.length > 0">
                             <table class="table table-striped table-hover">
                                 <thead>
                                 <tr>
@@ -66,84 +64,21 @@
                                     <th>Document</th>
                                     <th>Change User</th>
                                     <th>Organization</th>
-                                    <th>Age</th>
+                                    <th>Change Date</th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <tr>
-                                    <td><span class="label label-success">New</span></td>
-                                    <td><p class="org-desc">WF0-001 - Purchase Order Management</p></td>
-                                    <td><a ng-click="client = 1" class="client-link"><img class="client-avatar img-circle" src="img/profile_pic_placeholder.png"/>&nbsp;&nbsp;Joe Grande</a></td>
-                                    <td><a ng-click="client = 5" class="client-link">Supply Chain</a></td>
-                                    <td><a class="client-link">1 day</a></td>
-                                </tr>
-                                <tr>
-                                    <td><span class="label label-success">New</span></td>
-                                    <td><p class="org-desc">WF0-002 - Work Order Management</p></td>
-                                    <td><a ng-click="client = 1" class="client-link"><img class="client-avatar img-circle" src="img/profile_pic_placeholder.png"/>&nbsp;&nbsp;Joe Grande</a></td>
-                                    <td><a ng-click="client = 6" class="client-link">Shop Floor</a></td>
-                                    <td><a class="client-link">3 days</a></td>
-                                </tr>
-                                <tr>
-                                    <td><span class="label label-warning-light">Change</span></td>
-                                    <td><p class="org-desc">WF3-402 - Process Flow Management</p></td>
-                                    <td><a ng-click="client = 1" class="client-link"><img class="client-avatar img-circle" src="img/profile_pic_placeholder.png"/>&nbsp;&nbsp;Joe Grande</a></td>
-                                    <td><a ng-click="client = 6" class="client-link">Supply Chain</a></td>
-                                    <td><a class="client-link">3 days</a></td>
-                                </tr>
-                                <tr>
-                                    <td><span class="label label-warning-light">Change</span></td>
-                                    <td><p class="org-desc">WF3-402 - Process Flow Management</p></td>
-                                    <td><a ng-click="client = 1" class="client-link"><img class="client-avatar img-circle" src="img/profile_pic_placeholder.png"/>&nbsp;&nbsp;Joe Grande</a></td>
-                                    <td><a ng-click="client = 6" class="client-link">Supply Chain</a></td>
-                                    <td><a class="client-link">4 days</a></td>
-                                </tr>
-                                <tr>
-                                    <td><span class="label label-warning-light">Change</span></td>
-                                    <td><p class="org-desc">WF2-111 - EOY Inventory</p></td>
-                                    <td><a ng-click="client = 1" class="client-link"><img class="client-avatar img-circle" src="img/profile_pic_placeholder.png"/>&nbsp;&nbsp;Joe Grande</a></td>
-                                    <td><a ng-click="client = 6" class="client-link">Finance</a></td>
-                                    <td><a class="client-link">4 days</a></td>
-                                </tr>
-                                <tr>
-                                    <td><span class="label label-warning-light">Change</span></td>
-                                    <td><p class="org-desc">WF6-378 - New Employee Onboarding</p></td>
-                                    <td><a ng-click="client = 1" class="client-link"><img class="client-avatar img-circle" src="img/profile_pic_placeholder.png"/>&nbsp;&nbsp;Joe Grande</a></td>
-                                    <td><a ng-click="client = 6" class="client-link">Human Resources</a></td>
-                                    <td><a class="client-link">4 days</a></td>
-                                </tr>
-                                <tr>
-                                    <td><span class="label label-warning-light">Change</span></td>
-                                    <td><p class="org-desc">WF6-213 - Vacation Tracking</p></td>
-                                    <td><a ng-click="client = 1" class="client-link"><img class="client-avatar img-circle" src="img/profile_pic_placeholder.png"/>&nbsp;&nbsp;Joe Grande</a></td>
-                                    <td><a ng-click="client = 6" class="client-link">Human Resources</a></td>
-                                    <td><a class="client-link">4 days</a></td>
-                                </tr>
-                                <tr>
-                                    <td><span class="label label-warning-light">Change</span></td>
-                                    <td><p class="org-desc">WF2-012 - Accounts Receivable Consolidation</p></td>
-                                    <td><a ng-click="client = 1" class="client-link"><img class="client-avatar img-circle" src="img/profile_pic_placeholder.png"/>&nbsp;&nbsp;Joe Grande</a></td>
-                                    <td><a ng-click="client = 6" class="client-link">Finance</a></td>
-                                    <td><a class="client-link">5 days</a></td>
-                                </tr>
-                                <tr>
-                                    <td><span class="label label-warning-light">Change</span></td>
-                                    <td><p class="org-desc">WF2-056 - Form 6 Filing Procedure</p></td>
-                                    <td><a ng-click="client = 1" class="client-link"><img class="client-avatar img-circle" src="img/profile_pic_placeholder.png"/>&nbsp;&nbsp;Joe Grande</a></td>
-                                    <td><a ng-click="client = 6" class="client-link">Finance</a></td>
-                                    <td><a class="client-link">3 days</a></td>
-                                </tr>
-                                <tr>
-                                    <td><span class="label label-warning-light">Change</span></td>
-                                    <td><p class="org-desc">WF3-402 - Process Flow Management</p></td>
-                                    <td><a ng-click="client = 1" class="client-link"><img class="client-avatar img-circle" src="img/profile_pic_placeholder.png"/>&nbsp;&nbsp;Joe Grande</a></td>
-                                    <td><a ng-click="client = 6" class="client-link">Supply Chain</a></td>
-                                    <td><a class="client-link">3 days</a></td>
+                                <tr ng-repeat="n in approvals">
+                                    <td ng-show="n.document.revision=='A'"><span class="label label-success">New</span></td>
+                                    <td ng-show="n.document.revision!='A'"><span class="label label-warning">Change</span></td>
+                                    <td><p class="org-desc">{{ n.document.id }} - {{ n.document.title }}</p></td>
+                                    <td> <!--<a class="client-link"><img class="client-avatar img-circle" src="img/profile_pic_placeholder.png"/>&nbsp;&nbsp;Joe Grande</a>--> </td>
+                                    <td><p class="org-desc">{{ n.document.organization.name }}</p></td>
+                                    <td><p class="org-desc">{{ n.document.date }}</p></td>
                                 </tr>
                                 </tbody>
                             </table>
                         </div>
-
                     </div>
                 </div>
             </div>

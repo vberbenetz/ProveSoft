@@ -164,7 +164,8 @@ public class ApprovalService {
     }
 
     /*
-        Remove RevisionApprovalStatus by companyName and documentId when revision advances to "Released"
+        Remove RevisionApprovalStatus by companyName and documentId when revision advances to "Released".
+        Remove any temporary steps created for this document.
      */
     public void removeRevisionApprovalStatusByCompanyNameAndDocumentId(String companyName, String documentId) {
         RevisionApprovalStatus revToDelete = getApprovalStatusByCompanyAndDocumentId(companyName, documentId);
