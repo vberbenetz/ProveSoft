@@ -2,11 +2,9 @@ package com.provesoft.resource.controller;
 
 import com.provesoft.resource.entity.Document.ApprovalNotification;
 import com.provesoft.resource.entity.Document.Document;
-import com.provesoft.resource.entity.Document.RevisionApprovalStatus;
 import com.provesoft.resource.entity.SignoffPath.SignoffPathSteps;
 import com.provesoft.resource.entity.UserDetails;
 import com.provesoft.resource.exceptions.ForbiddenException;
-import com.provesoft.resource.exceptions.InternalServerErrorException;
 import com.provesoft.resource.exceptions.ResourceNotFoundException;
 import com.provesoft.resource.service.ApprovalService;
 import com.provesoft.resource.service.DocumentService;
@@ -55,31 +53,18 @@ public class ApprovalController {
         return approvalService.getApprovalNotifications(companyName, me.getUserId());
     }
 
-    /*
-        Get list of user Ids who already approved for the document
-     */
-    @RequestMapping(
-            value = "signoffPath/approvals",
-            method = RequestMethod.GET
-    )
-    public List<Long> getApprovedStepIds(@RequestParam("documentId") String documentId,
-                                         Authentication auth) {
-
-        String companyName = UserHelpers.getCompany(auth);
-
-        return approvalService.getApprovedStepIds(companyName, documentId);
-    }
-
 
     /*
         Approve request in notification.
-        1a) Check if this notification approval belongs to user
-        1b) User is super admin and will fetch notification for this step. DocumentId is already provided
-        2) Update RevisionApprovalStatus
-        3) Remove notification from queue
-        4) Call method to clean up other "OR" notifications if they exist
-        5) Create next iteration of notifications
-        OR) If no more left to do, mark document as released. Delete RevisionApprovalStatus
+        1) Check if correct parameters are passed in.
+        2) Get the current group of steps by a stepId.
+        3) Mark all the steps in that group as approved.
+        4) Check if notifications exist for this group of steps.
+            - If not then it indicates that an admin approved a set of steps further down the path. Return from here.
+        5) Remove all notifications for this document.
+        6) Get next group of steps.
+        7a) If no steps are returned, end of document has been reached. Mark as released and delete all steps.
+        7b) Create new set of notifications for this group.
      */
     @RequestMapping(
             value = "/notifications/approvals",
@@ -125,51 +110,38 @@ public class ApprovalController {
             throw new ResourceNotFoundException();
         }
 
-        // Update RevisionApprovalStatus ------------------------------------------------------------------
-        RevisionApprovalStatus revApproval = approvalService.getApprovalStatusByCompanyAndDocumentId(companyName, documentId);
+        // Get group of steps and mark as approved
+        List<SignoffPathSteps> stepsMarkedApproved = signoffPathService.getGroupOfSteps(companyName, documentId, stepId);
+        signoffPathService.markStepsAsApproved(stepsMarkedApproved);
 
-        // Retrieve group of other steps id's, part of OR group. Mark as approved
-        List<Long> notificationStepIdsForRemoval = approvalService.getCurrentGroupOfStepIds(companyName, documentId, stepId);
+        // Notifications need to be removed and new ones need to be created.
+        // If notifications do not exist, this indicates that an admin approved a group of steps further down the path chain.
+        if (approvalService.checkIfNotificationExistsForStepId(companyName, documentId, stepId)) {
 
-        // Next iteration of approvals if applicable
-        List<SignoffPathSteps> nextApprovalSteps = null;
-
-        // Case where admin approves a step in a group down the line from the current one
-        if (notificationStepIdsForRemoval != null) {
-
-            // Append all id's which were part of this "OR" group
-            String updatedApprovedSeq = revApproval.getApprovedSeq();
-            for (Long s : notificationStepIdsForRemoval) {
-                updatedApprovedSeq = updatedApprovedSeq + "&" + s;
-            }
-            revApproval.setApprovedSeq(updatedApprovedSeq);
-
-            // Remove all notifications part of this notification's "OR" group ---------------------------------------------
+            // Delete all notifications for this document revision
             approvalService.removeApprovalNotifications(companyName, documentId);
 
-            // Generate next iteration of notifications or mark document as released ---------------------------------------
-            nextApprovalSteps = approvalService.getNextApprovalSteps(companyName, documentId);
+            // Get next set of steps
+            List<SignoffPathSteps> nextSetOfSteps = signoffPathService.getNextSetOfSteps(companyName, documentId);
 
-            // No more approvers needed.
+            // No next steps.
             // Mark document as released.
-            // Delete RevisionApprovalStatus for this document
-            if (nextApprovalSteps == null) {
+            // Delete all signoff path steps for this document
+            if (nextSetOfSteps == null) {
                 Document doc = documentService.findDocumentById(companyName, documentId);
                 doc.setState("Released");
 
-                approvalService.removeRevisionApprovalStatusByCompanyNameAndDocumentId(companyName, documentId);
+                signoffPathService.deleteSignoffPathStepsForDocument(companyName, documentId);
             }
-            // Add next set of notifications
-            else {
 
+            // Create notifications for next group of steps
+            else {
                 List<ApprovalNotification> newNotifications = new ArrayList<>();
 
-                // Create a new notification for each approver in the next group
-                for (SignoffPathSteps step : nextApprovalSteps) {
-                    ApprovalNotification newNotification = new ApprovalNotification(companyName, step.getUser().getUserId(), step.getId(), documentId);
+                for (SignoffPathSteps s : nextSetOfSteps) {
+                    ApprovalNotification newNotification = new ApprovalNotification(companyName, s.getUser().getUserId(), s.getId(), documentId);
                     newNotifications.add(newNotification);
                 }
-
                 approvalService.addApprovalNotifications(newNotifications);
             }
         }

@@ -8,7 +8,7 @@ import com.provesoft.resource.entity.Document.DocumentType;
 import com.provesoft.resource.entity.SignoffPath.SignoffPath;
 import com.provesoft.resource.entity.SignoffPath.SignoffPathKey;
 import com.provesoft.resource.entity.SignoffPath.SignoffPathSteps;
-import com.provesoft.resource.entity.SignoffPath.TemporaryPathSteps;
+import com.provesoft.resource.entity.SignoffPath.SignoffPathTemplateSteps;
 import com.provesoft.resource.exceptions.ForbiddenException;
 import com.provesoft.resource.exceptions.InternalServerErrorException;
 import com.provesoft.resource.exceptions.ResourceNotFoundException;
@@ -1327,9 +1327,8 @@ public class AdminController {
                         SignoffPath newlyCreatedPath = signoffPathService.createNewPath(signoffPath);
 
                         // Create initial START step
-                        SignoffPathSteps newStep = new SignoffPathSteps(companyName, pathId, "START", user);
-                        signoffPathService.createNewStep(newStep);
-                        signoffPathService.appendToPathSeq(companyName, Arrays.asList(newStep));
+                        SignoffPathTemplateSteps newStep = new SignoffPathTemplateSteps(companyName, pathId, "START", user);
+                        signoffPathService.createNewTemplateStep(newStep);
 
                         return newlyCreatedPath;
 
@@ -1364,7 +1363,48 @@ public class AdminController {
     }
 
     /*
-        Create new signoff path step
+        Create new signoff path template step
+     */
+    @RequestMapping(
+            value = "/admin/signoffPath/steps/template",
+            method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public List<SignoffPathTemplateSteps> createNewSignoffPathTemplateSteps(@RequestBody String json,
+                                                                            Authentication auth) {
+
+        if (UserHelpers.isSuperAdmin(auth)) {
+
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                List<SignoffPathTemplateSteps> signoffPathTemplateSteps = mapper.readValue(json, new TypeReference<List<SignoffPathTemplateSteps>>() {
+                });
+
+                String companyName = UserHelpers.getCompany(auth);
+
+                for (SignoffPathTemplateSteps s : signoffPathTemplateSteps) {
+                    s.setCompanyName(companyName);
+                }
+
+                signoffPathTemplateSteps = signoffPathService.createNewTemplateSteps(signoffPathTemplateSteps);
+
+                return signoffPathTemplateSteps;
+            }
+            catch (IOException | NullPointerException ex) {
+                throw new ResourceNotFoundException();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                throw new InternalServerErrorException();
+            }
+        }
+
+        throw new ForbiddenException();
+    }
+
+    /*
+        Create new signoff path steps. (Extra steps for this document)
      */
     @RequestMapping(
             value = "/admin/signoffPath/steps",
@@ -1372,8 +1412,8 @@ public class AdminController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public List<SignoffPathSteps> createNewSignoffPathStep(@RequestBody String json,
-                                                           Authentication auth) {
+    public List<SignoffPathSteps> createNewSignoffPathSteps(@RequestBody String json,
+                                                            Authentication auth) {
 
         if (UserHelpers.isSuperAdmin(auth)) {
 
@@ -1382,30 +1422,14 @@ public class AdminController {
                 List<SignoffPathSteps> signoffPathSteps = mapper.readValue(json, new TypeReference<List<SignoffPathSteps>>() {
                 });
 
-                // Check if there are any steps to work with
-                // Set update flag if relevant
-                boolean updateSteps = false;
-                if (signoffPathSteps.size() > 0) {
-                    if (signoffPathSteps.get(0).getId() != null) {
-                        updateSteps = true;
-                    }
-                }
-                else {
-                    return new ArrayList<>();
-                }
-
                 String companyName = UserHelpers.getCompany(auth);
 
                 for (SignoffPathSteps s : signoffPathSteps) {
                     s.setCompanyName(companyName);
+                    s.setTemplateId(null);
                 }
 
-                signoffPathSteps = signoffPathService.createNewSteps(signoffPathSteps);
-
-                // Not updating existing steps. Must append sequence string
-                if (!updateSteps) {
-                    signoffPathService.appendToPathSeq(companyName, signoffPathSteps);
-                }
+                signoffPathSteps = signoffPathService.createNewStepsForDocRev(signoffPathSteps);
 
                 return signoffPathSteps;
             }
@@ -1421,55 +1445,6 @@ public class AdminController {
         throw new ForbiddenException();
     }
 
-    /*
-        Create new signoff path step
-     */
-/*    @RequestMapping(
-            value = "/admin/signoffPath/tempSteps",
-            method = RequestMethod.POST,
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    public List<TemporaryPathSteps> createNewTempSignoffPathSteps(@RequestParam("documentId") String documentId,
-                                                                @RequestBody String json,
-                                                                Authentication auth) {
-
-        if (UserHelpers.isSuperAdmin(auth)) {
-
-            ObjectMapper mapper = new ObjectMapper();
-            try {
-                List<TemporaryPathSteps> tempPathSteps = mapper.readValue(json, new TypeReference<List<TemporaryPathSteps>>() {
-                });
-
-                if (tempPathSteps.size() == 0) {
-                    return tempPathSteps;
-                }
-
-                String companyName = UserHelpers.getCompany(auth);
-
-                for (TemporaryPathSteps t : tempPathSteps) {
-                    t.setCompanyName(companyName);
-                }
-
-                tempPathSteps = signoffPathService.createNewTempSteps(tempPathSteps);
-
-                // Update sequence string of this particular RevisionApproval
-                approvalService.appendStepsToApprovalStatus(companyName, documentId, tempPathSteps);
-
-                return tempPathSteps;
-            }
-            catch (IOException | NullPointerException ex) {
-                throw new ResourceNotFoundException();
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-                throw new InternalServerErrorException();
-            }
-        }
-
-        throw new ForbiddenException();
-    }
-*/
 
     // -------------------------------------------------- PUT ------------------------------------------------------- //
 
@@ -1479,7 +1454,7 @@ public class AdminController {
         Remove signoff path steps
      */
     @RequestMapping(
-            value = "/admin/signoffPath/steps",
+            value = "/admin/signoffPath/steps/template",
             method = RequestMethod.DELETE
     )
     public void removeSignoffPathStep(@RequestParam("pathId") Long pathId,
@@ -1493,16 +1468,16 @@ public class AdminController {
             ArrayList<Long> stepIdList = new ArrayList<>(Arrays.asList(stepIds));
 
             // Retrieve and remove 'START' step if present
-            List<SignoffPathSteps> stepsForPath = signoffPathService.getStepsForPath(companyName, pathId);
+            List<SignoffPathTemplateSteps> stepsForPath = signoffPathService.getTemplateStepsForPath(companyName, pathId);
 
             if (stepsForPath == null) {
                 throw new ResourceNotFoundException();
             }
 
-            List<SignoffPathSteps> stepsToDelete = new ArrayList<>();
+            List<SignoffPathTemplateSteps> stepsToDelete = new ArrayList<>();
 
             // Add steps for deletion from path which are not "START" status and who are part of stepId list
-            for (SignoffPathSteps s : stepsForPath) {
+            for (SignoffPathTemplateSteps s : stepsForPath) {
                 if ( !s.getAction().equals("START") ) {
                     for (Long stepId : stepIdList) {
                         if (stepId.equals(s.getId())) {
@@ -1512,8 +1487,7 @@ public class AdminController {
                 }
             }
 
-            signoffPathService.deleteSignoffSteps(stepsToDelete);
-            signoffPathService.removeFromPathSeq(companyName, pathId, stepsToDelete);
+            signoffPathService.deleteTemplateSignoffSteps(stepsToDelete);
 
             return;
         }

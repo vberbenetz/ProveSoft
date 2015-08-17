@@ -1,10 +1,6 @@
 package com.provesoft.resource.service;
 
 import com.provesoft.resource.entity.Document.*;
-import com.provesoft.resource.entity.Organizations;
-import com.provesoft.resource.entity.SignoffPath.SignoffPath;
-import com.provesoft.resource.entity.SignoffPath.SignoffPathSteps;
-import com.provesoft.resource.entity.UserDetails;
 import com.provesoft.resource.repository.*;
 import com.provesoft.resource.utils.DocumentHelpers;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +9,6 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.transaction.TransactionRolledbackException;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -38,10 +33,7 @@ public class DocumentService {
     DocumentRevisionIdsRepository documentRevisionIdsRepository;
 
     @Autowired
-    RevisionApprovalStatusRepository revisionApprovalStatusRepository;
-
-    @Autowired
-    SignoffPathStepsRepository signoffPathStepsRepository;
+    SignoffPathTemplateStepsRepository signoffPathTemplateStepsRepository;
 
 
     /* ------------------------ Document -------------------------- */

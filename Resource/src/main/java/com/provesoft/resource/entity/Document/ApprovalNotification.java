@@ -67,4 +67,5 @@ public class ApprovalNotification {
     public void setDocumentId(String documentId) {
         this.documentId = documentId;
     }
+
 }

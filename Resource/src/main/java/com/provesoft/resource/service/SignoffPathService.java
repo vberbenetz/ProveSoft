@@ -9,8 +9,6 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.transaction.TransactionRolledbackException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -23,13 +21,10 @@ public class SignoffPathService {
     SignoffPathIdRepository signoffPathIdRepository;
 
     @Autowired
-    SignoffPathSeqRepository signoffPathSeqRepository;
-
-    @Autowired
     SignoffPathStepsRepository signoffPathStepsRepository;
 
     @Autowired
-    TemporaryPathStepsRepository temporaryPathStepsRepository;
+    SignoffPathTemplateStepsRepository signoffPathTemplateStepsRepository;
 
 
     /* ------------------------ SignoffPath -------------------------- */
@@ -56,10 +51,7 @@ public class SignoffPathService {
 
     // Create signoff path and create initial sequence object
     public SignoffPath createNewPath(SignoffPath signoffPath) {
-        SignoffPath newSignoffPath = signoffPathRepository.saveAndFlush(signoffPath);
-        SignoffPathSeq newSeq = new SignoffPathSeq(newSignoffPath.getKey().getCompanyName(), newSignoffPath.getKey().getPathId(), "");
-        signoffPathSeqRepository.saveAndFlush(newSeq);
-        return newSignoffPath;
+        return signoffPathRepository.saveAndFlush(signoffPath);
     }
 
 
@@ -77,131 +69,94 @@ public class SignoffPathService {
     }
 
 
-    /* ------------------------ SignoffPathSteps -------------------------- */
+    /* ------------------------ SignoffPathTemplateSteps -------------------------- */
 
     /*
-        Retrieve all steps for SignoffPath
+        Retrieve all steps for SignoffPathTemplateSteps
      */
-    public List<SignoffPathSteps> getStepsForPath(String companyName, Long pathId) {
-        return signoffPathStepsRepository.findByCompanyNameAndPathIdOrderByIdAsc(companyName, pathId);
+    public List<SignoffPathTemplateSteps> getTemplateStepsForPath(String companyName, Long pathId) {
+        return signoffPathTemplateStepsRepository.findByCompanyNameAndPathIdOrderByIdAsc(companyName, pathId);
     }
 
     /*
-        Retrieve step
+        Create new template step (single)
      */
-    public SignoffPathSteps getStep(String companyName, Long pathId, Long stepId) {
-        return signoffPathStepsRepository.findByCompanyNameAndPathIdAndId(companyName, pathId, stepId);
+    public SignoffPathTemplateSteps createNewTemplateStep(SignoffPathTemplateSteps signoffPathStep) {
+        return signoffPathTemplateStepsRepository.saveAndFlush(signoffPathStep);
     }
 
     /*
-        Create new path step (single)
+        Create new template steps (multiple)
      */
-    public SignoffPathSteps createNewStep(SignoffPathSteps signoffPathStep) {
-        return signoffPathStepsRepository.saveAndFlush(signoffPathStep);
-    }
-
-    /*
-        Create new path steps (multiple)
-     */
-    public List<SignoffPathSteps> createNewSteps(List<SignoffPathSteps> signoffPathSteps) {
-        List<SignoffPathSteps> retList = signoffPathStepsRepository.save(signoffPathSteps);
-        signoffPathStepsRepository.flush();
+    public List<SignoffPathTemplateSteps> createNewTemplateSteps(List<SignoffPathTemplateSteps> signoffPathTemplateSteps) {
+        List<SignoffPathTemplateSteps> retList = signoffPathTemplateStepsRepository.save(signoffPathTemplateSteps);
+        signoffPathTemplateStepsRepository.flush();
         return retList;
     }
 
     /*
-        Delete a signoff step
+        Delete a signoff template step
      */
-    public void deleteSignoffSteps(List<SignoffPathSteps> stepsToDelete) {
-        signoffPathStepsRepository.deleteInBatch(stepsToDelete);
+    public void deleteTemplateSignoffSteps(List<SignoffPathTemplateSteps> stepsToDelete) {
+        signoffPathTemplateStepsRepository.deleteInBatch(stepsToDelete);
+        signoffPathTemplateStepsRepository.flush();
+    }
+
+
+    /* ------------------------ SignoffPathSteps -------------------------- */
+
+    public List<SignoffPathSteps> getStepsForDocument(String companyName, String documentId) {
+        return signoffPathStepsRepository.findByCompanyNameAndDocumentIdOrderByIdAsc(companyName, documentId);
+    }
+
+    /*
+        Retrieve OR group of steps by stepId and documentId
+     */
+    public List<SignoffPathSteps> getGroupOfSteps(String companyName, String documentId, Long stepId) {
+        List<SignoffPathSteps> stepsForDocument = getStepsForDocument(companyName, documentId);
+        return SignoffPathHelpers.getStepsInGroup(stepsForDocument, stepId);
+    }
+
+    /*
+        Retrieve next set of steps needed for approval
+     */
+    public List<SignoffPathSteps> getNextSetOfSteps(String companyName, String documentId) {
+        List<SignoffPathSteps> nonApprovedSteps = signoffPathStepsRepository.findByCompanyNameAndDocumentIdAndApprovedOrderByIdAsc(companyName, documentId, false);
+
+        // Reached end of set with no more steps left
+        if (nonApprovedSteps == null) {
+            return null;
+        }
+
+        return SignoffPathHelpers.getNextGroupOfSteps(nonApprovedSteps);
+    }
+
+    /*
+        Mark steps as approved
+     */
+    public List<SignoffPathSteps> markStepsAsApproved(List<SignoffPathSteps> stepsMarkedForApproval) {
+        for (SignoffPathSteps s : stepsMarkedForApproval) {
+            s.setApproved(true);
+        }
+        List<SignoffPathSteps> approvedSteps = signoffPathStepsRepository.save(stepsMarkedForApproval);
+        signoffPathRepository.flush();
+        return approvedSteps;
+    }
+
+    /*
+        Create new set of steps for specific document revision
+     */
+    public List<SignoffPathSteps> createNewStepsForDocRev(List<SignoffPathSteps> stepsToCreate) {
+        List<SignoffPathSteps> newSteps = signoffPathStepsRepository.save(stepsToCreate);
         signoffPathStepsRepository.flush();
-    }
-
-
-    /* ------------------------ SignoffPathSeq -------------------------- */
-
-    /*
-        Retrieve sign off path sequence
-     */
-    public SignoffPathSeq getPathSeq(String companyName, Long pathId) {
-        return signoffPathSeqRepository.findByKeyCompanyNameAndKeyPathId(companyName, pathId);
+        return newSteps;
     }
 
     /*
-        Update path steps sequence string
+        Delete all SignoffPathSteps for this document
      */
-    public void appendToPathSeq(String companyName, List<SignoffPathSteps> newSignoffPathSteps) {
-
-        Long pathId = newSignoffPathSteps.get(0).getPathId();
-        SignoffPathSeq signoffPathSeq = signoffPathSeqRepository.findByKeyCompanyNameAndKeyPathId(companyName, pathId);
-
-        String pathSequence = signoffPathSeq.getPathSequence();
-
-        for (SignoffPathSteps s : newSignoffPathSteps) {
-            pathSequence = pathSequence + s.getId() + "|";
-        }
-
-        signoffPathSeq.setPathSequence(pathSequence);
-        signoffPathSeqRepository.saveAndFlush(signoffPathSeq);
+    public void deleteSignoffPathStepsForDocument(String companyName, String documentId) {
+        signoffPathStepsRepository.deleteByCompanyNameAndDocumentId(companyName, documentId);
     }
-
-    /*
-        Remove path steps from sequence
-     */
-    public void removeFromPathSeq(String companyName, Long pathId, List<SignoffPathSteps> pathStepsToRemove) {
-        SignoffPathSeq signoffPathSeq = signoffPathSeqRepository.findByKeyCompanyNameAndKeyPathId(companyName, pathId);
-
-        List<String> pathSeq = Arrays.asList( signoffPathSeq.getPathSequence().split("\\|") );
-        String newPathSeq = "";
-
-        for (String stepId: pathSeq) {
-
-            boolean removed = false;
-
-            for (SignoffPathSteps s: pathStepsToRemove) {
-                if ( s.getId().toString().equals(stepId) ) {
-                    removed = true;
-                    break;
-                }
-            }
-
-            if (!removed) {
-                newPathSeq = newPathSeq + stepId + "|";
-            }
-        }
-
-        signoffPathSeq.setPathSequence(newPathSeq);
-        signoffPathSeqRepository.saveAndFlush(signoffPathSeq);
-    }
-
-
-    /* ------------------------ TemporaryPathSteps -------------------------- */
-
-    /*
-        Retrieve list of temporary path steps
-     */
-    public List<TemporaryPathSteps> getTempSteps(String companyName, String documentId, Long pathId) {
-        return temporaryPathStepsRepository.findByCompanyNameAndDocumentIdAndPathIdOrderByIdAsc(companyName, documentId, pathId);
-    }
-
-    /*
-        Add new temporary steps
-     */
-    public List<TemporaryPathSteps> createNewTempSteps(List<TemporaryPathSteps> newTempSteps) {
-        List<TemporaryPathSteps> ret = temporaryPathStepsRepository.save(newTempSteps);
-        temporaryPathStepsRepository.flush();
-        return ret;
-    }
-
-
-
-
-
-
-
-
-
-
-
 
 }

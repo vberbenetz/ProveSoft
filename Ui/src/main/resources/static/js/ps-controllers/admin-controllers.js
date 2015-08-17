@@ -1001,7 +1001,7 @@ function signoffPathsSetupCtrl ($scope, $rootScope, $window, manageUsersService,
         $scope.newSteps.length = 0;                 // Clear array
         $scope.stepsToRemove.length = 0;
 
-        signoffPathsService.steps.query({pathId: path.key.pathId}, function(steps) {
+        signoffPathsService.templateSteps.query({pathId: path.key.pathId}, function(steps) {
             $scope.rightPanel.steps = steps;
             $scope.showRightPanel = true;
         }, function(error) {
@@ -1078,7 +1078,7 @@ function signoffPathsSetupCtrl ($scope, $rootScope, $window, manageUsersService,
             if ($scope.stepsToRemove.length > 0) {
                 var stepIds = $scope.extractStepIds($scope.stepsToRemove);
 
-                adminSignoffPathsService.steps.remove({pathId: $scope.rightPanel.path.key.pathId, stepIds: stepIds}, function(data) {
+                adminSignoffPathsService.templateSteps.remove({pathId: $scope.rightPanel.path.key.pathId, stepIds: stepIds}, function(data) {
                     $scope.stepsToRemove.length = 0;
                 }, function(error) {
                     $scope.error = error;
@@ -1087,7 +1087,7 @@ function signoffPathsSetupCtrl ($scope, $rootScope, $window, manageUsersService,
 
             // Add steps if any were created
             if ($scope.newSteps.length > 0) {
-                adminSignoffPathsService.steps.save($scope.newSteps, function(data, status, headers, config) {
+                adminSignoffPathsService.templateSteps.save($scope.newSteps, function(data, status, headers, config) {
                     $scope.rightPanel.steps = $scope.rightPanel.steps.concat(data);
                     $scope.newSteps.length = 0;                 // Clear array
                 }, function(data, status, headers, config) {
@@ -1099,7 +1099,7 @@ function signoffPathsSetupCtrl ($scope, $rootScope, $window, manageUsersService,
             for (var i = 0; i < $scope.rightPanel.steps.length; i++) {
                 delete $scope.rightPanel.steps[i].edit;
             }
-            adminSignoffPathsService.steps.update($scope.rightPanel.steps, function(data, status, headers, config) {
+            adminSignoffPathsService.templateSteps.update($scope.rightPanel.steps, function(data, status, headers, config) {
             }, function(data, status, headers, config) {
                 $scope.error = status;
             });
@@ -1161,7 +1161,13 @@ function signoffPathsSetupCtrl ($scope, $rootScope, $window, manageUsersService,
 
 }
 
-function pendingApprovalsCtrl($scope, $rootScope, manageUsersService, adminDocumentService, adminApprovalService, signoffPathsService, documentLookupService) {
+function pendingApprovalsCtrl($scope,
+                              $rootScope,
+                              manageUsersService,
+                              adminDocumentService,
+                              adminApprovalService,
+                              adminSignoffPathsService,
+                              signoffPathsService) {
 
     if (!$rootScope.authenticated) {
         $window.location.href = '/';
@@ -1171,7 +1177,8 @@ function pendingApprovalsCtrl($scope, $rootScope, manageUsersService, adminDocum
     $scope.prevDocIdStepsLookup = -1;
     $scope.rightPanel = {
         document: {},
-        steps: []
+        steps: [],
+        tempSteps: []
     };
     $scope.showRightPanel = false;
     $scope.newSteps = [];
@@ -1197,27 +1204,19 @@ function pendingApprovalsCtrl($scope, $rootScope, manageUsersService, adminDocum
             $scope.rightPanel.document = document;
             $scope.rightPanel.steps.length = 0;
 
-            signoffPathsService.steps.query({pathId: document.signoffPathId}, function(steps) {
+            signoffPathsService.steps.query({documentId: document.id}, function(steps) {
                 $scope.rightPanel.steps = steps;
                 $scope.prevDocIdStepsLookup = document.id;
-
-                documentLookupService.approvedSteps.query({documentId: document.id}, function(approvedStepIds) {
-                    $scope.filterApprovedSteps(approvedStepIds);
-                    $scope.showRightPanel = true;
-
-                }, function(error) {
-                    $scope.error = error;
-                });
 
             }, function(error) {
                 $scope.err = error;
             });
+
         }
 
     };
 
-    $scope.filterApprovedSteps = function(approvedStepIds) {
-        var steps = $scope.rightPanel.steps;
+    $scope.filterApprovedSteps = function(approvedStepIds, steps) {
         for (var i = 0; i < steps.length; i++) {
             for (var j = 0; j < approvedStepIds.length; j++) {
                 if (steps[i].id === approvedStepIds[j]) {
@@ -1225,7 +1224,7 @@ function pendingApprovalsCtrl($scope, $rootScope, manageUsersService, adminDocum
                 }
             }
         }
-        $scope.rightPanel.steps = steps;
+        return steps;
     };
 
     $scope.markStepApproved = function(stepId) {
@@ -1281,8 +1280,14 @@ function pendingApprovalsCtrl($scope, $rootScope, manageUsersService, adminDocum
     $scope.overrideStep = function(step) {
         var documentId = $scope.rightPanel.document.id;
         var stepId = step.id;
+        var isTempStep = false;
 
-        adminApprovalService.approval.override({documentId: documentId, stepId: stepId}, function(data) {
+        // Check if step object has documentId property. Only temp steps have this property
+        if (step.hasOwnProperty('documentId')) {
+            isTempStep = true
+        }
+
+        adminApprovalService.approval.override({documentId: documentId, stepId: stepId, isTempStep: isTempStep}, function(data) {
             $scope.markStepApproved(stepId);
         }, function(error) {
             $scope.error = error;
@@ -1293,7 +1298,6 @@ function pendingApprovalsCtrl($scope, $rootScope, manageUsersService, adminDocum
         $scope.newSteps.push({
             pathId: $scope.rightPanel.document.signoffPathId,
             action: '',
-            temp: true,
             user: {}
         });
     };
@@ -1301,12 +1305,13 @@ function pendingApprovalsCtrl($scope, $rootScope, manageUsersService, adminDocum
     $scope.saveNewSteps = function() {
 
         if ($scope.newSteps.length > 0) {
-            adminSignoffPathsService.steps.save($scope.newSteps, function(data, status, headers, config) {
-                $scope.rightPanel.steps = $scope.rightPanel.steps.concat(data);
-                $scope.newSteps.length = 0;                 // Clear array
-            }, function(data, status, headers, config) {
-                $scope.error = status;
-            });
+            adminSignoffPathsService.tempSteps.save({documentId: $scope.rightPanel.document.id}, $scope.newSteps,
+                function(data, status, headers, config) {
+                    $scope.rightPanel.steps = $scope.rightPanel.steps.concat(data);
+                    $scope.newSteps.length = 0;                 // Clear array
+                }, function(data, status, headers, config) {
+                    $scope.error = status;
+                });
         }
     };
 

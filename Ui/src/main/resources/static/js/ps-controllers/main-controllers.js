@@ -30,11 +30,7 @@ function MainCtrl($scope, $rootScope, $window, authService) {
 
 }
 
-function NavBarCtrl($scope, $rootScope, $window, navBarService, documentLookupService) {
-
-    if (!$rootScope.authenticated) {
-        $window.location.href = '/';
-    }
+function NavBarCtrl($scope, navBarService, documentLookupService) {
 
     $scope.approvals = [];
 
@@ -88,11 +84,7 @@ function NavBarCtrl($scope, $rootScope, $window, navBarService, documentLookupSe
     };
 }
 
-function NewsFeedCtrl ($scope, $rootScope, $window, navBarService, documentLookupService) {
-
-    if (!$rootScope.authenticated) {
-        $window.location.href = '/';
-    }
+function NewsFeedCtrl ($scope, navBarService, documentLookupService) {
 
     $scope.approvals = [];
 

@@ -231,21 +231,10 @@ function adminApprovalService($resource) {
                     method: 'PUT',
                     params: {
                         documentId: '@documentId',
-                        stepId: '@stepId'
+                        stepId: '@stepId',
+                        isTempStep: '@isTempStep'
                     },
                     isArray: false
-                }
-            }
-        ),
-        tempSteps: $resource('/resource/admin/signoffPath/tempSteps',
-            {},
-            {
-                save: {
-                    method: 'POST',
-                    params: {
-                        documentId: '@documentId'
-                    },
-                    isArray: true
                 }
             }
         )
@@ -276,6 +265,17 @@ function adminSignoffPathsService ($resource) {
         first10: $resource('/resource/admin/signoffPath/first10'),
 
         steps: $resource('/resource/admin/signoffPath/steps',
+            {},
+            {
+                save: {
+                    method: 'POST',
+                    params: {},
+                    isArray: true
+                }
+            }
+        ),
+
+        templateSteps: $resource('/resource/admin/signoffPath/steps/template',
             {},
             {
                 save: {

@@ -2,6 +2,7 @@ package com.provesoft.resource.controller;
 
 import com.provesoft.resource.entity.SignoffPath.SignoffPath;
 import com.provesoft.resource.entity.SignoffPath.SignoffPathSteps;
+import com.provesoft.resource.entity.SignoffPath.SignoffPathTemplateSteps;
 import com.provesoft.resource.exceptions.ResourceNotFoundException;
 import com.provesoft.resource.service.SignoffPathService;
 import com.provesoft.resource.utils.UserHelpers;
@@ -54,17 +55,32 @@ public class SignoffPathController {
     }
 
     /*
+        Retrieve all corresponding template SignoffPathSteps
+     */
+    @RequestMapping(
+            value = "/signoffPath/steps/template",
+            method = RequestMethod.GET
+    )
+    public List<SignoffPathTemplateSteps> getTemplatePathSteps(@RequestParam("pathId") Long pathId,
+                                                               Authentication auth) {
+        String companyName = UserHelpers.getCompany(auth);
+
+        return signoffPathService.getTemplateStepsForPath(companyName, pathId);
+    }
+
+    /*
         Retrieve all corresponding signoff path steps
      */
     @RequestMapping(
             value = "/signoffPath/steps",
             method = RequestMethod.GET
     )
-    public List<SignoffPathSteps> getPathSteps(@RequestParam("pathId") Long pathId,
+    public List<SignoffPathSteps> getPathSteps(@RequestParam("documentId") String documentId,
                                                Authentication auth) {
 
         String companyName = UserHelpers.getCompany(auth);
 
-        return signoffPathService.getStepsForPath(companyName, pathId);
+        return signoffPathService.getStepsForDocument(companyName, documentId);
     }
+
 }

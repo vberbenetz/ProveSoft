@@ -83,19 +83,6 @@ function documentLookupService($resource) {
                     isArray: true
                 }
             }
-        ),
-
-        approvedSteps: $resource('/resource/signoffPath/approvals',
-            {},
-            {
-                query: {
-                    method: 'GET',
-                    params: {
-                        documentId: '@documentId'
-                    },
-                    isArray: true
-                }
-            }
         )
     }
 }
@@ -163,7 +150,7 @@ function signoffPathsService($resource) {
             }
         ),
 
-        steps: $resource('/resource/signoffPath/steps',
+        templateSteps: $resource('/resource/signoffPath/steps/template',
             {},
             {
                 query: {
@@ -174,7 +161,21 @@ function signoffPathsService($resource) {
                     isArray: true
                 }
             }
+        ),
+
+        steps: $resource('/resource/signoffPath/steps',
+            {},
+            {
+                query: {
+                    method: 'GET',
+                    params: {
+                        documentId: '@documentId'
+                    },
+                    isArray: true
+                }
+            }
         )
+
     }
 }
 

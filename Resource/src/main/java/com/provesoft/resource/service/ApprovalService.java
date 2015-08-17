@@ -1,177 +1,25 @@
 package com.provesoft.resource.service;
 
 import com.provesoft.resource.entity.Document.ApprovalNotification;
-import com.provesoft.resource.entity.Document.RevisionApprovalStatus;
-import com.provesoft.resource.entity.SignoffPath.SignoffPathSteps;
-import com.provesoft.resource.entity.UserDetails;
 import com.provesoft.resource.repository.ApprovalNotificationRepository;
-import com.provesoft.resource.repository.RevisionApprovalStatusRepository;
 import com.provesoft.resource.repository.SignoffPathStepsRepository;
-import com.provesoft.resource.utils.SignoffPathHelpers;
+import com.provesoft.resource.repository.SignoffPathTemplateStepsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Service
 public class ApprovalService {
 
     @Autowired
-    RevisionApprovalStatusRepository revisionApprovalStatusRepository;
+    SignoffPathTemplateStepsRepository signoffPathTemplateStepsRepository;
 
     @Autowired
     SignoffPathStepsRepository signoffPathStepsRepository;
 
     @Autowired
     ApprovalNotificationRepository approvalNotificationRepository;
-
-
-    /* ------------------------ RevisionStatusApproval -------------------------- */
-
-    /*
-        Retrieve list of stepIds which already approved
-     */
-    public List<Long> getApprovedStepIds(String companyName, String documentId) {
-        RevisionApprovalStatus r = revisionApprovalStatusRepository.findByKeyCompanyNameAndKeyDocumentId(companyName, documentId);
-
-        // Break path sequence into groups separated on & (THEN step)
-        String[] approvedStringStepIds = r.getApprovedSeq().split("&");
-
-        List<Long> approvedStepIds = new ArrayList<>();
-        for (String stepId : approvedStringStepIds) {
-            if (!stepId.equals("")) {
-                approvedStepIds.add( Long.parseLong(stepId) );
-            }
-        }
-
-        return approvedStepIds;
-    }
-
-    /*
-        Retrieve next approver for revision
-     */
-    public List<SignoffPathSteps> getNextApprovalSteps(String companyName, String documentId) {
-        RevisionApprovalStatus r = revisionApprovalStatusRepository.findByKeyCompanyNameAndKeyDocumentId(companyName, documentId);
-
-        // Break path sequence into groups separated on & (THEN step)
-        String[] requiredGroups = r.getSignoffPathSeq().split("&");
-        String[] approvedSteps = r.getApprovedSeq().split("&");
-
-        // Traverse approved steps and compare against requiredGroup
-        for (String group : requiredGroups) {
-            String[] stepIds = group.split("\\|");
-
-            boolean stepInGroup = false;
-
-            for (String stepId : stepIds) {
-
-                // Traverse approved steps and compare if any required steps in this group have been approved
-                for (String approvedStepId : approvedSteps) {
-                    if (stepId.equals(approvedStepId)) {
-                        stepInGroup = true;
-                        break;
-                    }
-                }
-
-                if (stepInGroup) {
-                    break;
-                }
-            }
-
-            // No required steps in this group have been approved yet. This group needs approvals sent out
-            if (!stepInGroup) {
-
-                // Convert string ids to long
-                List<Long> longStepIds = new ArrayList<>();
-                for (String stepId : stepIds) {
-                    longStepIds.add(Long.parseLong(stepId));
-                }
-
-                // Get next steps for approvals
-                return signoffPathStepsRepository.findByIdIn( longStepIds.toArray(new Long[longStepIds.size()]) );
-            }
-        }
-
-        return null;
-    }
-
-    /*
-        Retrieve list of stepIds in the current group of approving users.
-        - currentStepId is one of the Ids in this group
-
-        Returns null if not in chain
-     */
-    public List<Long> getCurrentGroupOfStepIds(String companyName, String documentId, Long currentStepId) {
-        RevisionApprovalStatus r = revisionApprovalStatusRepository.findByKeyCompanyNameAndKeyDocumentId(companyName, documentId);
-
-        // Break sequence into groups
-        String[] requiredGroups = r.getSignoffPathSeq().split("&");
-
-        // Traverse each group to see which on contains the currentStepId
-        for (String group : requiredGroups) {
-            String[] stepIds = group.split("\\|");
-
-            for (String stepId : stepIds) {
-                if (Long.parseLong(stepId) == currentStepId) {
-
-                    List<Long> retStepIds = new ArrayList<>();
-
-                    // Convert String values to Long ids
-                    for (String s : stepIds) {
-                        retStepIds.add(Long.parseLong(s));
-                    }
-
-                    return retStepIds;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    /*
-        Retrieve revision approval status
-     */
-    public RevisionApprovalStatus getApprovalStatusByCompanyAndDocumentId(String companyName, String documentId) {
-        return revisionApprovalStatusRepository.findByKeyCompanyNameAndKeyDocumentId(companyName, documentId);
-    }
-
-    /*
-        Create a new Approval Status record.
-     */
-    public RevisionApprovalStatus addApprovalStatus(RevisionApprovalStatus revisionApprovalStatus) {
-        return revisionApprovalStatusRepository.saveAndFlush(revisionApprovalStatus);
-    }
-
-    /*
-        Append steps to Rev approval sequence. (Used by admin to add extra approval steps)
-     */
-    public void appendStepsToApprovalStatus(String companyName, String documentId, List<SignoffPathSteps> stepsToAppend) {
-        RevisionApprovalStatus rev = revisionApprovalStatusRepository.findByKeyCompanyNameAndKeyDocumentId(companyName, documentId);
-        String updatedSignoffPathSeq = rev.getSignoffPathSeq() + SignoffPathHelpers.generateSeqWithActions(stepsToAppend);
-        rev.setSignoffPathSeq(updatedSignoffPathSeq);
-        revisionApprovalStatusRepository.saveAndFlush(rev);
-    }
-
-    /*
-        Remove RevisionApprovalStatus when revision advances to "Released"
-     */
-    public void removeRevisionApprovalStatus(RevisionApprovalStatus revisionApprovalStatus) {
-        revisionApprovalStatusRepository.delete(revisionApprovalStatus);
-        revisionApprovalStatusRepository.flush();
-    }
-
-    /*
-        Remove RevisionApprovalStatus by companyName and documentId when revision advances to "Released".
-        Remove any temporary steps created for this document.
-     */
-    public void removeRevisionApprovalStatusByCompanyNameAndDocumentId(String companyName, String documentId) {
-        RevisionApprovalStatus revToDelete = getApprovalStatusByCompanyAndDocumentId(companyName, documentId);
-        revisionApprovalStatusRepository.delete(revToDelete);
-        revisionApprovalStatusRepository.flush();
-    }
 
 
     /* ------------------------ ApprovalNotification -------------------------- */
@@ -191,10 +39,15 @@ public class ApprovalService {
     }
 
     /*
-        Retrieve approval notification by stepId and documentId
+        Checks whether there exists a notification for the given stepId.
+        This is used to see if an admin was approving steps in a group further down the path.
+        If no notification is present for this stepId, no action should be taken in creating new notifications.
      */
-    public ApprovalNotification getApprovalNotification(String companyName, String documentId, Long stepId) {
-        return approvalNotificationRepository.findByCompanyNameAndDocumentIdAndStepId(companyName, documentId, stepId);
+    public Boolean checkIfNotificationExistsForStepId(String companyName, String documentId, Long stepId) {
+        if (signoffPathStepsRepository.countByCompanyNameAndDocumentIdAndId(companyName, documentId, stepId) == 0) {
+            return false;
+        }
+        return true;
     }
 
     /*
@@ -204,14 +57,6 @@ public class ApprovalService {
         List<ApprovalNotification> addedNotifications = approvalNotificationRepository.save(notifications);
         approvalNotificationRepository.flush();
         return addedNotifications;
-    }
-
-    /*
-        Remove notification
-     */
-    public void removeApprovalNotification (ApprovalNotification notification) {
-        approvalNotificationRepository.delete(notification);
-        approvalNotificationRepository.flush();
     }
 
     /*

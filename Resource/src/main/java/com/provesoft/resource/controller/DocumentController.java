@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.provesoft.resource.entity.Document.*;
 import com.provesoft.resource.entity.SignoffPath.SignoffPath;
-import com.provesoft.resource.entity.SignoffPath.SignoffPathSeq;
 import com.provesoft.resource.entity.SignoffPath.SignoffPathSteps;
+import com.provesoft.resource.entity.SignoffPath.SignoffPathTemplateSteps;
 import com.provesoft.resource.entity.SystemSettings;
 import com.provesoft.resource.entity.UserDetails;
 import com.provesoft.resource.exceptions.ForbiddenException;
@@ -214,24 +214,25 @@ public class DocumentController {
                             if (signoffSetting.getValue().equals("on")) {
                                 newDocument.setState("Changing");
 
-                                // Create Approval Status Record
-                                SignoffPathSeq seq = signoffPathService.getPathSeq(companyName, newDocument.getSignoffPathId());
+                                // Get template path steps
+                                Long pathId = newDocument.getSignoffPathId();
+                                List<SignoffPathTemplateSteps> templateSteps = signoffPathService.getTemplateStepsForPath(companyName, pathId);
 
-                                // Get path steps
-                                List<SignoffPathSteps> steps = signoffPathService.getStepsForPath(companyName, seq.getKey().getPathId());
-
-                                String seqWithActions = SignoffPathHelpers.convertSeqToActions(seq.getPathSequence(), steps);
-
-                                RevisionApprovalStatus newApprovalStatus = new RevisionApprovalStatus(companyName, documentId, seqWithActions);
-                                approvalService.addApprovalStatus(newApprovalStatus);
+                                // Create path steps from template and apply to this document
+                                List<SignoffPathSteps> newSteps = new ArrayList<>();
+                                for (SignoffPathTemplateSteps s : templateSteps) {
+                                    SignoffPathSteps newStep = new SignoffPathSteps(companyName, documentId, pathId, s.getId(), s.getAction(), s.getUser());
+                                    newSteps.add(newStep);
+                                }
+                                newSteps = signoffPathService.createNewStepsForDocRev(newSteps);
 
                                 // Create notifications
                                 // Extract initial sequence Ids
-                                List<Long> firstSetOfStepIds = SignoffPathHelpers.extractInitialSetOfIdsFromActionString(seqWithActions);
+                                List<SignoffPathSteps> firstSetOfSteps = SignoffPathHelpers.extractNextSetOfSteps(newSteps);
                                 List<ApprovalNotification> notifications = new ArrayList<>();
 
-                                for (int i = 0; i < firstSetOfStepIds.size(); i++) {
-                                    ApprovalNotification notification = new ApprovalNotification(companyName, steps.get(i).getUser().getUserId(), firstSetOfStepIds.get(i), documentId);
+                                for (SignoffPathSteps s : firstSetOfSteps) {
+                                    ApprovalNotification notification = new ApprovalNotification(companyName, s.getUser().getUserId(), s.getId(), documentId);
                                     notifications.add(notification);
                                 }
                                 approvalService.addApprovalNotifications(notifications);
@@ -344,24 +345,25 @@ public class DocumentController {
                     if (signoffSetting.getValue().equals("on")) {
                         docToChange.setState("Changing");
 
-                        // Create Approval Status Record
-                        SignoffPathSeq seq = signoffPathService.getPathSeq(companyName, docToChange.getSignoffPathId());
+                        // Get template path steps
+                        Long pathId = docToChange.getSignoffPathId();
+                        List<SignoffPathTemplateSteps> templateSteps = signoffPathService.getTemplateStepsForPath(companyName, pathId);
 
-                        // Get path steps
-                        List<SignoffPathSteps> steps = signoffPathService.getStepsForPath(companyName, seq.getKey().getPathId());
-
-                        String seqWithActions = SignoffPathHelpers.convertSeqToActions(seq.getPathSequence(), steps);
-
-                        RevisionApprovalStatus newApprovalStatus = new RevisionApprovalStatus(companyName, documentId, seqWithActions);
-                        approvalService.addApprovalStatus(newApprovalStatus);
+                        // Create path steps from template and apply to this document
+                        List<SignoffPathSteps> newSteps = new ArrayList<>();
+                        for (SignoffPathTemplateSteps s : templateSteps) {
+                            SignoffPathSteps newStep = new SignoffPathSteps(companyName, documentId, pathId, s.getId(), s.getAction(), s.getUser());
+                            newSteps.add(newStep);
+                        }
+                        newSteps = signoffPathService.createNewStepsForDocRev(newSteps);
 
                         // Create notifications
                         // Extract initial sequence Ids
-                        List<Long> firstSetOfStepIds = SignoffPathHelpers.extractInitialSetOfIdsFromActionString(seqWithActions);
+                        List<SignoffPathSteps> firstSetOfSteps = SignoffPathHelpers.extractNextSetOfSteps(newSteps);
                         List<ApprovalNotification> notifications = new ArrayList<>();
 
-                        for (int i = 0; i < firstSetOfStepIds.size(); i++) {
-                            ApprovalNotification notification = new ApprovalNotification(companyName, steps.get(i).getUser().getUserId(), firstSetOfStepIds.get(i), documentId);
+                        for (SignoffPathSteps s : firstSetOfSteps) {
+                            ApprovalNotification notification = new ApprovalNotification(companyName, s.getUser().getUserId(), s.getId(), documentId);
                             notifications.add(notification);
                         }
                         approvalService.addApprovalNotifications(notifications);

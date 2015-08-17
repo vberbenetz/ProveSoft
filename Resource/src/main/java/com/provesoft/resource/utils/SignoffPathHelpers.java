@@ -1,7 +1,6 @@
 package com.provesoft.resource.utils;
 
 import com.provesoft.resource.entity.SignoffPath.SignoffPathSteps;
-import com.provesoft.resource.exceptions.InternalServerErrorException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,90 +9,69 @@ public final class SignoffPathHelpers {
 
     private SignoffPathHelpers() {}
 
-    public static String removeFromStepSequence(String stepSequence, Long pathStepIdToRemove) {
-        try {
-            String retSeq = "";
-            String[] sequences = stepSequence.split("\\|");
-
-            for (String seq : sequences) {
-                if ( seq.equals(pathStepIdToRemove.toString()) ) {
-                    continue;
-                }
-                retSeq = retSeq + seq + "|";
+    public static List<SignoffPathSteps> extractNextSetOfSteps(List<SignoffPathSteps> steps) {
+        List<SignoffPathSteps> setOfSteps = new ArrayList<>();
+        for (SignoffPathSteps s : steps) {
+            if (s.getAction().equals("THEN")) {
+                break;
             }
+            else {
+                setOfSteps.add(s);
+            }
+        }
 
-            return retSeq;
-        }
-        catch (Exception ex) {
-            throw new InternalServerErrorException();
-        }
+        return setOfSteps;
     }
 
-    public static String convertSeqToActions(String seq, List<SignoffPathSteps> steps) {
-        try {
-            String retSeq = "";
-            String[] sequences = seq.split("\\|");
+    public static List<SignoffPathSteps> getStepsInGroup(List<SignoffPathSteps> steps, Long stepId) {
 
-            for (String s : sequences) {
-                for (SignoffPathSteps step : steps) {
-                    if ( step.getId().toString().equals(s) ) {
-                        switch(step.getAction()) {
-                            case "THEN":
-                                retSeq += "&" + s;
-                                break;
-                            case "OR":
-                                retSeq += "|" + s;
-                                break;
-                            default:
-                                retSeq += s;
-                                break;
-                        }
+        List<SignoffPathSteps> stepsInGroup = new ArrayList<>();
+
+        for (int i = 0; i < steps.size(); i++) {
+
+            // Found matching step.
+            // Traverse in reverse to get to starting step, then add all steps until end of group to returning list.
+            if (steps.get(i).getId().equals(stepId)) {
+
+                // Traverse in revers to find start of group
+                while ( (i > 0) && (steps.get(i).getAction().equals("OR")) ) {
+                    i--;
+                }
+
+                // Add initial THEN or START step
+                stepsInGroup.add(steps.get(i));
+                i++;
+
+                // Fetch all steps in group
+                for (int j = i; j < steps.size(); j++) {
+                    if (!steps.get(j).getAction().equals("OR")) {
+                        break;
                     }
+
+                    stepsInGroup.add(steps.get(j));
                 }
             }
+        }
 
-            return retSeq;
-        }
-        catch (Exception ex) {
-            throw new InternalServerErrorException();
-        }
+        return stepsInGroup;
     }
 
-    public static String generateSeqWithActions(List<SignoffPathSteps> steps) {
+    public static List<SignoffPathSteps> getNextGroupOfSteps(List<SignoffPathSteps> nonApprovedSteps) {
 
-        String retSeq = "";
+        List<SignoffPathSteps> nextGroupOfSteps = new ArrayList<>();
 
-        for (SignoffPathSteps step : steps) {
-            switch(step.getAction()) {
-                case "THEN":
-                    retSeq += "&" + step.getId();
-                    break;
-                case "OR":
-                    retSeq += "|" + step.getId();
-                    break;
-                default:
-                    retSeq += step.getId();
-                    break;
+        // Add first Step because it is "START" or "THEN" step
+        nextGroupOfSteps.add(nonApprovedSteps.get(0));
+
+        // Traverse and add remaining steps in group to list
+        for (int i = 1; i < nonApprovedSteps.size(); i++) {
+            if (!nonApprovedSteps.get(i).getAction().equals("OR")) {
+                break;
             }
+            nextGroupOfSteps.add(nonApprovedSteps.get(i));
         }
 
-        return retSeq;
+        return nextGroupOfSteps;
     }
 
-    // Extract first set of sequence step Id's from action string
-    public static List<Long> extractInitialSetOfIdsFromActionString(String seq) {
-        try {
-            List<Long> retList = new ArrayList<>();
-
-            String[] firstGroup = seq.split("&")[0].split("\\|");
-            for (String id : firstGroup) {
-                retList.add(Long.parseLong(id));
-            }
-
-            return retList;
-        }
-        catch (Exception ex) {
-            throw new InternalServerErrorException();
-        }
-    }
 }

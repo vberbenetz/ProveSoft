@@ -1,22 +1,22 @@
 package com.provesoft.resource.entity.SignoffPath;
 
 import com.provesoft.resource.entity.UserDetails;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import javax.persistence.*;
 
 @Entity
-public class TemporaryPathSteps {
+public class SignoffPathTemplateSteps {
 
-    public TemporaryPathSteps(String companyName, String documentId, Long pathId, String action, UserDetails user) {
+    public SignoffPathTemplateSteps(String companyName, Long pathId, String action, UserDetails user) {
         this.companyName = companyName;
-        this.documentId = documentId;
         this.pathId = pathId;
         this.action = action;
         this.user = user;
     }
 
-    public TemporaryPathSteps() {
-        // Default constructor
+    public SignoffPathTemplateSteps() {
+        // Default Constructor
     }
 
     @Id
@@ -24,7 +24,6 @@ public class TemporaryPathSteps {
     Long id;
 
     private String companyName;
-    private String documentId;
     private Long pathId;
     private String action;
 
@@ -48,14 +47,6 @@ public class TemporaryPathSteps {
         this.companyName = companyName;
     }
 
-    public String getDocumentId() {
-        return documentId;
-    }
-
-    public void setDocumentId(String documentId) {
-        this.documentId = documentId;
-    }
-
     public Long getPathId() {
         return pathId;
     }
@@ -74,5 +65,9 @@ public class TemporaryPathSteps {
 
     public UserDetails getUser() {
         return user;
+    }
+
+    public void setUser(UserDetails user) {
+        this.user = user;
     }
 }

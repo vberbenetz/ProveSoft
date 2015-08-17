@@ -86,35 +86,16 @@ function documentLookupCtrl($scope, $rootScope, $window, $timeout, $modal, docum
         else {
             $scope.signoffPathSteps.length = 0;
 
+            // Retrieve steps
             signoffPathsService.steps.query({pathId: document.signoffPathId}, function (steps) {
                 $scope.signoffPathSteps = steps;
                 $scope.prevDocIdStepsLookup = document.id;
-
-                documentLookupService.approvedSteps.query({documentId: document.id}, function(approvedStepIds) {
-                    $scope.filterApprovedSteps(approvedStepIds);
-                    $scope.open();
-                }, function(error) {
-                    $scope.error = error;
-                });
-
             }, function (error) {
                 $scope.error = error;
             });
         }
 
     };
-
-    $scope.filterApprovedSteps = function(approvedStepIds) {
-        var steps = $scope.signoffPathSteps;
-        for (var i = 0; i < steps.length; i++) {
-            for (var j = 0; j < approvedStepIds.length; j++) {
-                if (steps[i].id === approvedStepIds[j]) {
-                    steps[i].approved = true;
-                }
-            }
-        }
-        $scope.signoffPathSteps = steps;
-    }
 
 }
 
