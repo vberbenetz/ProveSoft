@@ -124,7 +124,7 @@ public class SignoffPathService {
         List<SignoffPathSteps> nonApprovedSteps = signoffPathStepsRepository.findByCompanyNameAndDocumentIdAndApprovedOrderByIdAsc(companyName, documentId, false);
 
         // Reached end of set with no more steps left
-        if (nonApprovedSteps == null) {
+        if (nonApprovedSteps.size() == 0) {
             return null;
         }
 
@@ -156,7 +156,7 @@ public class SignoffPathService {
         Delete all SignoffPathSteps for this document
      */
     public void deleteSignoffPathStepsForDocument(String companyName, String documentId) {
-        signoffPathStepsRepository.deleteByCompanyNameAndDocumentId(companyName, documentId);
+        signoffPathStepsRepository.deleteSteps(companyName, documentId);
     }
 
 }

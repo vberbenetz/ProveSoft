@@ -231,8 +231,7 @@ function adminApprovalService($resource) {
                     method: 'PUT',
                     params: {
                         documentId: '@documentId',
-                        stepId: '@stepId',
-                        isTempStep: '@isTempStep'
+                        stepId: '@stepId'
                     },
                     isArray: false
                 }
@@ -269,7 +268,9 @@ function adminSignoffPathsService ($resource) {
             {
                 save: {
                     method: 'POST',
-                    params: {},
+                    params: {
+                        documentId: '@documentId'
+                    },
                     isArray: true
                 }
             }

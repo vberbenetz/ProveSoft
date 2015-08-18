@@ -1201,12 +1201,14 @@ function pendingApprovalsCtrl($scope,
         // Prevent lookup of steps if already loaded previously
         if ($scope.prevDocIdStepsLookup !== document.id) {
 
+            $scope.showRightPanel = false;
             $scope.rightPanel.document = document;
             $scope.rightPanel.steps.length = 0;
 
             signoffPathsService.steps.query({documentId: document.id}, function(steps) {
                 $scope.rightPanel.steps = steps;
                 $scope.prevDocIdStepsLookup = document.id;
+                $scope.showRightPanel = true;
 
             }, function(error) {
                 $scope.err = error;
@@ -1287,7 +1289,7 @@ function pendingApprovalsCtrl($scope,
             isTempStep = true
         }
 
-        adminApprovalService.approval.override({documentId: documentId, stepId: stepId, isTempStep: isTempStep}, function(data) {
+        adminApprovalService.approval.override({documentId: documentId, stepId: stepId}, function(data) {
             $scope.markStepApproved(stepId);
         }, function(error) {
             $scope.error = error;
@@ -1305,7 +1307,7 @@ function pendingApprovalsCtrl($scope,
     $scope.saveNewSteps = function() {
 
         if ($scope.newSteps.length > 0) {
-            adminSignoffPathsService.tempSteps.save({documentId: $scope.rightPanel.document.id}, $scope.newSteps,
+            adminSignoffPathsService.steps.save({documentId: $scope.rightPanel.document.id}, $scope.newSteps,
                 function(data, status, headers, config) {
                     $scope.rightPanel.steps = $scope.rightPanel.steps.concat(data);
                     $scope.newSteps.length = 0;                 // Clear array

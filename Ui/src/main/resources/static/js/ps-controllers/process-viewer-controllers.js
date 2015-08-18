@@ -87,9 +87,10 @@ function documentLookupCtrl($scope, $rootScope, $window, $timeout, $modal, docum
             $scope.signoffPathSteps.length = 0;
 
             // Retrieve steps
-            signoffPathsService.steps.query({pathId: document.signoffPathId}, function (steps) {
+            signoffPathsService.steps.query({documentId: document.id}, function (steps) {
                 $scope.signoffPathSteps = steps;
                 $scope.prevDocIdStepsLookup = document.id;
+                $scope.open();
             }, function (error) {
                 $scope.error = error;
             });
@@ -183,7 +184,7 @@ function documentCreationCtrl($scope, $rootScope, $window, $state, documentCreat
     });
 
     $scope.loadSignoffPathSteps = function (pathId) {
-        signoffPathsService.steps.query({pathId: pathId}, function (steps) {
+        signoffPathsService.templateSteps.query({pathId: pathId}, function (steps) {
             $scope.signoffPathSteps = steps;
         }, function (error) {
             $scope.error = error;
@@ -344,7 +345,7 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
         signoffPathsService.path.get({pathId: document.signoffPathId}, function(signoffPath) {
             $scope.signoffPath = signoffPath;
 
-            signoffPathsService.steps.query({pathId: signoffPath.key.pathId}, function(steps) {
+            signoffPathsService.templateSteps.query({pathId: signoffPath.key.pathId}, function(steps) {
                 $scope.signoffPathSteps = steps;
 
                 // Get list of organizations relating to step users

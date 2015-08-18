@@ -44,7 +44,7 @@ public class ApprovalService {
         If no notification is present for this stepId, no action should be taken in creating new notifications.
      */
     public Boolean checkIfNotificationExistsForStepId(String companyName, String documentId, Long stepId) {
-        if (signoffPathStepsRepository.countByCompanyNameAndDocumentIdAndId(companyName, documentId, stepId) == 0) {
+        if (approvalNotificationRepository.countByCompanyNameAndDocumentIdAndStepId(companyName, documentId, stepId) == 0) {
             return false;
         }
         return true;

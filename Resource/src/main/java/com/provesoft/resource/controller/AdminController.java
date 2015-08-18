@@ -1412,7 +1412,8 @@ public class AdminController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public List<SignoffPathSteps> createNewSignoffPathSteps(@RequestBody String json,
+    public List<SignoffPathSteps> createNewSignoffPathSteps(@RequestParam("documentId") String documentId,
+                                                            @RequestBody String json,
                                                             Authentication auth) {
 
         if (UserHelpers.isSuperAdmin(auth)) {
@@ -1426,6 +1427,8 @@ public class AdminController {
 
                 for (SignoffPathSteps s : signoffPathSteps) {
                     s.setCompanyName(companyName);
+                    s.setDocumentId(documentId);
+                    s.setApproved(false);
                     s.setTemplateId(null);
                 }
 

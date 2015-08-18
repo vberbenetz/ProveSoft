@@ -130,6 +130,7 @@ public class ApprovalController {
             if (nextSetOfSteps == null) {
                 Document doc = documentService.findDocumentById(companyName, documentId);
                 doc.setState("Released");
+                documentService.updateDocument(doc);
 
                 signoffPathService.deleteSignoffPathStepsForDocument(companyName, documentId);
             }

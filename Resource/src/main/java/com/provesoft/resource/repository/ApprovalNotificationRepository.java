@@ -16,6 +16,8 @@ public interface ApprovalNotificationRepository extends JpaRepository<ApprovalNo
 
     ApprovalNotification findByCompanyNameAndDocumentIdAndStepId(String companyName, String documentId, Long stepId);
 
+    Long countByCompanyNameAndDocumentIdAndStepId(String companyName, String documentId, Long stepId);
+
     List<ApprovalNotification> findByCompanyNameAndUserId(String companyName, Long userId);
 
     @Query(
