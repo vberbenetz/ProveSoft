@@ -54,8 +54,9 @@ public class UserDetailsService {
         return results.subList(0, upToIndex);
     }
 
-    public String findCompanyByUserId(Long userId) {
-        return userDetailsRepository.findCompanyNameByUserId(userId);
+    public Long findUserIdByCompanyNameAndEmail(String companyName, String email) {
+        Long u = userDetailsRepository.findUserIdByCompanyNameAndEmail(companyName, email);
+        return u;
     }
 
     public UserDetails addUser(UserDetails newUser) {

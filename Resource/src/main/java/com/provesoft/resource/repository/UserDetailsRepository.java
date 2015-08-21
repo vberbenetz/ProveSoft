@@ -37,6 +37,16 @@ public interface UserDetailsRepository extends JpaRepository<UserDetails, Long> 
     List<UserDetails> findByCompanyAndPartialName(@Param("companyName") String companyName,
                                                   @Param("name") String name);
 
+    // Get userId by email
+    @Query(
+            "SELECT u.userId " +
+            "FROM UserDetails u " +
+            "WHERE u.companyName=:companyName " +
+            "AND u.email=:email"
+    )
+    Long findUserIdByCompanyNameAndEmail(@Param("companyName") String companyName,
+                                         @Param("email") String email);
+
     // Delete user by userId
     @Query(
             "DELETE FROM UserDetails u " +

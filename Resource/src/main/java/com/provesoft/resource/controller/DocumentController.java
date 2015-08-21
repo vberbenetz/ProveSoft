@@ -26,6 +26,7 @@ import javax.transaction.TransactionRolledbackException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -148,6 +149,29 @@ public class DocumentController {
         String companyName = UserHelpers.getCompany(auth);
 
         return documentService.findDocRevByCompanyNameAndDocumentId(companyName, documentId);
+    }
+
+    /* ---------- DocumentComment ---------- */
+
+    /*
+        Retrieve recent comments for document
+     */
+    @RequestMapping(
+            value = "/document/comments",
+            method = RequestMethod.GET
+    )
+    public List<DocumentComment> getRecentDocumentComments(@RequestParam String documentId,
+                                                           @RequestParam(value = "recent", required = false) Boolean recent,
+                                                           Authentication auth) {
+        String companyName = UserHelpers.getCompany(auth);
+
+        if ( (recent != null) && (recent) ) {
+            return documentService.getRecentDocumentComments(companyName, documentId);
+        }
+
+// TODO: IMPLEMENT METHOD IF RECENT IS NOT TRUE
+
+        throw new ResourceNotFoundException();
     }
 
 
@@ -390,6 +414,43 @@ public class DocumentController {
         }
 
         throw new ResourceNotFoundException();
+    }
+
+    /* -------------------------- DocumentComment ----------------------------- */
+
+    @RequestMapping(
+            value = "/document/comment",
+            method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public DocumentComment createDocumentComment(@RequestBody String json,
+                                                 Authentication auth) {
+
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            DocumentComment documentComment = mapper.readValue(json, DocumentComment.class);
+
+            String companyName = UserHelpers.getCompany(auth);
+
+            // Check if document belongs to user's company OR exists
+            Document doc = documentService.findByCompanyNameAndDocumentId(companyName, documentComment.getDocumentId());
+            if (doc == null) {
+                throw new ResourceNotFoundException();
+            }
+
+            Long myUserId = userDetailsService.findUserIdByCompanyNameAndEmail(companyName, auth.getName());
+
+            documentComment.setCompanyName(companyName);
+            documentComment.setUserId(myUserId);
+            documentComment.setDate(new Date());
+
+            return documentService.createDocumentComment(documentComment);
+        }
+        catch (IOException | NullPointerException ex) {
+            throw new ResourceNotFoundException();
+        }
+
     }
 
 

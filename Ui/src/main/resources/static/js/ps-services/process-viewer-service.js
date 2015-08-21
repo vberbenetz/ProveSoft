@@ -83,6 +83,35 @@ function documentLookupService($resource) {
                     isArray: true
                 }
             }
+        ),
+
+        recentApprovalHistory: $resource('/resource/approvalHistory/recent',
+            {},
+            {
+                query: {
+                    method: 'GET',
+                    params: {
+                        documentId: '@documentId'
+                    },
+                    isArray: true
+                }
+            }
+        ),
+
+        documentComment: $resource('/resource/document/comment'),
+
+        documentComments: $resource('/resource/document/comments',
+            {},
+            {
+                queryRecent: {
+                    method: 'GET',
+                    params: {
+                        documentId: '@documentId',
+                        recent: true
+                    },
+                    isArray:true
+                }
+            }
         )
     }
 }

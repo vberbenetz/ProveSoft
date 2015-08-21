@@ -1,5 +1,6 @@
 package com.provesoft.resource.controller;
 
+import com.provesoft.resource.entity.Document.ApprovalHistory;
 import com.provesoft.resource.entity.Document.ApprovalNotification;
 import com.provesoft.resource.entity.Document.Document;
 import com.provesoft.resource.entity.SignoffPath.SignoffPathSteps;
@@ -150,6 +151,18 @@ public class ApprovalController {
         return new ResponseEntity<>("{}", HttpStatus.OK);
     }
 
+
+    /* --------------------------------------- Approval History ------------------------------------------ */
+    @RequestMapping(
+            value = "/approvalHistory/recent",
+            method = RequestMethod.GET
+    )
+    public List<ApprovalHistory> getRecentApprovals(@RequestParam("documentId") String documentId,
+                                                    Authentication auth) {
+
+        String companyName = UserHelpers.getCompany(auth);
+        return approvalService.getRecentApprovals(companyName, documentId);
+    }
 }
 
 

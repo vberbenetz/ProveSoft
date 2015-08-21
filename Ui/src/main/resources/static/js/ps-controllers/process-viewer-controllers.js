@@ -11,7 +11,14 @@ function documentLookupCtrl($scope, $rootScope, $window, $timeout, $modal, docum
     $scope.prevSearchString = '';
     $scope.documentSearchResults = [];
     $scope.revisions = [];
-    $scope.lastFetchedRevisions = '';      // Prevent the same revisions from being fetched again on-click
+    $scope.recentDocumentActivity = [];
+
+    // ng-model for new comment
+    $scope.newDocumentComment = '';
+
+    $scope.activeDocument = {};             // Keep track of current active document (right panel timeline)
+    $scope.lastFetchedRevisions = '';       // Keep track of which document revisions were last fetched for (documentId)
+    $scope.lastFetchedActivity = '';        // Keep track of which document activities were last fetched (documentId)
 
     // Steps associated with signoff path, used in modal
     $scope.signoffPathSteps = [];
@@ -54,15 +61,69 @@ function documentLookupCtrl($scope, $rootScope, $window, $timeout, $modal, docum
         } , 500);
     };
 
+    $scope.changeActiveDocument = function(document) {
+        $scope.getRevisions(document.id);
+        $scope.getRecentDocumentActivity(document.id);
+        $scope.activeDocument = document;
+    };
+
     $scope.getRevisions = function(documentId) {
         if ($scope.lastFetchedRevisions != documentId) {
             documentLookupService.revision.query({documentId: documentId}, function(revisions) {
                 $scope.revisions = revisions;
+                $scope.lastFetchedRevisions = documentId;
             }, function(error) {
                 $scope.err = error;
             });
-            $scope.lastFetchedRevisions = documentId;
         }
+    };
+
+    $scope.getRecentDocumentActivity = function(documentId) {
+        if ($scope.lastFetchedActivity != documentId) {
+
+            documentLookupService.recentApprovalHistory.query({documentId: documentId}, function(approvalHistory) {
+
+                documentLookupService.documentComments.queryRecent({documentId: documentId}, function(recentComments) {
+                    var recentDocActivity = approvalHistory.concat(recentComments);
+                    $scope.lastFetchedActivity = documentId;
+
+                    // Sort the recent activity array by date to interleave the approvalHistory with the recentComments
+                    recentDocActivity.sort(function(a, b) {
+                        if (a.date > b.date) {
+                            return -1;
+                        }
+                        if (a.date < b.date) {
+                            return 1;
+                        }
+                        return 0;
+                    });
+                    $scope.recentDocumentActivity = recentDocActivity;
+
+                }, function(error) {
+                    $scope.error = error;
+                });
+
+            }, function(error) {
+                $scope.err = error;
+            });
+        }
+    };
+
+    $scope.addDocumentComment = function() {
+        var newDocumentComment = {
+            userId: $rootScope.user.userId,
+            documentId: $scope.activeDocument.id,
+            message: $scope.newDocumentComment
+        };
+
+        documentLookupService.documentComment.save(newDocumentComment, function(data, status, headers, config) {
+
+            // Append newest comment to front of list
+            $scope.recentDocumentActivity.unshift(data);
+
+        }, function(data, status, headers, config) {
+            $scope.error = status;
+        });
     };
 
     $scope.open = function(steps) {
@@ -274,7 +335,7 @@ function documentCreationCtrl($scope, $rootScope, $window, $state, documentCreat
     };
 
     $scope.redirectToLookup = function () {
-        $state.go('process-viewer.document-lookup');
+        $state.go('process-viewer.document-lookup', {}, {reload: true});
     };
 
 }
@@ -472,7 +533,7 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
 
             documentRevisionService.updateUploadRevisionId.update({documentId: $scope.documentId, tempRevId: $scope.tempRevId, newRevId: data.key.revisionId},
                 function(data) {
-                    $state.go('process-viewer.document-lookup');
+                    $state.go('process-viewer.document-lookup', {}, {reload: true});
                 }, function(error) {
                 });
 
@@ -489,11 +550,11 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
                 $state.go('process-viewer.document-lookup');
             }, function(error) {
                 $scope.error = error;
-                $state.go('process-viewer.document-lookup');
+                $state.go('process-viewer.document-lookup', {}, {reload: true});
             });
         }
         else {
-            $state.go('process-viewer.document-lookup');
+            $state.go('process-viewer.document-lookup', {}, {reload: true});
         }
     };
 

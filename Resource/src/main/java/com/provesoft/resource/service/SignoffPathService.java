@@ -1,5 +1,8 @@
 package com.provesoft.resource.service;
 
+import com.provesoft.resource.entity.Document.ApprovalHistory;
+import com.provesoft.resource.entity.Document.Document;
+import com.provesoft.resource.entity.Document.DocumentRevisions;
 import com.provesoft.resource.entity.SignoffPath.*;
 import com.provesoft.resource.repository.*;
 import com.provesoft.resource.utils.SignoffPathHelpers;
@@ -9,6 +12,8 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.transaction.TransactionRolledbackException;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -22,6 +27,15 @@ public class SignoffPathService {
 
     @Autowired
     SignoffPathStepsRepository signoffPathStepsRepository;
+
+    @Autowired
+    ApprovalHistoryRepository approvalHistoryRepository;
+
+    @Autowired
+    DocumentRepository documentRepository;
+
+    @Autowired
+    DocumentRevisionsRepository documentRevisionsRepository;
 
     @Autowired
     SignoffPathTemplateStepsRepository signoffPathTemplateStepsRepository;
@@ -140,6 +154,34 @@ public class SignoffPathService {
         }
         List<SignoffPathSteps> approvedSteps = signoffPathStepsRepository.save(stepsMarkedForApproval);
         signoffPathRepository.flush();
+
+        // Create new ApprovalHistorySteps
+        Document doc = documentRepository.findByCompanyNameAndId(
+                stepsMarkedForApproval.get(0).getCompanyName(),
+                stepsMarkedForApproval.get(0).getDocumentId()
+        );
+        DocumentRevisions documentRevision = documentRevisionsRepository.findByKeyCompanyNameAndKeyDocumentIdAndKeyRevisionId(
+                doc.getCompanyName(),
+                doc.getId(),
+                doc.getRevision()
+        );
+        List<ApprovalHistory> approvalHistorySteps = new ArrayList<>();
+        for (SignoffPathSteps s : stepsMarkedForApproval) {
+
+            ApprovalHistory ah = new ApprovalHistory(
+                    doc.getCompanyName(),
+                    doc.getId(),
+                    doc.getRevision(),
+                    documentRevision,
+                    s.getAction(),
+                    s.getUser(),
+                    new Date());
+
+            approvalHistorySteps.add(ah);
+        }
+        approvalHistoryRepository.save(approvalHistorySteps);
+        approvalHistoryRepository.flush();
+
         return approvedSteps;
     }
 
@@ -158,5 +200,8 @@ public class SignoffPathService {
     public void deleteSignoffPathStepsForDocument(String companyName, String documentId) {
         signoffPathStepsRepository.deleteSteps(companyName, documentId);
     }
+
+
+
 
 }

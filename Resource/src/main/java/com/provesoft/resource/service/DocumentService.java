@@ -35,6 +35,9 @@ public class DocumentService {
     @Autowired
     SignoffPathTemplateStepsRepository signoffPathTemplateStepsRepository;
 
+    @Autowired
+    DocumentCommentRepository documentCommentRepository;
+
 
     /* ------------------------ Document -------------------------- */
 
@@ -224,5 +227,21 @@ public class DocumentService {
         return nextRevId;
     }
 
+
+    /* ------------------------------ DocumentComments ------------------------------- */
+
+    /*
+        Retrieve recent comments for particular document
+     */
+    public List<DocumentComment> getRecentDocumentComments(String companyName, String documentId) {
+        return documentCommentRepository.findFirst10ByCompanyNameAndDocumentIdOrderByDateDesc(companyName, documentId);
+    }
+
+    /*
+        Save comment for document
+     */
+    public DocumentComment createDocumentComment(DocumentComment documentComment) {
+        return documentCommentRepository.saveAndFlush(documentComment);
+    }
 
 }

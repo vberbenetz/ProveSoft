@@ -1,7 +1,6 @@
 package com.provesoft.resource.entity.Document;
 
 import com.provesoft.resource.entity.Organizations;
-import com.provesoft.resource.entity.SignoffPath.SignoffPath;
 
 import javax.persistence.*;
 

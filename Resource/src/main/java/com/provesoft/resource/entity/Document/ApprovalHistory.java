@@ -1,19 +1,28 @@
 package com.provesoft.resource.entity.Document;
 
+import com.provesoft.resource.entity.UserDetails;
 import com.provesoft.resource.utils.SystemHelpers;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 public class ApprovalHistory {
 
-    public ApprovalHistory(Long stepId, String companyName, Long documentId, String revisionId, Long userId, String date) {
-        this.stepId = stepId;
+    public ApprovalHistory(String companyName,
+                           String documentId,
+                           String revisionId,
+                           DocumentRevisions documentRevision,
+                           String action,
+                           UserDetails user,
+                           Date date) {
+
         this.companyName = companyName;
         this.documentId = documentId;
         this.revisionId = revisionId;
-        this.userId = userId;
+        this.documentRevision = documentRevision;
+        this.action = action;
+        this.user = user;
         this.date = date;
     }
 
@@ -22,20 +31,34 @@ public class ApprovalHistory {
     }
 
     @Id
-    private Long stepId;
+    @GeneratedValue
+    Long id;
 
     private String companyName;
-    private Long documentId;
+    private String documentId;
     private String revisionId;
-    private Long userId;
-    private String date;
 
-    public Long getStepId() {
-        return stepId;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumns({
+            @JoinColumn(name = "companyName_revision", referencedColumnName = "companyName"),
+            @JoinColumn(name = "documentId_revision", referencedColumnName = "documentId"),
+            @JoinColumn(name = "revisionId_revision", referencedColumnName = "revisionId")
+    })
+    private DocumentRevisions documentRevision;
+
+    private String action;
+    private Date date;
+
+    @ManyToOne
+    @JoinColumn
+    private UserDetails user;
+
+    public Long getId() {
+        return id;
     }
 
-    public void setStepId(Long stepId) {
-        this.stepId = stepId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getCompanyName() {
@@ -46,11 +69,11 @@ public class ApprovalHistory {
         this.companyName = companyName;
     }
 
-    public Long getDocumentId() {
+    public String getDocumentId() {
         return documentId;
     }
 
-    public void setDocumentId(Long documentId) {
+    public void setDocumentId(String documentId) {
         this.documentId = documentId;
     }
 
@@ -62,19 +85,35 @@ public class ApprovalHistory {
         this.revisionId = revisionId;
     }
 
-    public Long getUserId() {
-        return userId;
+    public String getAction() {
+        return action;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setAction(String action) {
+        this.action = action;
     }
 
-    public String getDate() {
+    public Date getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(Date date) {
         this.date = date;
+    }
+
+    public UserDetails getUser() {
+        return user;
+    }
+
+    public void setUser(UserDetails user) {
+        this.user = user;
+    }
+
+    public DocumentRevisions getDocumentRevision() {
+        return documentRevision;
+    }
+
+    public void setDocumentRevision(DocumentRevisions documentRevision) {
+        this.documentRevision = documentRevision;
     }
 }

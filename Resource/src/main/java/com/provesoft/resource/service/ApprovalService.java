@@ -1,6 +1,8 @@
 package com.provesoft.resource.service;
 
+import com.provesoft.resource.entity.Document.ApprovalHistory;
 import com.provesoft.resource.entity.Document.ApprovalNotification;
+import com.provesoft.resource.repository.ApprovalHistoryRepository;
 import com.provesoft.resource.repository.ApprovalNotificationRepository;
 import com.provesoft.resource.repository.SignoffPathStepsRepository;
 import com.provesoft.resource.repository.SignoffPathTemplateStepsRepository;
@@ -20,6 +22,9 @@ public class ApprovalService {
 
     @Autowired
     ApprovalNotificationRepository approvalNotificationRepository;
+
+    @Autowired
+    ApprovalHistoryRepository approvalHistoryRepository;
 
 
     /* ------------------------ ApprovalNotification -------------------------- */
@@ -66,4 +71,12 @@ public class ApprovalService {
     public void removeApprovalNotifications (String companyName, String documentId) {
         approvalNotificationRepository.deleteByCompanyNameAndDocumentId(companyName, documentId);
     }
+
+
+    /* ---------------------------- ApprovalHistory ------------------------------ */
+
+    public List<ApprovalHistory> getRecentApprovals(String companyName, String documentId) {
+        return approvalHistoryRepository.findFirst10ByCompanyNameAndDocumentIdOrderByDateDesc(companyName, documentId);
+    }
+
 }
