@@ -51,9 +51,36 @@
                                 <thead>
                                 <tr>
                                     <th></th>
-                                    <th class="text-left"><h3>ID</h3></th>
-                                    <th class="text-left"><h3>Title</h3></th>
-                                    <th class="text-left"><h3>Owner</h3></th>
+                                    <th class="text-left">
+                                        <h3 style="margin-top:0">
+                                            <a class="btn btn-xs btn-default" ng-click="changeSortSearchState('ID')">
+                                                <span class="fa fa-sort-asc" ng-show="docSortingState=='ID_A'"></span>
+                                                <span class="fa fa-sort-desc" ng-show="docSortingState=='ID_D'"></span>
+                                                <span class="fa fa-sort" ng-hide="docSortingState=='ID_A'||docSortingState=='ID_D'"></span>
+                                            </a>
+                                            &nbsp;ID
+                                        </h3>
+                                    </th>
+                                    <th class="text-left">
+                                        <h3 style="margin-top:0">
+                                            <a class="btn btn-xs btn-default" ng-click="changeSortSearchState('TITLE')">
+                                                <span class="fa fa-sort-asc" ng-show="docSortingState=='TITLE_A'"></span>
+                                                <span class="fa fa-sort-desc" ng-show="docSortingState=='TITLE_D'"></span>
+                                                <span class="fa fa-sort" ng-hide="docSortingState=='TITLE_A'||docSortingState=='TITLE_D'"></span>
+                                            </a>
+                                            &nbsp;Title
+                                        </h3>
+                                    </th>
+                                    <th class="text-left">
+                                        <h3 style="margin-top:0">
+                                            <a class="btn btn-xs btn-default" ng-click="changeSortSearchState('OWNER')">
+                                                <span class="fa fa-sort-asc" ng-show="docSortingState=='OWNER_A'"></span>
+                                                <span class="fa fa-sort-desc" ng-show="docSortingState=='OWNER_D'"></span>
+                                                <span class="fa fa-sort" ng-hide="docSortingState=='OWNER_A'||docSortingState=='OWNER_D'"></span>
+                                            </a>
+                                            &nbsp;Owner
+                                        </h3>
+                                    </th>
                                     <th class="text-left"><h3>Revision</h3></th>
                                     <th class="text-left"><h3>State</h3></th>
                                     <th class="text-left"><h3>Release Date</h3></th>
@@ -172,35 +199,6 @@
                     <!-- End search results table -->
 
                     <!-- Timeline -->
-                    <!--
-                    <div class="col-md-4">
-                        <div class="ibox-content inspinia-timeline">
-                            <div class="timeline-item">
-                                <div class="row">
-                                    <div class="col-xs-3 date">
-                                        <i class="fa fa-briefcase"></i>
-                                        6:00 am
-                                        <br/>
-                                        <small class="text-navy">2 hour ago</small>
-                                    </div>
-                                    <div class="col-xs-7 content no-top-border">
-                                        <p class="m-b-xs"><strong>Meeting</strong></p>
-
-                                        <p>Conference on the sales results for the previous year. Monica please examine sales trends in marketing and products. Below please find the current status of the
-                                            sale.</p>
-
-                                        <p>
-                                            <bar-chart data="main.BarChart2.data" options="main.BarChart2.options"></bar-chart>
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    -->
-                    <!-- End timeline -->
-
-                    <!-- Timeline -->
                     <div class="col-md-4" ng-hide="recentDocumentActivity.length==0">
                         <h2>This Document Timeline</h2>
                         <form>
@@ -241,6 +239,7 @@
                             </div>
                         </div>
                     </div>
+                    <!-- End Timeline -->
 
                 </div>
             </div>

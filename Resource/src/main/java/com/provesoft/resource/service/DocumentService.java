@@ -82,7 +82,7 @@ public class DocumentService {
         Get first 10 documents for document preview in lookup screen
      */
     public List<Document> findFirst10ByCompanyName(String companyName) {
-        return documentRepository.findFirst10ByCompanyNameOrderByTitleAsc(companyName);
+        return documentRepository.findFirst10ByCompanyNameOrderByIdAsc(companyName);
     }
 
     /*
@@ -234,7 +234,7 @@ public class DocumentService {
         Retrieve recent comments for particular document
      */
     public List<DocumentComment> getRecentDocumentComments(String companyName, String documentId) {
-        return documentCommentRepository.findFirst10ByCompanyNameAndDocumentIdOrderByDateDesc(companyName, documentId);
+        return documentCommentRepository.findFirst5ByCompanyNameAndDocumentIdOrderByDateDesc(companyName, documentId);
     }
 
     /*

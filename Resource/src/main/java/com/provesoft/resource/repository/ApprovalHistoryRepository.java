@@ -9,5 +9,5 @@ import java.util.List;
 
 public interface ApprovalHistoryRepository extends JpaRepository<ApprovalHistory, Long> {
 
-    List<ApprovalHistory> findFirst10ByCompanyNameAndDocumentIdOrderByDateDesc(String companyName, String documentId);
+    List<ApprovalHistory> findFirst5ByCompanyNameAndDocumentIdOrderByDateDesc(String companyName, String documentId);
 }

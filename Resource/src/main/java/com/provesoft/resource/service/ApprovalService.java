@@ -76,7 +76,7 @@ public class ApprovalService {
     /* ---------------------------- ApprovalHistory ------------------------------ */
 
     public List<ApprovalHistory> getRecentApprovals(String companyName, String documentId) {
-        return approvalHistoryRepository.findFirst10ByCompanyNameAndDocumentIdOrderByDateDesc(companyName, documentId);
+        return approvalHistoryRepository.findFirst5ByCompanyNameAndDocumentIdOrderByDateDesc(companyName, documentId);
     }
 
 }

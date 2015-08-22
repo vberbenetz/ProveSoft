@@ -13,7 +13,7 @@ public interface DocumentRepository extends JpaRepository<Document, String> {
 
     List<Document> findByCompanyNameAndIdIn(String companyName, List<String> ids);
 
-    List<Document> findFirst10ByCompanyNameOrderByTitleAsc(String companyName);
+    List<Document> findFirst10ByCompanyNameOrderByIdAsc(String companyName);
 
     List<Document> findByCompanyNameAndState(String companyName, String state);
 

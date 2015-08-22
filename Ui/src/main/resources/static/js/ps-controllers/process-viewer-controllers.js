@@ -24,6 +24,18 @@ function documentLookupCtrl($scope, $rootScope, $window, $timeout, $modal, docum
     $scope.signoffPathSteps = [];
     $scope.prevDocIdStepsLookup = -1;
 
+    // Use this to determine how to sort document results
+    /*
+        States are:
+        ID_A        - Sort by ID ascending
+        ID_D        - Sort by ID descending
+        TITLE_A     - Sort by Title ascending
+        TITLE_D     - Sort by Title descending
+        OWNER_A     - Sort by Owner ascending
+        OWNER_D     - Sort by Owner descending
+     */
+    $scope.docSortingState = 'ID_A';
+
     // Get initial list of companies
     documentLookupService.first10.query(function(data) {
         $scope.documentSearchResults = data;
@@ -59,6 +71,87 @@ function documentLookupCtrl($scope, $rootScope, $window, $timeout, $modal, docum
                 });
             }
         } , 500);
+    };
+
+    $scope.changeSortSearchState = function(searchType) {
+        var currentState = $scope.docSortingState;
+        var searchResults = $scope.documentSearchResults;
+
+        switch (searchType) {
+            case 'ID':
+                if (currentState.substr(currentState.length-1) == 'A') {
+                    searchResults.sort(function(a, b) {
+                        if (a.id < b.id)
+                            return 1;
+                        if (a.id > b.id)
+                            return -1;
+                        return 0;
+                    });
+                    $scope.docSortingState = 'ID_D';
+                }
+                else {
+                    searchResults.sort(function(a, b) {
+                        if (a.id > b.id)
+                            return 1;
+                        if (a.id < b.id)
+                            return -1;
+                        return 0;
+                    });
+                    $scope.docSortingState = 'ID_A';
+                }
+                break;
+
+            case 'TITLE':
+                if (currentState.substr(currentState.length-1) == 'A') {
+                    searchResults.sort(function(a, b) {
+                        if (a.title < b.title)
+                            return 1;
+                        if (a.title > b.title)
+                            return -1;
+                        return 0;
+                    });
+                    $scope.docSortingState = 'TITLE_D';
+                }
+                else {
+                    searchResults.sort(function(a, b) {
+                        if (a.title > b.title)
+                            return 1;
+                        if (a.title < b.title)
+                            return -1;
+                        return 0;
+                    });
+                    $scope.docSortingState = 'TITLE_A';
+                }
+                break;
+
+            case 'OWNER':
+                if (currentState.substr(currentState.length-1) == 'A') {
+                    searchResults.sort(function(a, b) {
+                        if (a.organization.name < b.organization.name)
+                            return 1;
+                        if (a.organization.name > b.organization.name)
+                            return -1;
+                        return 0;
+                    });
+                    $scope.docSortingState = 'OWNER_D';
+                }
+                else {
+                    searchResults.sort(function(a, b) {
+                        if (a.organization.name > b.organization.name)
+                            return 1;
+                        if (a.organization.name < b.organization.name)
+                            return -1;
+                        return 0;
+                    });
+                    $scope.docSortingState = 'OWNER_A';
+                }
+                break;
+
+            default:
+                break;
+
+            $scope.documentSearchResults = searchResults;
+        }
     };
 
     $scope.changeActiveDocument = function(document) {
