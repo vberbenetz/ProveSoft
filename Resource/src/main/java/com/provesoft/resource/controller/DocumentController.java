@@ -151,6 +151,20 @@ public class DocumentController {
         return documentService.findDocRevByCompanyNameAndDocumentId(companyName, documentId);
     }
 
+    /*
+        Get latest revisions by list of documentIds
+     */
+    @RequestMapping(
+            value = "/document/revisions",
+            method = RequestMethod.GET
+    )
+    public List<DocumentRevisions> getRevisionsByDocumentIds(@RequestParam("documentIds") String[] documentIds,
+                                                                   Authentication auth) {
+        String companyName = UserHelpers.getCompany(auth);
+
+        return documentService.findLatestDocRevsByCompanyNameAndDocumentIds(companyName, documentIds);
+    }
+
     /* ---------- DocumentComment ---------- */
 
     /*

@@ -85,6 +85,32 @@ function documentLookupService($resource) {
             }
         ),
 
+        revisions: $resource('/resource/document/revisions',
+            {},
+            {
+                query: {
+                    method: 'GET',
+                    params: {
+                        documentIds: '@documentIds'
+                    },
+                    isArray: true
+                }
+            }
+        ),
+
+        latestRevisions: $resource('/resource/document/revision/multiLatest',
+            {},
+            {
+                query: {
+                    method: 'GET',
+                    params: {
+                        documentIds: '@documentIds'
+                    },
+                    isArray: true
+                }
+            }
+        ),
+
         recentApprovalHistory: $resource('/resource/approvalHistory/recent',
             {},
             {

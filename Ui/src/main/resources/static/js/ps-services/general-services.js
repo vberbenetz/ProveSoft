@@ -15,6 +15,24 @@ function navBarService($resource) {
     }
 }
 
+function userService($resource) {
+    return {
+        userDetails: $resource('/resource/userDetails',
+            {},
+            {
+                queryByUserIds: {
+                    method: 'GET',
+                    params: {
+                        userIds: '@userIds'
+                    },
+                    isArray: true
+                }
+            }
+        )
+    }
+}
+
 angular
     .module('provesoft')
-    .factory('navBarService', navBarService);
+    .factory('navBarService', navBarService)
+    .factory('userService', userService);

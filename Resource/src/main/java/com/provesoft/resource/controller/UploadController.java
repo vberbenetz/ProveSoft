@@ -54,7 +54,7 @@ public class UploadController {
         }
 
         HttpHeaders headers = new HttpHeaders();
-        headers.add("content-disposition", "attachement; filename=" + documentUpload.getFilename());
+        headers.add( "content-disposition", "attachement; filename=\"" + documentUpload.getFilename() + "\"" );
 
         // Split the mimeType into primary and sub types
         String primaryType, subType;

@@ -212,6 +212,13 @@ public class DocumentService {
         return documentRevisionsRepository.findByKeyCompanyNameAndKeyDocumentIdAndKeyRevisionId(companyName, documentId, revisionId);
     }
 
+    /*
+        Retrieve latest revision per documentId in documentId list
+     */
+    public List<DocumentRevisions> findLatestDocRevsByCompanyNameAndDocumentIds (String companyName, String[] documentIds) {
+        return documentRevisionsRepository.findRevisionByKeyCompanyNameAndKeyDocumentIdIn(companyName, documentIds);
+    }
+
 
     /* ------------------------ DocumentRevisionIds -------------------------- */
 
