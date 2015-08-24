@@ -169,7 +169,7 @@
                                                     </a>
                                                 </td>
                                                 <td class="text-center">
-                                                    <a target="_blank" ng-disabled="!r.redlineDocPresent" ng-hide="r.key.revisionId=='A'" href="" class="btn btn-danger" ng-href="{{ '/resource/download?documentId=' + r.key.documentId + '&revisionId=' + r.key.revisionId + '&isRedline=true' }}">
+                                                    <a target="_blank" ng-disabled="!isRedlineUsed" ng-hide="r.key.revisionId=='A' || !r.redlineDocPresent" href="" class="btn btn-danger" ng-href="{{ '/resource/download?documentId=' + r.key.documentId + '&revisionId=' + r.key.revisionId + '&isRedline=true' }}">
                                                         <span class="fa fa-file"></span>
                                                     </a>
                                                 </td>

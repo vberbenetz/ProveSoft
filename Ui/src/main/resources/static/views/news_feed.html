@@ -108,7 +108,7 @@
                                         <a target="_blank" href="" class="btn btn-lg btn-success" ng-href="{{ '/resource/download?documentId=' + n.document.id + '&revisionId=' + n.document.revision }}">
                                             <span class="fa fa-download">&nbsp;Document</span>
                                         </a>
-                                        <a target="_blank" ng-hide="n.document.revision=='A'" href="" class="btn btn-lg btn-danger" ng-href="{{ '/resource/download?documentId=' + n.document.id + '&revisionId=' + n.document.revision + '&isRedline=true' }}">
+                                        <a target="_blank" ng-disabled="!isRedlineUsed" ng-hide="n.document.revision=='A' || !n.revision.redlineDocPresent" href="" class="btn btn-lg btn-danger" ng-href="{{ '/resource/download?documentId=' + n.document.id + '&revisionId=' + n.document.revision + '&isRedline=true' }}">
                                             <span class="fa fa-download">&nbsp;Redline</span>
                                         </a>
                                         <div class="pull-right">

@@ -6,6 +6,8 @@ function documentLookupCtrl($scope, $rootScope, $window, $timeout, $modal, docum
         $window.location.href = '/';
     }
 
+    $scope.isRedlineUsed = false;
+
     $scope.noResultsFound = false;
     $scope.searchString = '';
     $scope.prevSearchString = '';
@@ -35,6 +37,20 @@ function documentLookupCtrl($scope, $rootScope, $window, $timeout, $modal, docum
         OWNER_D     - Sort by Owner descending
      */
     $scope.docSortingState = 'ID_A';
+
+
+    // Get setting regarding whether redlines are being used
+    generalSettingsService.setting.get({setting: 'redline'}, function (data) {
+        if (data.value === 'on' || data.value === 'optional') {
+            $scope.isRedlineUsed = true;
+        }
+        else {
+            $scope.isRedlineUsed = false;
+        }
+    }, function (error) {
+        $scope.err = error;
+    });
+
 
     // Get initial list of companies
     documentLookupService.first10.query(function(data) {

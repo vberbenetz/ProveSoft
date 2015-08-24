@@ -84,9 +84,24 @@ function NavBarCtrl($scope, navBarService, documentLookupService) {
     };
 }
 
-function NewsFeedCtrl ($scope, navBarService, documentLookupService, userService) {
+function NewsFeedCtrl ($scope, navBarService, documentLookupService, userService, generalSettingsService) {
+
+    $scope.isRedlineUsed = false;
 
     $scope.approvals = [];
+
+    // Get setting regarding whether redlines are being used
+    generalSettingsService.setting.get({setting: 'redline'}, function (data) {
+        if (data.value === 'on' || data.value === 'optional') {
+            $scope.isRedlineUsed = true;
+        }
+        else {
+            $scope.isRedlineUsed = false;
+        }
+    }, function (error) {
+        $scope.err = error;
+    });
+
 
     // Get all notifications for this user
     navBarService.approvals.query(function(data) {
@@ -159,10 +174,11 @@ function NewsFeedCtrl ($scope, navBarService, documentLookupService, userService
         for (var x = 1; x < revisions.length; x++) {
             if (revisions[x-1].key.documentId != revisions[x].key.documentId) {
                 latestRevisions.push(revisions[x-1]);
+            }
 
-                if (x == (revisions.length - 1) ) {
-                    latestRevisions.push(revisions[x]);
-                }
+            // Add the last one to the list as this document has no one to compare against
+            if (x == (revisions.length - 1) ) {
+                latestRevisions.push(revisions[x]);
             }
         }
 
