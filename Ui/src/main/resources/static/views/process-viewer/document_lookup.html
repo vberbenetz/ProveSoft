@@ -204,7 +204,7 @@
                 <div class="feed-activity-list">
                     <div class="feed-element" ng-repeat="n in recentDocumentActivity">
                         <div class="pull-left">
-                            <img alt="image" class="img-circle" src="img/profile_pic_placeholder.png">
+                            <img alt="image" class="img-circle" ng-src="{{ n.profilePicture }}">
                         </div>
 
                         <!-- Is Comment -->

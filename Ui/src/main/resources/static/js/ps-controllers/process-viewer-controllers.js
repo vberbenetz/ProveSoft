@@ -1,6 +1,6 @@
 'use strict';
 
-function documentLookupCtrl($scope, $rootScope, $window, $timeout, $modal, generalSettingsService, documentLookupService, signoffPathsService) {
+function documentLookupCtrl($scope, $rootScope, $window, $timeout, $modal, userService, generalSettingsService, documentLookupService, signoffPathsService) {
 
     if (!$rootScope.authenticated) {
         $window.location.href = '/';
@@ -210,6 +210,22 @@ function documentLookupCtrl($scope, $rootScope, $window, $timeout, $modal, gener
                     // Format date
                     $scope.recentDocumentActivity = $scope.formatDate(recentDocActivity);
 
+                    // Get list of userIds for profile picture lookup
+                    var userIds = [];
+                    for (var z = 0; z < recentDocActivity.length; z++) {
+                        userIds.push(recentDocActivity[z].user.userId);
+                    }
+
+                    // Append profile pictures
+                    if (userIds.length > 0) {
+                        userService.profilePictureByIds.query({userIds: userIds}, function(profilePictures) {
+                            $scope.matchProfilePicToActivity(profilePictures);
+
+                        }, function(error) {
+                            $scope.error = error;
+                        });
+                    }
+
                 }, function(error) {
                     $scope.error = error;
                 });
@@ -227,6 +243,9 @@ function documentLookupCtrl($scope, $rootScope, $window, $timeout, $modal, gener
         };
 
         documentLookupService.documentComment.save(newDocumentComment, function(data, status, headers, config) {
+
+            // Append my profile picture
+            data.profilePicture = $scope.$parent.profilePicture;
 
             // Append newest comment to front of list
             $scope.recentDocumentActivity.unshift(data);
@@ -284,7 +303,20 @@ function documentLookupCtrl($scope, $rootScope, $window, $timeout, $modal, gener
         }
 
         return docActivity;
-    }
+    };
+
+    // Helper function to line up UserDetails with revision
+    $scope.matchProfilePicToActivity = function(profilePictures) {
+        var activity = $scope.recentDocumentActivity;
+        for (var o = 0; o < activity.length; o++) {
+            for (var p = 0; p < profilePictures.length; p++) {
+                if (activity[o].user.userId === profilePictures[p].userId) {
+                    activity[o].profilePicture = profilePictures[p].picData;
+                }
+            }
+        }
+        $scope.recentDocumentActivity = activity;
+    };
 
 }
 

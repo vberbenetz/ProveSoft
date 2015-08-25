@@ -142,7 +142,7 @@
                             <!-- Is Comment -->
                             <div ng-if="n.hasOwnProperty('message')">
                                 <div class="pull-left">
-                                    <img alt="image" class="img-circle" src="img/profile_pic_placeholder.png"><br/><br/>
+                                    <img alt="image" class="img-circle" ng-src="{{ n.profilePicture }}"><br/><br/>
                                     <div class="label label-primary">
                                         Suggestion
                                     </div>
@@ -162,7 +162,7 @@
                             <!-- Is Document Revision -->
                             <div ng-if="!n.hasOwnProperty('message')">
                                 <div class="pull-left">
-                                    <img alt="image" class="img-circle" src="img/profile_pic_placeholder.png"><br/><br/>
+                                    <img alt="image" class="img-circle" ng-src="{{ n.profilePicture }}"><br/><br/>
                                     <div ng-show="n.key.revisionId=='A'" class="label label-success">
                                         New
                                     </div>

@@ -185,6 +185,11 @@ function NewsFeedCtrl ($scope, navBarService, documentLookupService, userService
             // Get latest comments for company
             documentLookupService.latestCommentsForCompany.query(function(latestComments) {
 
+                // Append comment userIds for profile pic retrieval
+                for (var y = 0; y < latestComments.length; y++) {
+                    revUserIds.push(latestComments[y].user.userId);
+                }
+
                 var dailyFeed = latestRevs.concat(latestComments);
 
                 // Sort the recent activity array by date to interleave the approvalHistory with the recentComments
@@ -200,6 +205,14 @@ function NewsFeedCtrl ($scope, navBarService, documentLookupService, userService
 
                 // Format date
                 $scope.dailyFeed = $scope.formatDate(dailyFeed);
+
+                // Retrieve profile pictures
+                userService.profilePictureByIds.query({userIds: revUserIds}, function(profilePictures) {
+                    $scope.matchProfilePicToDailyFeed(profilePictures);
+
+                }, function(error) {
+                    $scope.error = error;
+                });
 
             }, function(error) {
                 $scope.error = error;
@@ -294,6 +307,20 @@ function NewsFeedCtrl ($scope, navBarService, documentLookupService, userService
 
         return latestRevs;
     };
+
+    // Helper function to line up UserDetails with revision
+    $scope.matchProfilePicToDailyFeed = function(profilePictures) {
+        var dailyFeed = $scope.dailyFeed;
+        for (var o = 0; o < dailyFeed.length; o++) {
+            for (var p = 0; p < profilePictures.length; p++) {
+                if (dailyFeed[o].user.userId === profilePictures[p].userId) {
+                    dailyFeed[o].profilePicture = profilePictures[p].picData;
+                }
+            }
+        }
+        $scope.dailyFeed = dailyFeed;
+    };
+
 
     // Approve revision notification
     $scope.approve = function(notificationId, i) {

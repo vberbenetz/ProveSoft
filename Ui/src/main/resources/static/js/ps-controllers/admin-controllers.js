@@ -1,6 +1,6 @@
 'use strict';
 
-function manageUsersCtrl($scope, $rootScope, $window, $timeout, manageUsersService) {
+function manageUsersCtrl($scope, $rootScope, $window, $timeout, userService, manageUsersService) {
 
     if (!$rootScope.authenticated) {
         $window.location.href = '/';
@@ -118,6 +118,18 @@ function manageUsersCtrl($scope, $rootScope, $window, $timeout, manageUsersServi
 
                     manageUsersService.permissions.queryByUserId({userId: data.userId}, function(userPermissions) {
                         $scope.rightPanel.data.userPermissions = userPermissions;
+
+                        // Retrieve profile pictures
+                        var userIds = [data.userId];
+                        userService.profilePictureByIds.query({userIds: userIds}, function(profilePictures) {
+
+                            if (profilePictures.length > 0) {
+                                $scope.rightPanel.data.profilePicture = profilePictures[0].picData;
+                            }
+
+                        }, function(error) {
+                            $scope.error = error;
+                        });
 
                     }, function(error) {
                         $scope.err = error;
