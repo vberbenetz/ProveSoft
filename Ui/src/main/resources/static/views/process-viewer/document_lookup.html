@@ -6,243 +6,237 @@
 <div class="wrapper wrapper-content animated fadeInRight">
     <div class="row">
         <div class="col-lg-12">
-            <div class="ibox float-e-margins">
-                <div class="ibox-content">
-                    <div class="col-md-12 margin-bottom-30">
-                        <button ui-sref="process-viewer.document-creation" class="btn btn-lg btn-primary">New Document +</button>
-                    </div>
+            <div class="col-md-12 margin-bottom-30">
+                <button ui-sref="process-viewer.document-creation" class="btn btn-lg btn-primary">New Document +</button>
+            </div>
 
-                    <h4 class="margin-left-20">
-                        <!-- 2,160 results found for: <span class="text-navy">“Admin Theme”</span> -->
-                    </h4>
+            <!-- Search results table -->
+            <div class="col-md-8">
+                <div class="search-form">
+                    <form>
+                        <div class="input-group">
+                            <input ng-model="searchString" type="text" placeholder="Search All Documents.." name="search" class="form-control input-lg">
 
-                    <!-- Search results table -->
-                    <div class="col-md-8">
-                        <div class="search-form">
-                            <form>
-                                <div class="input-group">
-                                    <input ng-model="searchString" type="text" placeholder="Search All Documents.." name="search" class="form-control input-lg">
-
-                                    <div class="input-group-btn">
-                                        <button class="btn btn-lg btn-primary" ng-click="executeSearch()">
-                                            Search
-                                        </button>
-                                    </div>
-                                </div>
-                            </form>
+                            <div class="input-group-btn">
+                                <button class="btn btn-lg btn-primary" ng-click="executeSearch()">
+                                    Search
+                                </button>
+                            </div>
                         </div>
+                    </form>
+                </div>
 
-                        <div ng-show="noResultsFound" class="margin-top-30">
-                            <h3>No Results Found</h3>
-                        </div>
+                <div ng-show="noResultsFound" class="margin-top-30">
+                    <h3>No Results Found</h3>
+                </div>
 
-                        <div ng-hide="noResultsFound" class="table-responsive margin-top-30">
-                            <table class="table table-hover issue-tracker">
-                                <colgroup>
-                                    <col style="width:5%" />
-                                    <col style="width:15%" />
-                                    <col style="width:15%" />
-                                    <col style="width:15%" />
-                                    <col style="width:10%" />
-                                    <col style="width:15%" />
-                                    <col style="width:15%" />
-                                    <col style="width:10%" />
-                                </colgroup>
-                                <thead>
-                                <tr>
-                                    <th></th>
-                                    <th class="text-left">
-                                        <h3 style="margin-top:0">
-                                            <a class="btn btn-xs btn-default" ng-click="changeSortSearchState('ID')">
-                                                <span class="fa fa-sort-asc" ng-show="docSortingState=='ID_A'"></span>
-                                                <span class="fa fa-sort-desc" ng-show="docSortingState=='ID_D'"></span>
-                                                <span class="fa fa-sort" ng-hide="docSortingState=='ID_A'||docSortingState=='ID_D'"></span>
-                                            </a>
-                                            &nbsp;ID
-                                        </h3>
-                                    </th>
-                                    <th class="text-left">
-                                        <h3 style="margin-top:0">
-                                            <a class="btn btn-xs btn-default" ng-click="changeSortSearchState('TITLE')">
-                                                <span class="fa fa-sort-asc" ng-show="docSortingState=='TITLE_A'"></span>
-                                                <span class="fa fa-sort-desc" ng-show="docSortingState=='TITLE_D'"></span>
-                                                <span class="fa fa-sort" ng-hide="docSortingState=='TITLE_A'||docSortingState=='TITLE_D'"></span>
-                                            </a>
-                                            &nbsp;Title
-                                        </h3>
-                                    </th>
-                                    <th class="text-left">
-                                        <h3 style="margin-top:0">
-                                            <a class="btn btn-xs btn-default" ng-click="changeSortSearchState('OWNER')">
-                                                <span class="fa fa-sort-asc" ng-show="docSortingState=='OWNER_A'"></span>
-                                                <span class="fa fa-sort-desc" ng-show="docSortingState=='OWNER_D'"></span>
-                                                <span class="fa fa-sort" ng-hide="docSortingState=='OWNER_A'||docSortingState=='OWNER_D'"></span>
-                                            </a>
-                                            &nbsp;Owner
-                                        </h3>
-                                    </th>
-                                    <th class="text-left"><h3>Revision</h3></th>
-                                    <th class="text-left"><h3>State</h3></th>
-                                    <th class="text-left"><h3>Release Date</h3></th>
-                                    <th></th>
-                                </tr>
-                                </thead>
-                            </table>
-                        </div>
+                <div ng-hide="noResultsFound" class="table-responsive margin-top-30">
+                    <table class="table table-hover issue-tracker">
+                        <colgroup>
+                            <col style="width:5%" />
+                            <col style="width:15%" />
+                            <col style="width:15%" />
+                            <col style="width:15%" />
+                            <col style="width:10%" />
+                            <col style="width:15%" />
+                            <col style="width:15%" />
+                            <col style="width:10%" />
+                        </colgroup>
+                        <thead>
+                        <tr>
+                            <th></th>
+                            <th class="text-left">
+                                <h3 style="margin-top:0">
+                                    <a class="btn btn-xs btn-default" ng-click="changeSortSearchState('ID')">
+                                        <span class="fa fa-sort-asc" ng-show="docSortingState=='ID_A'"></span>
+                                        <span class="fa fa-sort-desc" ng-show="docSortingState=='ID_D'"></span>
+                                        <span class="fa fa-sort" ng-hide="docSortingState=='ID_A'||docSortingState=='ID_D'"></span>
+                                    </a>
+                                    &nbsp;ID
+                                </h3>
+                            </th>
+                            <th class="text-left">
+                                <h3 style="margin-top:0">
+                                    <a class="btn btn-xs btn-default" ng-click="changeSortSearchState('TITLE')">
+                                        <span class="fa fa-sort-asc" ng-show="docSortingState=='TITLE_A'"></span>
+                                        <span class="fa fa-sort-desc" ng-show="docSortingState=='TITLE_D'"></span>
+                                        <span class="fa fa-sort" ng-hide="docSortingState=='TITLE_A'||docSortingState=='TITLE_D'"></span>
+                                    </a>
+                                    &nbsp;Title
+                                </h3>
+                            </th>
+                            <th class="text-left">
+                                <h3 style="margin-top:0">
+                                    <a class="btn btn-xs btn-default" ng-click="changeSortSearchState('OWNER')">
+                                        <span class="fa fa-sort-asc" ng-show="docSortingState=='OWNER_A'"></span>
+                                        <span class="fa fa-sort-desc" ng-show="docSortingState=='OWNER_D'"></span>
+                                        <span class="fa fa-sort" ng-hide="docSortingState=='OWNER_A'||docSortingState=='OWNER_D'"></span>
+                                    </a>
+                                    &nbsp;Owner
+                                </h3>
+                            </th>
+                            <th class="text-left"><h3>Revision</h3></th>
+                            <th class="text-left"><h3>State</h3></th>
+                            <th class="text-left"><h3>Release Date</h3></th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
 
-                        <accordion close-other="true">
-                            <accordion-group ng-repeat="n in documentSearchResults" is-open="n.active" ng-class="{'accordion-group-active' : n.active}">
-                                <accordion-heading>
-                                    <div class="row">
-                                        <div class="col-md-12" ng-click="changeActiveDocument(n)">
-                                            <table class="table">
-                                                <colgroup>
-                                                    <col style="width:2%" />
-                                                    <col style="width:15%" />
-                                                    <col style="width:18%" />
-                                                    <col style="width:15%" />
-                                                    <col style="width:10%" />
-                                                    <col style="width:15%" />
-                                                    <col style="width:15%" />
-                                                    <col style="width:10%" />
-                                                </colgroup>
-                                                <tbody>
-                                                <tr>
-                                                    <td>
-                                                        <button class="btn btn-xs btn-rounded btn-primary">
-                                                            <span class="fa fa-plus" ng-class="{ 'fa-minus' : n.active}"></span>
-                                                        </button>
-                                                    </td>
-                                                    <td>{{ n.id }}</td>
-                                                    <td>{{ n.title }}</td>
-                                                    <td>{{ n.organization.name }}</td>
-                                                    <td>{{ n.revision }}</td>
-                                                    <td ng-if="n.state=='Released'">
-                                                        {{ n.state }}
-                                                    </td>
-                                                    <td ng-if="n.state!='Released'" ng-click="$parent.n.active = !$parent.n.active">
-                                                        <p ng-show="n.revision!='A'" class="text-danger">
-                                                            <strong>Changing...</strong>
-                                                        </p>
-                                                        <p ng-show="n.revision=='A'" class="text-danger">
-                                                            <strong>New Release</strong>
-                                                        </p>
-                                                        <button class="btn btn-primary btn-sm" ng-click="openStepsModal(n)">
-                                                            <span class="fa fa-plus"></span>&nbsp;See Details
-                                                        </button>
-                                                    </td>
-                                                    <td>{{ n.date }}</td>
-                                                    <td ng-click="$parent.n.active = !$parent.n.active">
-                                                        <div class="text-right">
-                                                            <button ng-disabled="n.state=='Changing'" ui-sref="process-viewer.document-revision({documentId: n.id})" class="btn btn-lg btn-warning" type="button">
-                                                                <span class="fa fa-pencil"></span>
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </accordion-heading>
-                                <div class="table-responsive" ng-if="lastFetchedRevisions==n.id">
-                                    <table class="table table-hover issue-tracker">
-                                        <thead>
-                                        <tr>
-                                            <th>Revision</th>
-                                            <th>Reason For Change</th>
-                                            <th>Changed By</th>
-                                            <th>Change Date</th>
-                                            <th class="text-center">Document Download</th>
-                                            <th class="text-center">Redline Download</th>
-                                        </tr>
-                                        </thead>
+                <accordion close-other="true">
+                    <accordion-group ng-repeat="n in documentSearchResults" is-open="n.active" ng-class="{'accordion-group-active' : n.active}">
+                        <accordion-heading>
+                            <div class="row">
+                                <div class="col-md-12" ng-click="changeActiveDocument(n)">
+                                    <table class="table">
+                                        <colgroup>
+                                            <col style="width:2%" />
+                                            <col style="width:15%" />
+                                            <col style="width:18%" />
+                                            <col style="width:15%" />
+                                            <col style="width:10%" />
+                                            <col style="width:15%" />
+                                            <col style="width:15%" />
+                                            <col style="width:10%" />
+                                        </colgroup>
                                         <tbody>
-                                            <tr ng-repeat="r in revisions" ng-class="{ 'row-danger' : n.state=='Changing' && $index==0}">
-                                                <td>{{ r.key.revisionId }}</td>
-                                                <td>{{ r.changeReason }}</td>
-                                                <td>{{ r.changeUserId }}</td>
-                                                <td>{{ r.changeDate }}</td>
-                                                <td class="text-center">
-                                                    <a target="_blank" href="" class="btn btn-success" ng-href="{{ '/resource/download?documentId=' + r.key.documentId + '&revisionId=' + r.key.revisionId }}">
-                                                        <span class="fa fa-file"></span>
-                                                    </a>
-                                                </td>
-                                                <td class="text-center">
-                                                    <a target="_blank" ng-disabled="!isRedlineUsed" ng-hide="r.key.revisionId=='A' || !r.redlineDocPresent" href="" class="btn btn-danger" ng-href="{{ '/resource/download?documentId=' + r.key.documentId + '&revisionId=' + r.key.revisionId + '&isRedline=true' }}">
-                                                        <span class="fa fa-file"></span>
-                                                    </a>
-                                                </td>
-                                            </tr>
+                                        <tr>
+                                            <td>
+                                                <button class="btn btn-xs btn-rounded btn-primary">
+                                                    <span class="fa fa-plus" ng-class="{ 'fa-minus' : n.active}"></span>
+                                                </button>
+                                            </td>
+                                            <td>{{ n.id }}</td>
+                                            <td>{{ n.title }}</td>
+                                            <td>{{ n.organization.name }}</td>
+                                            <td>{{ n.revision }}</td>
+                                            <td ng-if="n.state=='Released'">
+                                                {{ n.state }}
+                                            </td>
+                                            <td ng-if="n.state!='Released'" ng-click="$parent.n.active = !$parent.n.active">
+                                                <p ng-show="n.revision!='A'" class="text-danger">
+                                                    <strong>Changing...</strong>
+                                                </p>
+                                                <p ng-show="n.revision=='A'" class="text-danger">
+                                                    <strong>New Release</strong>
+                                                </p>
+                                                <button class="btn btn-primary btn-sm" ng-click="openStepsModal(n)">
+                                                    <span class="fa fa-plus"></span>&nbsp;See Details
+                                                </button>
+                                            </td>
+                                            <td>{{ n.date }}</td>
+                                            <td ng-click="$parent.n.active = !$parent.n.active">
+                                                <div class="text-right">
+                                                    <button ng-disabled="n.state=='Changing'" ui-sref="process-viewer.document-revision({documentId: n.id})" class="btn btn-lg btn-warning" type="button">
+                                                        <span class="fa fa-pencil"></span>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
                                         </tbody>
                                     </table>
                                 </div>
-                            </accordion-group>
-                        </accordion>
-
-                        <hr/>
-
-                        <div class="text-center">
-                            <div class="btn-group">
-                                <button class="btn btn-white" type="button"><i class="fa fa-chevron-left"></i></button>
-                                <button class="btn btn-white">1</button>
-                                <button class="btn btn-white">2</button>
-                                <button class="btn btn-white">3</button>
-                                <button class="btn btn-white">4</button>
-                                <button class="btn btn-white">5</button>
-                                <button class="btn btn-white">6</button>
-                                <button class="btn btn-white">7</button>
-                                <button class="btn btn-white" type="button"><i class="fa fa-chevron-right"></i></button>
                             </div>
+                        </accordion-heading>
+                        <div class="table-responsive" ng-if="lastFetchedRevisions==n.id">
+                            <table class="table table-hover issue-tracker">
+                                <thead>
+                                <tr>
+                                    <th>Revision</th>
+                                    <th>Reason For Change</th>
+                                    <th>Changed By</th>
+                                    <th>Change Date</th>
+                                    <th class="text-center">Document Download</th>
+                                    <th class="text-center">Redline Download</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="r in revisions" ng-class="{ 'row-danger' : n.state=='Changing' && $index==0}">
+                                        <td>{{ r.key.revisionId }}</td>
+                                        <td>{{ r.changeReason }}</td>
+                                        <td>{{ r.changeUserId }}</td>
+                                        <td>{{ r.changeDate }}</td>
+                                        <td class="text-center">
+                                            <a target="_blank" href="" class="btn btn-success" ng-href="{{ '/resource/download?documentId=' + r.key.documentId + '&revisionId=' + r.key.revisionId }}">
+                                                <span class="fa fa-file"></span>
+                                            </a>
+                                        </td>
+                                        <td class="text-center">
+                                            <a target="_blank" ng-disabled="!isRedlineUsed" ng-hide="r.key.revisionId=='A' || !r.redlineDocPresent" href="" class="btn btn-danger" ng-href="{{ '/resource/download?documentId=' + r.key.documentId + '&revisionId=' + r.key.revisionId + '&isRedline=true' }}">
+                                                <span class="fa fa-file"></span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
+                    </accordion-group>
+                </accordion>
+
+                <hr/>
+
+                <div class="text-center">
+                    <div class="btn-group">
+                        <button class="btn btn-white" type="button"><i class="fa fa-chevron-left"></i></button>
+                        <button class="btn btn-white">1</button>
+                        <button class="btn btn-white">2</button>
+                        <button class="btn btn-white">3</button>
+                        <button class="btn btn-white">4</button>
+                        <button class="btn btn-white">5</button>
+                        <button class="btn btn-white">6</button>
+                        <button class="btn btn-white">7</button>
+                        <button class="btn btn-white" type="button"><i class="fa fa-chevron-right"></i></button>
                     </div>
-                    <!-- End search results table -->
-
-                    <!-- Timeline -->
-                    <div class="col-md-4" ng-hide="recentDocumentActivity.length==0">
-                        <h2>This Document Timeline</h2>
-                        <form>
-                            <textarea ng-model="newDocumentComment" rows="2" placeholder="Make A Suggestion" class="form-control"></textarea>
-                            <button class="btn btn-primary pull-right" ng-click="addDocumentComment()">
-                                Suggest
-                            </button>
-                        </form>
-                        <div class="feed-activity-list">
-                            <div class="feed-element" ng-repeat="n in recentDocumentActivity">
-                                <div class="pull-left">
-                                    <img alt="image" class="img-circle" src="img/profile_pic_placeholder.png">
-                                </div>
-
-                                <!-- Is Document Revision -->
-                                <div class="media-body" ng-if="n.hasOwnProperty('message')">
-                                    <h4><strong>{{ n.user.firstName }} {{n.user.lastName}}</strong></h4><br>
-                                    <small class="pull-right text-navy">{{ n.date | date: "yyyy-MM-dd" }}</small>
-                                    <p>{{ n.message }}</p>
-                                    <div class="actions">
-                                        <a class="btn btn-xs btn-white"><i class="fa fa-thumbs-up"></i> Like </a>
-                                    </div>
-                                </div>
-
-                                <!-- Is Comment -->
-                                <div class="media-body" ng-if="!n.hasOwnProperty('message')">
-                                    <h4><strong>{{ n.user.firstName }} {{n.user.lastName}}</strong></h4><br>
-                                    <small class="pull-right text-navy">{{ n.date | date: "yyyy-MM-dd" }}</small>
-                                    <div class="row margin-bottom-10 margin-left-5">
-                                        <button class="btn btn-xs btn-warning">Change</button>&nbsp;Revision {{ n.revisionId }}
-                                    </div>
-                                    <p>{{ n.documentRevision.changeReason }}</p>
-                                    <div class="actions">
-                                        <a class="btn btn-xs btn-white"><i class="fa fa-thumbs-up"></i> Like </a>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                    <!-- End Timeline -->
-
                 </div>
             </div>
+            <!-- End search results table -->
+
+            <!-- Timeline -->
+            <div class="col-md-4" ng-hide="recentDocumentActivity.length==0">
+                <h2 class="margin-bottom-30">This Document Timeline</h2>
+                <form class="margin-bottom-40">
+                    <textarea class="margin-bottom-20" ng-model="newDocumentComment" rows="2" placeholder="Make A Suggestion" class="form-control"></textarea>
+                    <button class="btn btn-primary pull-right" ng-click="addDocumentComment()">
+                        Suggest
+                    </button>
+                </form>
+                <div class="feed-activity-list">
+                    <div class="feed-element" ng-repeat="n in recentDocumentActivity">
+                        <div class="pull-left">
+                            <img alt="image" class="img-circle" src="img/profile_pic_placeholder.png">
+                        </div>
+
+                        <!-- Is Document Revision -->
+                        <div class="media-body" ng-if="n.hasOwnProperty('message')">
+                            <h4><strong>{{ n.user.firstName }} {{n.user.lastName}}</strong></h4><br>
+                            <small ng-if="n.date.substring(0,4)=='Today'" class="pull-right text-navy">{{ n.date }}</small>
+                            <small ng-if="n.date.substring(0,4)!='Today'" class="pull-right text-navy">{{ n.date | date: "yyyy-MM-dd" }}</small>
+                            <p>{{ n.message }}</p>
+                            <div class="actions">
+                                <a class="btn btn-xs btn-white"><i class="fa fa-thumbs-up"></i> Like This </a>
+                            </div>
+                        </div>
+
+                        <!-- Is Comment -->
+                        <div class="media-body" ng-if="!n.hasOwnProperty('message')">
+                            <h4><strong>{{ n.user.firstName }} {{n.user.lastName}}</strong></h4><br>
+                            <small ng-if="n.date.substring(0,4)=='Today'" class="pull-right text-navy">{{ n.date }}</small>
+                            <small ng-if="n.date.substring(0,4)!='Today'" class="pull-right text-navy">{{ n.date | date: "yyyy-MM-dd" }}</small>
+                            <div class="row margin-bottom-10 margin-left-5">
+                                <button class="btn btn-xs btn-warning">Change</button>&nbsp;&nbsp;Revision {{ n.revisionId }}
+                            </div>
+                            <p>{{ n.documentRevision.changeReason }}</p>
+                            <div class="actions">
+                                <a class="btn btn-xs btn-white"><i class="fa fa-thumbs-up"></i> Like This </a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <!-- End Timeline -->
+
         </div>
     </div>
 </div>

@@ -1,6 +1,6 @@
 'use strict';
 
-function documentLookupCtrl($scope, $rootScope, $window, $timeout, $modal, documentLookupService, signoffPathsService) {
+function documentLookupCtrl($scope, $rootScope, $window, $timeout, $modal, generalSettingsService, documentLookupService, signoffPathsService) {
 
     if (!$rootScope.authenticated) {
         $window.location.href = '/';
@@ -206,7 +206,9 @@ function documentLookupCtrl($scope, $rootScope, $window, $timeout, $modal, docum
                         }
                         return 0;
                     });
-                    $scope.recentDocumentActivity = recentDocActivity;
+
+                    // Format date
+                    $scope.recentDocumentActivity = $scope.formatDate(recentDocActivity);
 
                 }, function(error) {
                     $scope.error = error;
@@ -220,7 +222,6 @@ function documentLookupCtrl($scope, $rootScope, $window, $timeout, $modal, docum
 
     $scope.addDocumentComment = function() {
         var newDocumentComment = {
-            userId: $rootScope.user.userId,
             documentId: $scope.activeDocument.id,
             message: $scope.newDocumentComment
         };
@@ -267,6 +268,23 @@ function documentLookupCtrl($scope, $rootScope, $window, $timeout, $modal, docum
         }
 
     };
+
+    $scope.formatDate = function(docActivity) {
+        var currentDate = new Date();
+        for (var i = 0; i < docActivity.length; i++) {
+
+            var docDate = new Date(docActivity[i].date);
+
+            if ( docDate.getFullYear()==currentDate.getFullYear() &&
+                docDate.getMonth()==currentDate.getMonth() &&
+                docDate.getDate()==currentDate.getDate()
+            ) {
+                docActivity[i].date = 'Today at '+ docDate.getHours() + ':' + docDate.getMinutes();
+            }
+        }
+
+        return docActivity;
+    }
 
 }
 

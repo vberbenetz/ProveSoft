@@ -3,6 +3,7 @@ package com.provesoft.resource.controller;
 import com.provesoft.resource.entity.UserDetails;
 import com.provesoft.resource.exceptions.ResourceNotFoundException;
 import com.provesoft.resource.service.UserDetailsService;
+import com.provesoft.resource.utils.UserFirstLastNamePkg;
 import com.provesoft.resource.utils.UserHelpers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -25,7 +26,7 @@ public class UserController {
             method = RequestMethod.GET
     )
     public List<UserDetails> getUserDetails (@RequestParam(value = "userIds", required = false) Long[] userIds,
-                                           Authentication auth) {
+                                             Authentication auth) {
 
         // Get user details for userId list
         if (userIds != null) {
@@ -36,4 +37,5 @@ public class UserController {
 
         throw new ResourceNotFoundException();
     }
+
 }

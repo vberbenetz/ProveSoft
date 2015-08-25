@@ -453,10 +453,10 @@ public class DocumentController {
                 throw new ResourceNotFoundException();
             }
 
-            Long myUserId = userDetailsService.findUserIdByCompanyNameAndEmail(companyName, auth.getName());
+            UserDetails me = userDetailsService.findByCompanyNameAndEmail(companyName, auth.getName());
 
             documentComment.setCompanyName(companyName);
-            documentComment.setUserId(myUserId);
+            documentComment.setUser(me);
             documentComment.setDate(new Date());
 
             return documentService.createDocumentComment(documentComment);

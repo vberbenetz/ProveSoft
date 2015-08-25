@@ -1,14 +1,16 @@
 package com.provesoft.resource.entity.Document;
 
+import com.provesoft.resource.entity.UserDetails;
+
 import javax.persistence.*;
 import java.util.Date;
 
 @Entity
 public class DocumentComment {
 
-    public DocumentComment(String companyName, Long userId, String documentId, Date date, String message){
+    public DocumentComment(String companyName, UserDetails user, String documentId, Date date, String message){
         this.companyName = companyName;
-        this.userId = userId;
+        this.user = user;
         this.documentId = documentId;
         this.date = date;
         this.message = message;
@@ -24,7 +26,10 @@ public class DocumentComment {
 
     private String companyName;
 
-    private Long userId;
+    @ManyToOne
+    @JoinColumn
+    private UserDetails user;
+
     private String documentId;
     private Date date;
 
@@ -47,12 +52,12 @@ public class DocumentComment {
         this.companyName = companyName;
     }
 
-    public Long getUserId() {
-        return userId;
+    public UserDetails getUser() {
+        return user;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setUser(UserDetails user) {
+        this.user = user;
     }
 
     public String getDocumentId() {
