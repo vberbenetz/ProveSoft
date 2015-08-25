@@ -40,6 +40,7 @@ dependencies {
     compile("org.springframework.boot:spring-boot-starter-security")
     compile("org.springframework.boot:spring-boot-starter-redis")
     compile("org.springframework.session:spring-session:1.0.1.RELEASE")
+    compile("commons-codec:commons-codec:1.9")
 }
 
 task wrapper(type: Wrapper) {

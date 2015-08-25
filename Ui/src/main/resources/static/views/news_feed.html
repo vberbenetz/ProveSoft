@@ -94,7 +94,7 @@
                                                 <td ng-show="n.document.revision!='A'"><span class="label label-warning">Change</span></td>
                                                 <td><p class="org-desc">{{ n.document.id }} - {{ n.document.title }}</p></td>
                                                 <td>
-                                                    <img class="client-avatar img-circle" src="img/profile_pic_placeholder.png"/>
+                                                    <img class="client-avatar img-circle" ng-src="{{ n.profilePicture }}" />
                                                     &nbsp;&nbsp;{{n.userDetails.firstName}}&nbsp;{{n.userDetails.lastName}}
                                                     <!--<a class="client-link"><img class="client-avatar img-circle" src="img/profile_pic_placeholder.png"/>&nbsp;&nbsp;Joe Grande</a>-->
                                                 </td>

@@ -28,6 +28,28 @@ function userService($resource) {
                     isArray: true
                 }
             }
+        ),
+        profilePicture: $resource('/resource/user/profilePic',
+            {},
+            {
+                getPic: {
+                    method: 'GET',
+                    params: {},
+                    isArray: false
+                }
+            }
+        ),
+        profilePictureByIds: $resource('/resource/user/profilePicByIds',
+            {},
+            {
+                query: {
+                    method: 'GET',
+                    params: {
+                        userIds: '@userIds'
+                    },
+                    isArray: true
+                }
+            }
         )
     }
 }

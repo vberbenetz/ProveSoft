@@ -1,6 +1,6 @@
 'use strict';
 
-function MainCtrl($scope, $rootScope, $window, authService) {
+function MainCtrl($scope, $rootScope, $window, authService, userService) {
 
      // ---------- Authentication ----------- //
 
@@ -27,6 +27,14 @@ function MainCtrl($scope, $rootScope, $window, authService) {
     };
 
      // --------------------------------------- //
+
+    $scope.profilePicture = null;
+
+    userService.profilePicture.getPic(function(pic) {
+        $scope.profilePicture = pic.picData;
+    }, function(error) {
+        $scope.error = error;
+    });
 
 }
 
@@ -123,7 +131,7 @@ function NewsFeedCtrl ($scope, navBarService, documentLookupService, userService
                 documentLookupService.revisions.query({documentIds: documentIds}, function(latestRevisions) {
                     $scope.matchLatestRevisionToApproval(latestRevisions);
 
-                    // Get list of userIds to fetch user details
+                    // Get list of userIds to fetch user details and profile pics
                     var userIds = [];
                     var approvals = $scope.approvals;
                     for (var i = 0; i < approvals.length; i++) {
@@ -133,6 +141,14 @@ function NewsFeedCtrl ($scope, navBarService, documentLookupService, userService
                     // Align UserDetails to notification
                     userService.userDetails.queryByUserIds({userIds: userIds}, function(userDetails) {
                         $scope.matchUserDetailsToApproval(userDetails);
+
+                        // Get all profile pictures
+                        userService.profilePictureByIds.query({userIds: userIds}, function(profilePictures) {
+                           $scope.matchProfilePicToApproval(profilePictures);
+
+                        }, function(error) {
+                            $scope.error = error;
+                        });
 
                     }, function(error) {
                         $scope.error = error;
@@ -247,6 +263,19 @@ function NewsFeedCtrl ($scope, navBarService, documentLookupService, userService
             for (var j = 0; j < userDetails.length; j++) {
                 if (approvals[i].revision.changeUserId === userDetails[j].userId) {
                     approvals[i].userDetails = userDetails[j];
+                }
+            }
+        }
+        $scope.approvals = approvals;
+    };
+
+    // Helper function to line up Profile Picture with Approval
+    $scope.matchProfilePicToApproval = function(profilePics) {
+        var approvals = $scope.approvals;
+        for (var i = 0; i < approvals.length; i++) {
+            for (var j = 0; j < profilePics.length; j++) {
+                if (approvals[i].revision.changeUserId === profilePics[j].userId) {
+                    approvals[i].profilePicture = profilePics[j].picData;
                 }
             }
         }

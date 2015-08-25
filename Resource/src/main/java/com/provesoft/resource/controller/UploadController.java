@@ -3,10 +3,12 @@ package com.provesoft.resource.controller;
 import com.provesoft.resource.entity.Document.Document;
 import com.provesoft.resource.entity.Document.DocumentRevisions;
 import com.provesoft.resource.entity.Document.DocumentUpload;
+import com.provesoft.resource.entity.ProfilePicture;
 import com.provesoft.resource.exceptions.ForbiddenException;
 import com.provesoft.resource.exceptions.InternalServerErrorException;
 import com.provesoft.resource.exceptions.ResourceNotFoundException;
 import com.provesoft.resource.service.DocumentService;
+import com.provesoft.resource.service.UserDetailsService;
 import com.provesoft.resource.utils.UserHelpers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -28,6 +30,9 @@ public class UploadController {
 
     @Autowired
     DocumentService documentService;
+
+    @Autowired
+    UserDetailsService userDetailsService;
 
     @RequestMapping(
             value = "/download",
@@ -124,6 +129,50 @@ public class UploadController {
 
         return new ResponseEntity<>("{\"tempRevId\":\"" + tempRevId + "\"}", HttpStatus.OK);
     }
+
+
+//=======================================================
+/*
+    TEMPORARY METHOD FOR UPLOADING PROFILE PICTURE
+ */
+//=======================================================
+
+    @RequestMapping(
+            value = "/upload/profilePicture",
+            method = RequestMethod.POST
+    )
+    public ResponseEntity uploadProfilePicture(@RequestParam("userId") Long userId,
+                                               MultipartHttpServletRequest request,
+                                               Authentication auth) {
+
+        try {
+            Iterator<String> itr = request.getFileNames();
+
+            String companyName = UserHelpers.getCompany(auth);
+
+            while (itr.hasNext()) {
+                String uploadedFile = itr.next();
+                MultipartFile file = request.getFile(uploadedFile);
+                byte[] bytes = file.getBytes();
+
+                ProfilePicture newPic = new ProfilePicture(companyName, userId, bytes);
+                userDetailsService.uploadProfilePicture(newPic);
+            }
+        }
+        catch (IOException ioe) {
+            throw new InternalServerErrorException();
+        }
+        catch (Exception e) {
+            throw new InternalServerErrorException();
+        }
+
+        return new ResponseEntity<>("{}", HttpStatus.OK);
+    }
+
+
+
+
+
 
 
     /*

@@ -3,6 +3,7 @@ package com.provesoft.resource.controller;
 import com.provesoft.resource.entity.UserDetails;
 import com.provesoft.resource.exceptions.ResourceNotFoundException;
 import com.provesoft.resource.service.UserDetailsService;
+import com.provesoft.resource.utils.ProfilePicturePkg;
 import com.provesoft.resource.utils.UserFirstLastNamePkg;
 import com.provesoft.resource.utils.UserHelpers;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,30 @@ public class UserController {
         }
 
         throw new ResourceNotFoundException();
+    }
+
+    @RequestMapping(
+            value = "/user/profilePic",
+            method = RequestMethod.GET
+    )
+    public ProfilePicturePkg getProfilePicture (Authentication auth) {
+
+        String companyName = UserHelpers.getCompany(auth);
+        String email = auth.getName();
+        Long userId = userDetailsService.findUserIdByCompanyNameAndEmail(companyName, email);
+
+        return userDetailsService.findProfilePictureForUser(companyName, userId);
+    }
+
+    @RequestMapping(
+            value = "/user/profilePicByIds",
+            method = RequestMethod.GET
+    )
+    public List<ProfilePicturePkg> getProfilePictureById (@RequestParam("userIds") Long[] userIds,
+                                                          Authentication auth) {
+
+        String companyName = UserHelpers.getCompany(auth);
+        return userDetailsService.findProfilePicturesByIds(companyName, userIds);
     }
 
 }
