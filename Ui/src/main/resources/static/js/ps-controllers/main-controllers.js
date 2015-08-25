@@ -89,6 +89,7 @@ function NewsFeedCtrl ($scope, navBarService, documentLookupService, userService
     $scope.isRedlineUsed = false;
 
     $scope.approvals = [];
+    $scope.dailyFeed = [];
 
     // Get setting regarding whether redlines are being used
     generalSettingsService.setting.get({setting: 'redline'}, function (data) {
@@ -150,6 +151,52 @@ function NewsFeedCtrl ($scope, navBarService, documentLookupService, userService
         $scope.error = error;
     });
 
+    // Get all daily feed items
+    documentLookupService.latestRevisionsForCompany.query(function(latestRevs) {
+
+        // Change property "changeDate" to "date", required for sorting.
+        // Get list of userIds to retrieve UserDetails for revision.
+        var revUserIds = [];
+        for (var z = 0; z < latestRevs.length; z++) {
+            latestRevs[z].date = latestRevs[z].changeDate;
+            revUserIds.push(latestRevs[z].changeUserId);
+        }
+
+        // Align UserDetails to notification
+        userService.userDetails.queryByUserIds({userIds: revUserIds}, function(userDetails) {
+            latestRevs = $scope.matchUserDetailsToRevision(userDetails, latestRevs);
+
+            // Get latest comments for company
+            documentLookupService.latestCommentsForCompany.query(function(latestComments) {
+
+                var dailyFeed = latestRevs.concat(latestComments);
+
+                // Sort the recent activity array by date to interleave the approvalHistory with the recentComments
+                dailyFeed.sort(function(a, b) {
+                    if (a.date > b.date) {
+                        return -1;
+                    }
+                    if (a.date < b.date) {
+                        return 1;
+                    }
+                    return 0;
+                });
+
+                // Format date
+                $scope.dailyFeed = $scope.formatDate(dailyFeed);
+
+            }, function(error) {
+                $scope.error = error;
+            });
+
+        }, function(error) {
+            $scope.error = error;
+        });
+
+    }, function(error) {
+        $scope.error = error;
+    });
+
     // Helper function to line up document with approval
     $scope.matchDocumentToApproval = function(documents) {
         var approvals = $scope.approvals;
@@ -206,6 +253,19 @@ function NewsFeedCtrl ($scope, navBarService, documentLookupService, userService
         $scope.approvals = approvals;
     };
 
+    // Helper function to line up UserDetails with revision
+    $scope.matchUserDetailsToRevision = function(userDetails, latestRevs) {
+        for (var r = 0; r < latestRevs.length; r++) {
+            for (var s = 0; s < userDetails.length; s++) {
+                if (latestRevs[r].changeUserId === userDetails[s].userId) {
+                    latestRevs[r].user = userDetails[s];
+                }
+            }
+        }
+
+        return latestRevs;
+    };
+
     // Approve revision notification
     $scope.approve = function(notificationId, i) {
         navBarService.approvals.approve({notificationId: notificationId}, function(data) {
@@ -219,6 +279,23 @@ function NewsFeedCtrl ($scope, navBarService, documentLookupService, userService
         var a = 23;
 // TODO
     };
+
+    $scope.formatDate = function(docActivity) {
+        var currentDate = new Date();
+        for (var i = 0; i < docActivity.length; i++) {
+
+            var docDate = new Date(docActivity[i].date);
+
+            if ( docDate.getFullYear()==currentDate.getFullYear() &&
+                docDate.getMonth()==currentDate.getMonth() &&
+                docDate.getDate()==currentDate.getDate()
+            ) {
+                docActivity[i].date = 'Today at '+ docDate.getHours() + ':' + docDate.getMinutes();
+            }
+        }
+
+        return docActivity;
+    }
 }
 
 angular

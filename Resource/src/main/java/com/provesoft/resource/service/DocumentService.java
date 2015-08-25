@@ -219,6 +219,13 @@ public class DocumentService {
         return documentRevisionsRepository.findRevisionByKeyCompanyNameAndKeyDocumentIdIn(companyName, documentIds);
     }
 
+    /*
+        Retrieve latest revisons by Company
+     */
+    public List<DocumentRevisions> findLatestDocRevsByCompanyName (String companyName) {
+        return documentRevisionsRepository.findFirst5ByKeyCompanyNameOrderByChangeDateDesc(companyName);
+    }
+
 
     /* ------------------------ DocumentRevisionIds -------------------------- */
 
@@ -242,6 +249,13 @@ public class DocumentService {
      */
     public List<DocumentComment> getRecentDocumentComments(String companyName, String documentId) {
         return documentCommentRepository.findFirst5ByCompanyNameAndDocumentIdOrderByDateDesc(companyName, documentId);
+    }
+
+    /*
+        Retrieve latest comments by Company
+     */
+    public List<DocumentComment> findLatestCommentsByCompanyName (String companyName) {
+        return documentCommentRepository.findFirst5ByCompanyNameOrderByDateDesc(companyName);
     }
 
     /*

@@ -14,6 +14,8 @@ public interface DocumentRevisionsRepository extends JpaRepository<DocumentRevis
 
     DocumentRevisions findByKeyCompanyNameAndKeyDocumentIdAndKeyRevisionId(String companyName, String documentId, String revisionId);
 
+    List<DocumentRevisions> findFirst5ByKeyCompanyNameOrderByChangeDateDesc(String companyName);
+
     @Query(
             "SELECT r " +
             "FROM DocumentRevisions r " +

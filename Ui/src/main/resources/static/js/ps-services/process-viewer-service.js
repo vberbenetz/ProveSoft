@@ -111,6 +111,8 @@ function documentLookupService($resource) {
             }
         ),
 
+        latestRevisionsForCompany: $resource('/resource/document/revisions/recent'),
+
         recentApprovalHistory: $resource('/resource/approvalHistory/recent',
             {},
             {
@@ -138,7 +140,9 @@ function documentLookupService($resource) {
                     isArray:true
                 }
             }
-        )
+        ),
+
+        latestCommentsForCompany: $resource('/resource/document/comments/recent')
     }
 }
 

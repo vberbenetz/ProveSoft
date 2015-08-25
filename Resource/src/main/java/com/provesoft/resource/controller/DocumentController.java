@@ -165,6 +165,19 @@ public class DocumentController {
         return documentService.findLatestDocRevsByCompanyNameAndDocumentIds(companyName, documentIds);
     }
 
+    /*
+        Retrieve latest revisions by Company
+     */
+    @RequestMapping(
+            value = "/document/revisions/recent",
+            method = RequestMethod.GET
+    )
+    public List<DocumentRevisions> getRecentDocumentRevisionsByCompany(Authentication auth) {
+        String companyName = UserHelpers.getCompany(auth);
+        return documentService.findLatestDocRevsByCompanyName(companyName);
+    }
+
+
     /* ---------- DocumentComment ---------- */
 
     /*
@@ -186,6 +199,18 @@ public class DocumentController {
 // TODO: IMPLEMENT METHOD IF RECENT IS NOT TRUE
 
         throw new ResourceNotFoundException();
+    }
+
+    /*
+        Retrieve most recent comments for Company
+     */
+    @RequestMapping(
+            value = "/document/comments/recent",
+            method = RequestMethod.GET
+    )
+    public List<DocumentComment> getRecentDocumentCommentsForCompany(Authentication auth) {
+        String companyName = UserHelpers.getCompany(auth);
+        return documentService.findLatestCommentsByCompanyName(companyName);
     }
 
 

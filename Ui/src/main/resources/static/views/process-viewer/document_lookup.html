@@ -207,7 +207,7 @@
                             <img alt="image" class="img-circle" src="img/profile_pic_placeholder.png">
                         </div>
 
-                        <!-- Is Document Revision -->
+                        <!-- Is Comment -->
                         <div class="media-body" ng-if="n.hasOwnProperty('message')">
                             <h4><strong>{{ n.user.firstName }} {{n.user.lastName}}</strong></h4><br>
                             <small ng-if="n.date.substring(0,4)=='Today'" class="pull-right text-navy">{{ n.date }}</small>
@@ -218,7 +218,7 @@
                             </div>
                         </div>
 
-                        <!-- Is Comment -->
+                        <!-- Is Document Revision -->
                         <div class="media-body" ng-if="!n.hasOwnProperty('message')">
                             <h4><strong>{{ n.user.firstName }} {{n.user.lastName}}</strong></h4><br>
                             <small ng-if="n.date.substring(0,4)=='Today'" class="pull-right text-navy">{{ n.date }}</small>
