@@ -36,9 +36,9 @@
             <li ui-sref-active="active">
                 <a ><i class="fa fa-line-chart"></i> <span class="nav-label">Reporting</span></a>
             </li>
-            <li ng-show="user.isSuperAdmin" ng-class="{active: $state.includes('administration')}">
+            <li ng-show="user.isSuperAdmin" ng-class="{active: $state.includes('admin')}">
                 <a><i class="fa fa-key"></i> <span class="nav-label">Administration</span></a>
-                <ul class="nav nav-second-level" ng-class="{in: $state.includes('administration')}">
+                <ul class="nav nav-second-level" ng-class="{in: $state.includes('admin')}">
                     <li ui-sref-active="active"><a ui-sref="admin.manageUsers"><i class="fa fa-users"></i>Manage Users</a></li>
                     <li ui-sref-active="active"><a ui-sref="admin.documentTypeSetup"><i class="fa fa-file-text"></i>Document Type Setup</a></li>
                     <li ui-sref-active="active"><a ui-sref="admin.signoffPathsSetup"><i class="fa fa-check"></i>Sign-off Paths</a></li>
