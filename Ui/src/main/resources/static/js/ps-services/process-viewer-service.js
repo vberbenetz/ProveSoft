@@ -151,7 +151,20 @@ function documentLookupService($resource) {
                         documentId: '@documentId',
                         recent: true
                     },
-                    isArray:true
+                    isArray: true
+                }
+            }
+        ),
+
+        childDocumentComments: $resource('/resource/document/comments/children',
+            {},
+            {
+                query: {
+                    method: 'GET',
+                    params: {
+                        parentCommentIds: '@parentCommentIds'
+                    },
+                    isArray: true
                 }
             }
         ),

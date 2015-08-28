@@ -227,6 +227,14 @@
                                 <a ng-show="!n.iLikedIt" ng-click="addLikeForComment(n.id)" class="btn btn-xs btn-white"><i class="fa fa-thumbs-up"></i> Like This </a>
                                 &nbsp;<span class="label label-success">{{ n.numberOfLikes }}</span>
                             </div>
+                            <div ng-repeat="c in n.childComments" class="well">
+                                <small class="pull-right text-navy">{{c.date | date: 'yyyy-MM-dd' }}</small>
+                                <p>{{ c.message }}</p>
+                            </div>
+                            <form>
+                                <textarea class="margin-top-10 margin-bottom-10" ng-model="$parent.$parent.newChildComment" rows="2" placeholder="Comment" class="form-control"></textarea>
+                                <button ng-click="addChildComment(n.id)" class="btn btn-sm btn-primary pull-right">Comment</button>
+                            </form>
                         </div>
 
                         <!-- Is Document Revision -->

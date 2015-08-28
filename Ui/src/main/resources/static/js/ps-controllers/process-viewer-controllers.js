@@ -21,6 +21,7 @@ function documentLookupCtrl($scope, $rootScope, $window, $q, $timeout, $modal, u
 
     // ng-model for new comment
     $scope.newDocumentComment = '';
+    $scope.newChildComment = '';
 
     $scope.activeDocument = {};                 // Keep track of current active document (right panel timeline)
     $scope.lastFetchedRevisions = '';           // Keep track of which document revisions were last fetched for (documentId)
@@ -216,7 +217,7 @@ function documentLookupCtrl($scope, $rootScope, $window, $q, $timeout, $modal, u
                     });
 
                     // Format date
-                    $scope.recentDocumentActivity = $scope.formatDate(recentDocActivity);
+                    $scope.recentDocumentActivity = $scope.formatDateForList(recentDocActivity);
 
                     // Get list of userIds for profile picture lookup
                     var userIds = [];
@@ -231,7 +232,14 @@ function documentLookupCtrl($scope, $rootScope, $window, $q, $timeout, $modal, u
                     }
 
                     // Append comment likes
+                    // Append child comments
                     if (documentCommentIds.length > 0) {
+                        documentLookupService.childDocumentComments.query({parentCommentIds: documentCommentIds}, function(childComments) {
+                            $scope.matchChildCommentsToParent(childComments);
+                        }, function(error) {
+                            $scope.error = error;
+                        });
+
                         commentLikeService.likesForCommmentList.query({documentCommentIds: documentCommentIds}, function(likes) {
                             $scope.matchLikesToComment(likes);
                         }, function(error) {
@@ -272,6 +280,40 @@ function documentLookupCtrl($scope, $rootScope, $window, $q, $timeout, $modal, u
 
             // Append newest comment to front of list
             $scope.recentDocumentActivity.unshift(data);
+
+            // Reset ng-model
+            $scope.newDocumentComment = '';
+
+        }, function(data, status, headers, config) {
+            $scope.error = status;
+        });
+    };
+
+    $scope.addChildComment = function(parentCommentId) {
+        var newChildComment = {
+            documentId: $scope.activeDocument.id,
+            parentCommentId: parentCommentId,
+            message: $scope.newChildComment
+        };
+
+        documentLookupService.documentComment.save(newChildComment, function(data, status, headers, config) {
+
+            // Append my profile picture
+            data.profilePicture = $scope.$parent.profilePicture;
+            data.date = $scope.formatDate(data.date);
+
+            // Append newest comment to chain
+            var recentDocActivity = $scope.recentDocumentActivity;
+            for (var i = 0; i < recentDocActivity.length; i++) {
+                if (recentDocActivity[i].hasOwnProperty('message')) {
+                    if (recentDocActivity[i].id === parentCommentId) {
+                        $scope.recentDocumentActivity[i].childComments.push(data);
+                    }
+                }
+            }
+
+            // Reset ng-model
+            $scope.newChildComment = '';
 
         }, function(data, status, headers, config) {
             $scope.error = status;
@@ -361,7 +403,7 @@ function documentLookupCtrl($scope, $rootScope, $window, $q, $timeout, $modal, u
         }
     };
 
-    $scope.formatDate = function(docActivity) {
+    $scope.formatDateForList = function(docActivity) {
         var currentDate = new Date();
         for (var i = 0; i < docActivity.length; i++) {
 
@@ -376,6 +418,36 @@ function documentLookupCtrl($scope, $rootScope, $window, $q, $timeout, $modal, u
         }
 
         return docActivity;
+    };
+
+    $scope.formatDate = function(rawDate) {
+        var currentDate = new Date();
+        var date = new Date(rawDate);
+        if ( date.getFullYear()==currentDate.getFullYear() &&
+            date.getMonth()==currentDate.getMonth() &&
+            date.getDate()==currentDate.getDate()
+        ) {
+            return 'Today at '+ date.getHours() + ':' + (date.getMinutes()<10?'0':'') + date.getMinutes();
+        }
+        return date;
+    };
+
+    // Helper function to match child comments to parent comment
+    $scope.matchChildCommentsToParent = function(childComments) {
+        var recentDocActivity = $scope.recentDocumentActivity;
+        for (var q = 0; q < recentDocActivity.length; q++) {
+
+            // Only done for comments
+            if (recentDocActivity[q].hasOwnProperty('message')) {
+                recentDocActivity[q].childComments = [];
+                for (var r = 0; r < childComments.length; r++) {
+                    if (recentDocActivity[q].id === childComments[r].parentCommentId) {
+                        childComments[r].date = $scope.formatDate(childComments[r].date);
+                        recentDocActivity[q].childComments.push(childComments[r]);
+                    }
+                }
+            }
+        }
     };
 
     // Helper function to line up likes with document comment

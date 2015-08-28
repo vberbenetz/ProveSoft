@@ -26,6 +26,8 @@ public class DocumentComment {
 
     private String companyName;
 
+    private Long parentCommentId;
+
     @ManyToOne
     @JoinColumn
     private UserDetails user;
@@ -50,6 +52,14 @@ public class DocumentComment {
 
     public void setCompanyName(String companyName) {
         this.companyName = companyName;
+    }
+
+    public Long getParentCommentId() {
+        return parentCommentId;
+    }
+
+    public void setParentCommentId(Long parentCommentId) {
+        this.parentCommentId = parentCommentId;
     }
 
     public UserDetails getUser() {

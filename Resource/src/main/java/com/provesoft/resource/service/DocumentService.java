@@ -251,14 +251,21 @@ public class DocumentService {
         Retrieve recent comments for particular document
      */
     public List<DocumentComment> getRecentDocumentComments(String companyName, String documentId) {
-        return documentCommentRepository.findFirst5ByCompanyNameAndDocumentIdOrderByDateDesc(companyName, documentId);
+        return documentCommentRepository.findFirst5ParentsByCompanyNameAndDocumentIdOrderByDateDesc(companyName, documentId);
     }
 
     /*
         Retrieve latest comments by Company
      */
     public List<DocumentComment> findLatestCommentsByCompanyName (String companyName) {
-        return documentCommentRepository.findFirst5ByCompanyNameOrderByDateDesc(companyName);
+        return documentCommentRepository.findFirst5ParentsByCompanyNameOrderByDateDesc(companyName);
+    }
+
+    /*
+        Find children comments by Company and ParentId list
+     */
+    public List<DocumentComment> findChildrenCommentsByParentIds (String companyName, Long[] parentIds) {
+        return documentCommentRepository.findChildrenByCompanyNameAndParentDocumentIdList(companyName, parentIds);
     }
 
     /*

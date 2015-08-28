@@ -215,6 +215,19 @@ public class DocumentController {
         return documentService.findLatestCommentsByCompanyName(companyName);
     }
 
+    /*
+        Retrieve children comments for parentId List
+     */
+    @RequestMapping(
+            value = "/document/comments/children",
+            method = RequestMethod.GET
+    )
+    public List<DocumentComment> getChildrenCommentsByParentIds(@RequestParam("parentCommentIds") Long[] parentCommentIds,
+                                                                Authentication auth) {
+        String companyName = UserHelpers.getCompany(auth);
+        return documentService.findChildrenCommentsByParentIds(companyName, parentCommentIds);
+    }
+
 
     /* ------------------- DocumentCommentLike ------------------- */
 
