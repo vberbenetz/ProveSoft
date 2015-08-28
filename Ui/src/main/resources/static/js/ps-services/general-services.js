@@ -26,6 +26,10 @@ function userService($resource) {
                         userIds: '@userIds'
                     },
                     isArray: true
+                },
+                getMe: {
+                    method: 'GET',
+                    isArray: false
                 }
             }
         ),
@@ -54,7 +58,40 @@ function userService($resource) {
     }
 }
 
+function commentLikeService($resource) {
+    return {
+        commentLike: $resource('/resource/comment/like',
+            {},
+            {
+                save: {
+                    method: 'POST',
+                    params: {
+                        documentCommentId: '@documentCommentId'
+                    },
+                    isArray: false
+                }
+            }
+        ),
+
+        countForComment: $resource('/resource/comment/like/count',
+            {},
+            {
+                get: {
+                    method: 'GET',
+                    params: {
+                        documentCommentId: '@documentCommentId'
+                    },
+                    isArray: false
+                }
+            }
+        ),
+
+        likesForCommmentList: $resource('/resource/comment/likes')
+    }
+}
+
 angular
     .module('provesoft')
     .factory('navBarService', navBarService)
+    .factory('commentLikeService', commentLikeService)
     .factory('userService', userService);

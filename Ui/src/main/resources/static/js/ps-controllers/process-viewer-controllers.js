@@ -1,10 +1,14 @@
 'use strict';
 
-function documentLookupCtrl($scope, $rootScope, $window, $timeout, $modal, userService, generalSettingsService, documentLookupService, signoffPathsService) {
+function documentLookupCtrl($scope, $rootScope, $window, $q, $timeout, $modal, userService, generalSettingsService, documentLookupService, signoffPathsService, commentLikeService) {
 
     if (!$rootScope.authenticated) {
         $window.location.href = '/';
     }
+
+    // Holds all initial queries to load activity
+    $scope.initActivityResults = [];
+    $scope.error = '';
 
     $scope.isRedlineUsed = false;
 
@@ -18,13 +22,17 @@ function documentLookupCtrl($scope, $rootScope, $window, $timeout, $modal, userS
     // ng-model for new comment
     $scope.newDocumentComment = '';
 
-    $scope.activeDocument = {};             // Keep track of current active document (right panel timeline)
-    $scope.lastFetchedRevisions = '';       // Keep track of which document revisions were last fetched for (documentId)
-    $scope.lastFetchedActivity = '';        // Keep track of which document activities were last fetched (documentId)
+    $scope.activeDocument = {};                 // Keep track of current active document (right panel timeline)
+    $scope.lastFetchedRevisions = '';           // Keep track of which document revisions were last fetched for (documentId)
+    $scope.lastFetchedActivity = '';            // Keep track of which document activities were last fetched (documentId)
 
     // Steps associated with signoff path, used in modal
     $scope.signoffPathSteps = [];
+
+    $scope.revApprovalHistory = [];             // Hold last retrieved approval history for revision
+
     $scope.prevDocIdStepsLookup = -1;
+    $scope.prevRevIdLookup = -1;
 
     // Use this to determine how to sort document results
     /*
@@ -216,6 +224,21 @@ function documentLookupCtrl($scope, $rootScope, $window, $timeout, $modal, userS
                         userIds.push(recentDocActivity[z].user.userId);
                     }
 
+                    // Get list of commentIds for comment like lookup
+                    var documentCommentIds = [];
+                    for (var y = 0; y < recentComments.length; y++) {
+                        documentCommentIds.push(recentComments[y].id);
+                    }
+
+                    // Append comment likes
+                    if (documentCommentIds.length > 0) {
+                        commentLikeService.likesForCommmentList.query({documentCommentIds: documentCommentIds}, function(likes) {
+                            $scope.matchLikesToComment(likes);
+                        }, function(error) {
+                            $scope.error = error;
+                        });
+                    }
+
                     // Append profile pictures
                     if (userIds.length > 0) {
                         userService.profilePictureByIds.query({userIds: userIds}, function(profilePictures) {
@@ -255,6 +278,24 @@ function documentLookupCtrl($scope, $rootScope, $window, $timeout, $modal, userS
         });
     };
 
+    $scope.addLikeForComment = function(commentId) {
+
+        commentLikeService.commentLike.save({documentCommentId: commentId}, function(data, status, headers, config) {
+            // Mark comment as me liking it
+            var recentDocActivity = $scope.recentDocumentActivity;
+            for (var i = 0; i < recentDocActivity.length; i++) {
+                if (recentDocActivity[i].hasOwnProperty('message')) {
+                    if (recentDocActivity[i].id === commentId) {
+                        $scope.recentDocumentActivity[i].iLikedIt = true;
+                    }
+                }
+            }
+
+        }, function(data, status, headers, config) {
+            $scope.error = status;
+        })
+    };
+
     $scope.open = function(steps) {
         var modalInstance = $modal.open({
             templateUrl: 'views/process-viewer/signoffPathModal.html',
@@ -270,7 +311,7 @@ function documentLookupCtrl($scope, $rootScope, $window, $timeout, $modal, userS
     $scope.openStepsModal = function(document) {
 
         // Prevent lookup of steps if already loaded previously
-        if ($scope.prevDocIdStepsLookup == document.id) {
+        if ($scope.prevDocIdStepsLookup == document.id && $scope.prevRevIdLookup == document.revision) {
             $scope.open();
         }
         else {
@@ -280,12 +321,44 @@ function documentLookupCtrl($scope, $rootScope, $window, $timeout, $modal, userS
             signoffPathsService.steps.query({documentId: document.id}, function (steps) {
                 $scope.signoffPathSteps = steps;
                 $scope.prevDocIdStepsLookup = document.id;
+                $scope.prevRevIdLookup = document.revision;
                 $scope.open();
             }, function (error) {
                 $scope.error = error;
             });
         }
 
+    };
+
+    $scope.openApprovalHistory = function() {
+        var modalInstance = $modal.open({
+            templateUrl:'views/process-viewer/approvalHistoryModal.html',
+            controller: approvalHistoryModalCtrl,
+            resolve: {
+                history: function() {
+                    return $scope.revApprovalHistory;
+                }
+            }
+        })
+    };
+
+    $scope.openApprovalHistoryModal = function(documentId, revisionId) {
+
+        // Prevent lookup of steps if already loaded previously
+        if ($scope.prevDocIdStepsLookup == documentId && $scope.prevRevIdLookup == revisionId) {
+            $scope.openApprovalHistory();
+        }
+        else {
+            // Retrieve Approvals
+            documentLookupService.approvalHistory.queryByDocumentAndRevision({documentId: documentId, revisionId: revisionId}, function (history) {
+                $scope.revApprovalHistory = history;
+                $scope.prevDocIdStepsLookup = documentId;
+                $scope.prevRevIdLookup = revisionId;
+                $scope.openApprovalHistory();
+            }, function (error) {
+                $scope.error = error;
+            });
+        }
     };
 
     $scope.formatDate = function(docActivity) {
@@ -298,24 +371,48 @@ function documentLookupCtrl($scope, $rootScope, $window, $timeout, $modal, userS
                 docDate.getMonth()==currentDate.getMonth() &&
                 docDate.getDate()==currentDate.getDate()
             ) {
-                docActivity[i].date = 'Today at '+ docDate.getHours() + ':' + docDate.getMinutes();
+                docActivity[i].date = 'Today at '+ docDate.getHours() + ':' + (docDate.getMinutes()<10?'0':'') + docDate.getMinutes();
             }
         }
 
         return docActivity;
     };
 
-    // Helper function to line up UserDetails with revision
-    $scope.matchProfilePicToActivity = function(profilePictures) {
-        var activity = $scope.recentDocumentActivity;
-        for (var o = 0; o < activity.length; o++) {
-            for (var p = 0; p < profilePictures.length; p++) {
-                if (activity[o].user.userId === profilePictures[p].userId) {
-                    activity[o].profilePicture = profilePictures[p].picData;
+    // Helper function to line up likes with document comment
+    $scope.matchLikesToComment = function(likes) {
+        var myUserId = $rootScope.userDetails.userId;
+
+        var recentDocActivity = $scope.recentDocumentActivity;
+        for (var f = 0; f < recentDocActivity.length; f++) {
+
+            // Only add likes for comments
+            if (recentDocActivity[f].hasOwnProperty('message')) {
+                $scope.recentDocumentActivity[f].numberOfLikes = 0;
+
+                for (var g = 0; g < likes.length; g++) {
+                    if (recentDocActivity[f].id === likes[g].key.documentCommentId) {
+                        $scope.recentDocumentActivity[f].numberOfLikes++;
+
+                        // Check if I liked it
+                        if (likes[g].key.userId === myUserId) {
+                            $scope.recentDocumentActivity[f].iLikedIt = true;
+                        }
+                    }
                 }
             }
         }
-        $scope.recentDocumentActivity = activity;
+    };
+
+    // Helper function to line up profile picture with activity
+    $scope.matchProfilePicToActivity = function(profilePictures) {
+        var recentDocActivity = $scope.recentDocumentActivity;
+        for (var o = 0; o < recentDocActivity.length; o++) {
+            for (var p = 0; p < profilePictures.length; p++) {
+                if (recentDocActivity[o].user.userId === profilePictures[p].userId) {
+                    $scope.recentDocumentActivity[o].profilePicture = profilePictures[p].picData;
+                }
+            }
+        }
     };
 
 }
@@ -734,6 +831,18 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
 
 function signoffModalCtrl($scope, $modalInstance, steps) {
     $scope.steps = steps;
+
+    $scope.ok = function() {
+        $modalInstance.close();
+    };
+
+    $scope.cancel = function() {
+        $modalInstance.dismiss('cancel');
+    }
+}
+
+function approvalHistoryModalCtrl($scope, $modalInstance, history) {
+    $scope.history = history;
 
     $scope.ok = function() {
         $modalInstance.close();

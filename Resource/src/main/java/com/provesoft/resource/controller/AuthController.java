@@ -14,7 +14,7 @@ public class AuthController {
             value = "/user/auth",
             method = RequestMethod.GET
     )
-    public AuthPkg findAllOrganizations(Authentication auth) {
+    public AuthPkg findUser(Authentication auth) {
 
         return new AuthPkg(auth);
     }

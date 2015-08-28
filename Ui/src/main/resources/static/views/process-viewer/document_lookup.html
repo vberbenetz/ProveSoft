@@ -147,8 +147,9 @@
                                     <th>Reason For Change</th>
                                     <th>Changed By</th>
                                     <th>Change Date</th>
-                                    <th class="text-center">Document Download</th>
-                                    <th class="text-center">Redline Download</th>
+                                    <th class="text-center">Document</th>
+                                    <th class="text-center">Redline</th>
+                                    <th class="text-center">Approvals</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -156,16 +157,24 @@
                                         <td>{{ r.key.revisionId }}</td>
                                         <td>{{ r.changeReason }}</td>
                                         <td>{{ r.changeUserId }}</td>
-                                        <td>{{ r.changeDate }}</td>
+                                        <td>{{ r.changeDate | date: 'yyyy-MM-dd' }}</td>
                                         <td class="text-center">
                                             <a target="_blank" href="" class="btn btn-success" ng-href="{{ '/resource/download?documentId=' + r.key.documentId + '&revisionId=' + r.key.revisionId }}">
-                                                <span class="fa fa-file"></span>
+                                                <span class="fa fa-download"></span>
                                             </a>
                                         </td>
                                         <td class="text-center">
                                             <a target="_blank" ng-disabled="!isRedlineUsed" ng-hide="r.key.revisionId=='A' || !r.redlineDocPresent" href="" class="btn btn-danger" ng-href="{{ '/resource/download?documentId=' + r.key.documentId + '&revisionId=' + r.key.revisionId + '&isRedline=true' }}">
-                                                <span class="fa fa-file"></span>
+                                                <span class="fa fa-download"></span>
                                             </a>
+                                        </td>
+                                        <td class="text-center">
+                                            <button ng-show="$index==0 && n.state!='RELEASED'" ng-click="openStepsModal(n)" class="btn btn-primary">
+                                                <span class="fa fa-list"></span>
+                                            </button>
+                                            <button ng-show="$index!=0 || ($index==0 && n.state=='RELEASED')" ng-click="openApprovalHistoryModal(r.key.documentId, r.key.revisionId)" class="btn btn-primary">
+                                                <span class="fa fa-list"></span>
+                                            </button>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -214,7 +223,9 @@
                             <small ng-if="n.date.substring(0,4)!='Today'" class="pull-right text-navy">{{ n.date | date: "yyyy-MM-dd" }}</small>
                             <p>{{ n.message }}</p>
                             <div class="actions">
-                                <a class="btn btn-xs btn-white"><i class="fa fa-thumbs-up"></i> Like This </a>
+                                <span ng-show="n.iLikedIt" class="label label-primary"><i class="fa fa-thumbs-up"></i> I Liked This </span>
+                                <a ng-show="!n.iLikedIt" ng-click="addLikeForComment(n.id)" class="btn btn-xs btn-white"><i class="fa fa-thumbs-up"></i> Like This </a>
+                                &nbsp;<span class="label label-success">{{ n.numberOfLikes }}</span>
                             </div>
                         </div>
 
@@ -224,7 +235,7 @@
                             <small ng-if="n.date.substring(0,4)=='Today'" class="pull-right text-navy">{{ n.date }}</small>
                             <small ng-if="n.date.substring(0,4)!='Today'" class="pull-right text-navy">{{ n.date | date: "yyyy-MM-dd" }}</small>
                             <div class="row margin-bottom-10 margin-left-5">
-                                <button class="btn btn-xs btn-warning">Change</button>&nbsp;&nbsp;Revision {{ n.revisionId }}
+                                <button class="btn btn-xs btn-warning" ng-click="openApprovalHistoryModal(n.documentId, n.revisionId)">Change</button>&nbsp;&nbsp;Revision {{ n.revisionId }}
                             </div>
                             <p>{{ n.documentRevision.changeReason }}</p>
                             <div class="actions">

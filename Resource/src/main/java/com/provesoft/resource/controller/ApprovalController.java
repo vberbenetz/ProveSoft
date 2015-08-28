@@ -54,7 +54,6 @@ public class ApprovalController {
         return approvalService.getApprovalNotifications(companyName, me.getUserId());
     }
 
-
     /*
         Approve request in notification.
         1) Check if correct parameters are passed in.
@@ -153,6 +152,22 @@ public class ApprovalController {
 
 
     /* --------------------------------------- Approval History ------------------------------------------ */
+    @RequestMapping(
+            value = "/approvalHistory",
+            method = RequestMethod.GET
+    )
+    public List<ApprovalHistory> getApprovalHistory(@RequestParam(value="documentId", required=false) String documentId,
+                                                    @RequestParam(value="revisionId", required=false) String revisionId,
+                                                    Authentication auth) {
+
+        if ( (documentId != null) && (revisionId != null) ) {
+            String companyName = UserHelpers.getCompany(auth);
+            return approvalService.getApprovalHistoryByRevision(companyName, documentId, revisionId);
+        }
+
+        throw new ResourceNotFoundException();
+    }
+
     @RequestMapping(
             value = "/approvalHistory/recent",
             method = RequestMethod.GET

@@ -7,6 +7,8 @@ import com.provesoft.resource.utils.ProfilePicturePkg;
 import com.provesoft.resource.utils.UserFirstLastNamePkg;
 import com.provesoft.resource.utils.UserHelpers;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -26,17 +28,24 @@ public class UserController {
             value = "/userDetails",
             method = RequestMethod.GET
     )
-    public List<UserDetails> getUserDetails (@RequestParam(value = "userIds", required = false) Long[] userIds,
+    public ResponseEntity<?> getUserDetails (@RequestParam(value = "userIds", required = false) Long[] userIds,
                                              Authentication auth) {
 
         // Get user details for userId list
         if (userIds != null) {
             String companyName = UserHelpers.getCompany(auth);
 
-            return userDetailsService.findByCompanyNameAndUserIdList(companyName, Arrays.asList(userIds));
+            List<UserDetails> udList = userDetailsService.findByCompanyNameAndUserIdList(companyName, Arrays.asList(userIds));
+
+            return new ResponseEntity<>(udList, HttpStatus.OK);
         }
 
-        throw new ResourceNotFoundException();
+        // Get user details for my user
+        else {
+            String companyName = UserHelpers.getCompany(auth);
+            UserDetails ud = userDetailsService.findByCompanyNameAndEmail(companyName, auth.getName());
+            return new ResponseEntity<>(ud, HttpStatus.OK);
+        }
     }
 
     @RequestMapping(

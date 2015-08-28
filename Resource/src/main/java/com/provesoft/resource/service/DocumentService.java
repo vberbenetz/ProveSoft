@@ -38,6 +38,9 @@ public class DocumentService {
     @Autowired
     DocumentCommentRepository documentCommentRepository;
 
+    @Autowired
+    DocumentCommentLikeRepository documentCommentLikeRepository;
+
 
     /* ------------------------ Document -------------------------- */
 
@@ -263,6 +266,30 @@ public class DocumentService {
      */
     public DocumentComment createDocumentComment(DocumentComment documentComment) {
         return documentCommentRepository.saveAndFlush(documentComment);
+    }
+
+
+    /* ------------------------------ DocumentCommentLikes ------------------------------- */
+
+    /*
+        Retrieve count of likes for comment
+     */
+    public Long getNumberOfLikesForComment(String companyName, Long documentCommentId) {
+        return documentCommentLikeRepository.countByKeyCompanyNameAndKeyDocumentCommentId(companyName, documentCommentId);
+    }
+
+    /*
+        Retrieve likes for comments in list
+     */
+    public List<DocumentCommentLike> findLikesByCommentList(String companyName, Long[] documentCommentIds) {
+        return documentCommentLikeRepository.findByKeyCompanyNameAndKeyDocumentCommentIdIn(companyName, documentCommentIds);
+    }
+
+    /*
+        Create new comment like
+     */
+    public DocumentCommentLike createCommentLike(DocumentCommentLike newLike) {
+        return documentCommentLikeRepository.saveAndFlush(newLike);
     }
 
 }

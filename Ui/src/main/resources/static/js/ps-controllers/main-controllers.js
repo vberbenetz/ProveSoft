@@ -8,7 +8,6 @@ function MainCtrl($scope, $rootScope, $window, authService, userService) {
         if (data.userName) {
             $rootScope.authenticated = true;
             $rootScope.user = data;
-
         } else {
             $rootScope.authenticated = false;
         }
@@ -26,10 +25,17 @@ function MainCtrl($scope, $rootScope, $window, authService, userService) {
          });
     };
 
-     // --------------------------------------- //
+    // --------------------------------------- //
 
+    // Get my UserDetails
+    userService.userDetails.getMe(function(myDetails) {
+        $rootScope.userDetails = myDetails;
+    }, function(error) {
+        $rootScope.authenticated = false;
+    });
+
+    // Get my profile picture
     $scope.profilePicture = null;
-
     userService.profilePicture.getPic(function(pic) {
         $scope.profilePicture = pic.picData;
     }, function(error) {
@@ -92,7 +98,7 @@ function NavBarCtrl($scope, navBarService, documentLookupService) {
     };
 }
 
-function NewsFeedCtrl ($scope, navBarService, documentLookupService, userService, generalSettingsService) {
+function NewsFeedCtrl ($scope, $rootScope, navBarService, documentLookupService, userService, generalSettingsService, commentLikeService) {
 
     $scope.isRedlineUsed = false;
 
@@ -206,6 +212,21 @@ function NewsFeedCtrl ($scope, navBarService, documentLookupService, userService
                 // Format date
                 $scope.dailyFeed = $scope.formatDate(dailyFeed);
 
+                // Get list of commentIds for comment like lookup
+                var documentCommentIds = [];
+                for (var y = 0; y < latestComments.length; y++) {
+                    documentCommentIds.push(latestComments[y].id);
+                }
+
+                // Append comment likes
+                if (documentCommentIds.length > 0) {
+                    commentLikeService.likesForCommmentList.query({documentCommentIds: documentCommentIds}, function(likes) {
+                        $scope.matchLikesToComment(likes);
+                    }, function(error) {
+                        $scope.error = error;
+                    });
+                }
+
                 // Retrieve profile pictures
                 userService.profilePictureByIds.query({userIds: revUserIds}, function(profilePictures) {
                     $scope.matchProfilePicToDailyFeed(profilePictures);
@@ -308,17 +329,41 @@ function NewsFeedCtrl ($scope, navBarService, documentLookupService, userService
         return latestRevs;
     };
 
+    // Helper function to line up likes with document comment
+    $scope.matchLikesToComment = function(likes) {
+        var myUserId = $rootScope.userDetails.userId;
+
+        var dailyFeed = $scope.dailyFeed;
+        for (var f = 0; f < dailyFeed.length; f++) {
+
+            // Only add likes for comments
+            if (dailyFeed[f].hasOwnProperty('message')) {
+                $scope.dailyFeed[f].numberOfLikes = 0;
+
+                for (var g = 0; g < likes.length; g++) {
+                    if (dailyFeed[f].id === likes[g].key.documentCommentId) {
+                        $scope.dailyFeed[f].numberOfLikes++;
+
+                        // Check if I liked it
+                        if (likes[g].key.userId === myUserId) {
+                            $scope.dailyFeed[f].iLikedIt = true;
+                        }
+                    }
+                }
+            }
+        }
+    };
+
     // Helper function to line up UserDetails with revision
     $scope.matchProfilePicToDailyFeed = function(profilePictures) {
         var dailyFeed = $scope.dailyFeed;
         for (var o = 0; o < dailyFeed.length; o++) {
             for (var p = 0; p < profilePictures.length; p++) {
                 if (dailyFeed[o].user.userId === profilePictures[p].userId) {
-                    dailyFeed[o].profilePicture = profilePictures[p].picData;
+                    $scope.dailyFeed[o].profilePicture = profilePictures[p].picData;
                 }
             }
         }
-        $scope.dailyFeed = dailyFeed;
     };
 
 
@@ -346,7 +391,7 @@ function NewsFeedCtrl ($scope, navBarService, documentLookupService, userService
                 docDate.getMonth()==currentDate.getMonth() &&
                 docDate.getDate()==currentDate.getDate()
             ) {
-                docActivity[i].date = 'Today at '+ docDate.getHours() + ':' + docDate.getMinutes();
+                docActivity[i].date = 'Today at '+ docDate.getHours() + ':' + (docDate.getMinutes()<10?'0':'') + docDate.getMinutes();
             }
         }
 

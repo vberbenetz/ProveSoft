@@ -18,7 +18,9 @@ import com.provesoft.resource.utils.UserHelpers;
 import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.CannotAcquireLockException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -211,6 +213,24 @@ public class DocumentController {
     public List<DocumentComment> getRecentDocumentCommentsForCompany(Authentication auth) {
         String companyName = UserHelpers.getCompany(auth);
         return documentService.findLatestCommentsByCompanyName(companyName);
+    }
+
+
+    /* ------------------- DocumentCommentLike ------------------- */
+
+    /*
+        Get count of likes for comment
+     */
+    @RequestMapping(
+            value = "/comment/likes",
+            method = RequestMethod.GET
+    )
+    public List<DocumentCommentLike> getLikesForCommentList (@RequestParam("documentCommentIds") Long[] documentCommentIds,
+                                                             Authentication auth) {
+
+        String companyName = UserHelpers.getCompany(auth);
+
+        return documentService.findLikesByCommentList(companyName, documentCommentIds);
     }
 
 
@@ -490,6 +510,24 @@ public class DocumentController {
             throw new ResourceNotFoundException();
         }
 
+    }
+
+
+    /* ------------------- DocumentCommentLike ------------------- */
+
+    @RequestMapping(
+            value = "/comment/like",
+            method = RequestMethod.POST
+    )
+    public DocumentCommentLike createNewCommentLike(@RequestParam("documentCommentId") Long documentCommentId,
+                                                    Authentication auth) {
+
+        String companyName = UserHelpers.getCompany(auth);
+        Long userId = userDetailsService.findUserIdByCompanyNameAndEmail(companyName, auth.getName());
+
+        DocumentCommentLike dcl = new DocumentCommentLike(companyName, documentCommentId, userId);
+
+        return documentService.createCommentLike(dcl);
     }
 
 

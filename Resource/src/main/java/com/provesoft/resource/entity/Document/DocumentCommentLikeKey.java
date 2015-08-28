@@ -4,28 +4,28 @@ import javax.persistence.Embeddable;
 import java.io.Serializable;
 
 @Embeddable
-public class DocumentLikeKey implements Serializable {
+public class DocumentCommentLikeKey implements Serializable {
 
-    public DocumentLikeKey(String companyName, Long documentCommentId, Long userId) {
-        this.comanyName = companyName;
+    public DocumentCommentLikeKey(String companyName, Long documentCommentId, Long userId) {
+        this.companyName = companyName;
         this.documentCommentId = documentCommentId;
         this.userId = userId;
     }
 
-    public DocumentLikeKey() {
+    public DocumentCommentLikeKey() {
         // Default Constructor
     }
 
-    private String comanyName;
+    private String companyName;
     private Long documentCommentId;
     private Long userId;
 
-    public String getComanyName() {
-        return comanyName;
+    public String getCompanyName() {
+        return companyName;
     }
 
-    public void setComanyName(String comanyName) {
-        this.comanyName = comanyName;
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
     }
 
     public Long getDocumentCommentId() {

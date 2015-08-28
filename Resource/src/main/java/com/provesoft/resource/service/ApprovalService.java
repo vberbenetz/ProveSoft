@@ -79,4 +79,8 @@ public class ApprovalService {
         return approvalHistoryRepository.findFirst5ByCompanyNameAndDocumentIdOrderByDateDesc(companyName, documentId);
     }
 
+    public List<ApprovalHistory> getApprovalHistoryByRevision(String companyName, String documentId, String revisionId) {
+        return approvalHistoryRepository.findByCompanyNameAndDocumentIdAndRevisionIdOrderByDateAsc(companyName, documentId, revisionId);
+    }
+
 }

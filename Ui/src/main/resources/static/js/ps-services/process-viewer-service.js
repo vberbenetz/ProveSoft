@@ -113,6 +113,20 @@ function documentLookupService($resource) {
 
         latestRevisionsForCompany: $resource('/resource/document/revisions/recent'),
 
+        approvalHistory: $resource('/resource/approvalHistory',
+            {},
+            {
+                queryByDocumentAndRevision: {
+                    method: 'GET',
+                    params: {
+                        documentId: '@documentId',
+                        revisionId: '@revisionId'
+                    },
+                    isArray: true
+                }
+            }
+        ),
+
         recentApprovalHistory: $resource('/resource/approvalHistory/recent',
             {},
             {
