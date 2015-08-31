@@ -95,15 +95,15 @@
                                                 <td><p class="org-desc">{{ n.document.id }} - {{ n.document.title }}</p></td>
                                                 <td>
                                                     <img class="client-avatar img-circle" ng-src="{{ n.profilePicture }}" />
-                                                    &nbsp;&nbsp;{{n.userDetails.firstName}}&nbsp;{{n.userDetails.lastName}}
-                                                    <!--<a class="client-link"><img class="client-avatar img-circle" src="img/profile_pic_placeholder.png"/>&nbsp;&nbsp;Joe Grande</a>-->
+                                                    &nbsp;&nbsp;{{n.revision.changeUser.firstName}}&nbsp;{{n.revision.changeUser.lastName}}
                                                 </td>
                                                 <td><p class="org-desc">{{ n.document.organization.name }}</p></td>
-                                                <td><p class="org-desc">{{ n.document.date }}</p></td>
+                                                <td><p class="org-desc">{{ n.document.date | date: 'MMMM d, yyyy' }}</p></td>
                                             </tr>
                                             </tbody>
                                         </table>
                                     </accordion-heading>
+                                    {{ n }}
                                     <div>
                                         <a target="_blank" href="" class="btn btn-lg btn-success" ng-href="{{ '/resource/download?documentId=' + n.document.id + '&revisionId=' + n.document.revision }}">
                                             <span class="fa fa-download">&nbsp;Document</span>
@@ -150,7 +150,7 @@
                                 <div class="media-body col-md-offset-2">
                                     <small ng-show="n.date.substring(0,4)=='Today'" class="pull-right text-navy">{{ n.date }}</small>
                                     <small ng-hide="n.date.substring(0,4)=='Today'" class="pull-right text-navy">{{ n.date | date: "yyyy-MM-dd" }}</small>
-                                    <h5><strong>{{ n.user.firstName }} {{n.user.lastName}}</strong>&nbsp;made a suggestion</h5><br>
+                                    <h5><strong class="text-primary">{{ n.user.firstName }} {{n.user.lastName}}</strong>&nbsp;made a suggestion</h5><br>
                                     <h5>on {{ n.documentId }}</h5>
                                     <div class="well">{{ n.message }}</div>
                                     <div class="actions">
@@ -176,18 +176,22 @@
                                     <small ng-show="n.date.substring(0,4)=='Today'" class="pull-right text-navy">{{ n.date }}</small>
                                     <small ng-hide="n.date.substring(0,4)=='Today'" class="pull-right text-navy">{{ n.date | date: "yyyy-MM-dd" }}</small>
                                     <div ng-hide="n.key.revisionId=='A'">
-                                        <h5><strong>{{ n.user.firstName }} {{n.user.lastName}}</strong>&nbsp;changed {{ n.key.documentId }}</h5><br>
+                                        <h5><strong class="text-primary">{{ n.changeUser.firstName }} {{n.changeUser.lastName}}</strong>&nbsp;changed {{ n.key.documentId }}</h5><br>
                                         <h5>to <strong>Revision {{ n.key.revisionId }}</strong></h5>
                                         <div class="well">{{ n.changeReason }}</div>
+                                        <!--
                                         <div class="actions">
                                             <a class="btn btn-xs btn-white"><i class="fa fa-thumbs-up"></i> Like This </a>
                                         </div>
+                                        -->
                                     </div>
                                     <div ng-show="n.key.revisionId=='A'">
-                                        <h5><strong>{{ n.user.firstName }} {{n.user.lastName}}</strong>&nbsp;added {{ n.key.documentId }}</h5><br>
+                                        <h5><strong class="text-primary">{{ n.changeUser.firstName }} {{n.changeUser.lastName}}</strong>&nbsp;added {{ n.key.documentId }}</h5><br>
+                                        <!--
                                         <div class="actions">
                                             <a class="btn btn-xs btn-white"><i class="fa fa-thumbs-up"></i> Like This </a>
                                         </div>
+                                        -->
                                     </div>
                                 </div>
                             </div>

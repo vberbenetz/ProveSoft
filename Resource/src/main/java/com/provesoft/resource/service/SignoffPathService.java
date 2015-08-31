@@ -151,6 +151,7 @@ public class SignoffPathService {
     public List<SignoffPathSteps> markStepsAsApproved(List<SignoffPathSteps> stepsMarkedForApproval) {
         for (SignoffPathSteps s : stepsMarkedForApproval) {
             s.setApproved(true);
+            s.setApprovalDate(new Date());
         }
         List<SignoffPathSteps> approvedSteps = signoffPathStepsRepository.save(stepsMarkedForApproval);
         signoffPathRepository.flush();

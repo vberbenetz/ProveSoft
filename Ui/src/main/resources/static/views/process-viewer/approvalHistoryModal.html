@@ -23,10 +23,14 @@
                             <button ng-if="n.action=='OR'" class="btn btn-warning">OR</button>
                         </td>
                         <td>
-                            {{ n.user.firstName }} {{ n.user.lastName }}
+                            <img class="img-circle-approval-modal" src="" ng-src="{{ n.profilePicture }}" />
+                            <p>{{ n.user.firstName }} {{ n.user.lastName }}</p>
                         </td>
                         <td>{{ n.user.primaryOrganization.name }}</td>
-                        <td>{{ n.date | date: 'yyyy-MM-dd' }}</td>
+                        <td>
+                            <div ng-if="n.approvalDate.substring(0,4)=='Today'" class="pull-right text-navy">{{ n.date }}</div>
+                            <div ng-if="n.approvalDate.substring(0,4)!='Today'" class="pull-right text-navy">{{ n.date | date: "MMMM d, yyyy" }}</div>
+                        </td>
                     </tr>
                     </tbody>
                 </table>

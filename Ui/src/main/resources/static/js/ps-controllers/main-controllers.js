@@ -141,20 +141,12 @@ function NewsFeedCtrl ($scope, $rootScope, navBarService, documentLookupService,
                     var userIds = [];
                     var approvals = $scope.approvals;
                     for (var i = 0; i < approvals.length; i++) {
-                        userIds.push(approvals[i].revision.changeUserId);
+                        userIds.push(approvals[i].userId);
                     }
 
-                    // Align UserDetails to notification
-                    userService.userDetails.queryByUserIds({userIds: userIds}, function(userDetails) {
-                        $scope.matchUserDetailsToApproval(userDetails);
-
-                        // Get all profile pictures
-                        userService.profilePictureByIds.query({userIds: userIds}, function(profilePictures) {
-                           $scope.matchProfilePicToApproval(profilePictures);
-
-                        }, function(error) {
-                            $scope.error = error;
-                        });
+                    // Get all profile pictures
+                    userService.profilePictureByIds.query({userIds: userIds}, function(profilePictures) {
+                       $scope.matchProfilePicToApproval(profilePictures);
 
                     }, function(error) {
                         $scope.error = error;
@@ -176,64 +168,55 @@ function NewsFeedCtrl ($scope, $rootScope, navBarService, documentLookupService,
     // Get all daily feed items
     documentLookupService.latestRevisionsForCompany.query(function(latestRevs) {
 
-        // Change property "changeDate" to "date", required for sorting.
         // Get list of userIds to retrieve UserDetails for revision.
         var revUserIds = [];
         for (var z = 0; z < latestRevs.length; z++) {
             latestRevs[z].date = latestRevs[z].changeDate;
-            revUserIds.push(latestRevs[z].changeUserId);
+            revUserIds.push(latestRevs[z].changeUser.userId);
         }
 
-        // Align UserDetails to notification
-        userService.userDetails.queryByUserIds({userIds: revUserIds}, function(userDetails) {
-            latestRevs = $scope.matchUserDetailsToRevision(userDetails, latestRevs);
+        // Get latest comments for company
+        documentLookupService.latestCommentsForCompany.query(function(latestComments) {
 
-            // Get latest comments for company
-            documentLookupService.latestCommentsForCompany.query(function(latestComments) {
+            // Append comment userIds for profile pic retrieval
+            for (var y = 0; y < latestComments.length; y++) {
+                revUserIds.push(latestComments[y].user.userId);
+            }
 
-                // Append comment userIds for profile pic retrieval
-                for (var y = 0; y < latestComments.length; y++) {
-                    revUserIds.push(latestComments[y].user.userId);
+            var dailyFeed = latestRevs.concat(latestComments);
+
+            // Sort the recent activity array by date to interleave the approvalHistory with the recentComments
+            dailyFeed.sort(function(a, b) {
+                if (a.date > b.date) {
+                    return -1;
                 }
-
-                var dailyFeed = latestRevs.concat(latestComments);
-
-                // Sort the recent activity array by date to interleave the approvalHistory with the recentComments
-                dailyFeed.sort(function(a, b) {
-                    if (a.date > b.date) {
-                        return -1;
-                    }
-                    if (a.date < b.date) {
-                        return 1;
-                    }
-                    return 0;
-                });
-
-                // Format date
-                $scope.dailyFeed = $scope.formatDate(dailyFeed);
-
-                // Get list of commentIds for comment like lookup
-                var documentCommentIds = [];
-                for (var y = 0; y < latestComments.length; y++) {
-                    documentCommentIds.push(latestComments[y].id);
+                if (a.date < b.date) {
+                    return 1;
                 }
+                return 0;
+            });
 
-                // Append comment likes
-                if (documentCommentIds.length > 0) {
-                    commentLikeService.likesForCommmentList.query({documentCommentIds: documentCommentIds}, function(likes) {
-                        $scope.matchLikesToComment(likes);
-                    }, function(error) {
-                        $scope.error = error;
-                    });
-                }
+            // Format date
+            $scope.dailyFeed = $scope.formatDate(dailyFeed);
 
-                // Retrieve profile pictures
-                userService.profilePictureByIds.query({userIds: revUserIds}, function(profilePictures) {
-                    $scope.matchProfilePicToDailyFeed(profilePictures);
+            // Get list of commentIds for comment like lookup
+            var documentCommentIds = [];
+            for (var k = 0; k < latestComments.length; k++) {
+                documentCommentIds.push(latestComments[k].id);
+            }
 
+            // Append comment likes
+            if (documentCommentIds.length > 0) {
+                commentLikeService.likesForCommmentList.query({documentCommentIds: documentCommentIds}, function(likes) {
+                    $scope.matchLikesToComment(likes);
                 }, function(error) {
                     $scope.error = error;
                 });
+            }
+
+            // Retrieve profile pictures
+            userService.profilePictureByIds.query({userIds: revUserIds}, function(profilePictures) {
+                $scope.matchProfilePicToDailyFeed(profilePictures);
 
             }, function(error) {
                 $scope.error = error;
@@ -268,14 +251,19 @@ function NewsFeedCtrl ($scope, $rootScope, navBarService, documentLookupService,
 
         // Extract latest revisions
         var latestRevisions = [];
-        for (var x = 1; x < revisions.length; x++) {
-            if (revisions[x-1].key.documentId != revisions[x].key.documentId) {
-                latestRevisions.push(revisions[x-1]);
-            }
+        if (revisions.length == 1) {
+            latestRevisions.push(revisions[0]);
+        }
+        else {
+            for (var x = 1; x < revisions.length; x++) {
+                if (revisions[x-1].key.documentId != revisions[x].key.documentId) {
+                    latestRevisions.push(revisions[x-1]);
+                }
 
-            // Add the last one to the list as this document has no one to compare against
-            if (x == (revisions.length - 1) ) {
-                latestRevisions.push(revisions[x]);
+                // Add the last one to the list as this document has no one to compare against
+                if (x == (revisions.length - 1) ) {
+                    latestRevisions.push(revisions[x]);
+                }
             }
         }
 
@@ -290,43 +278,17 @@ function NewsFeedCtrl ($scope, $rootScope, navBarService, documentLookupService,
         $scope.approvals = approvals;
     };
 
-    // Helper function to line up UserDetails with approval
-    $scope.matchUserDetailsToApproval = function(userDetails) {
-        var approvals = $scope.approvals;
-        for (var i = 0; i < approvals.length; i++) {
-            for (var j = 0; j < userDetails.length; j++) {
-                if (approvals[i].revision.changeUserId === userDetails[j].userId) {
-                    approvals[i].userDetails = userDetails[j];
-                }
-            }
-        }
-        $scope.approvals = approvals;
-    };
-
     // Helper function to line up Profile Picture with Approval
     $scope.matchProfilePicToApproval = function(profilePics) {
         var approvals = $scope.approvals;
         for (var i = 0; i < approvals.length; i++) {
             for (var j = 0; j < profilePics.length; j++) {
-                if (approvals[i].revision.changeUserId === profilePics[j].userId) {
+                if (approvals[i].revision.changeUser.userId === profilePics[j].userId) {
                     approvals[i].profilePicture = profilePics[j].picData;
                 }
             }
         }
         $scope.approvals = approvals;
-    };
-
-    // Helper function to line up UserDetails with revision
-    $scope.matchUserDetailsToRevision = function(userDetails, latestRevs) {
-        for (var r = 0; r < latestRevs.length; r++) {
-            for (var s = 0; s < userDetails.length; s++) {
-                if (latestRevs[r].changeUserId === userDetails[s].userId) {
-                    latestRevs[r].user = userDetails[s];
-                }
-            }
-        }
-
-        return latestRevs;
     };
 
     // Helper function to line up likes with document comment
@@ -359,7 +321,10 @@ function NewsFeedCtrl ($scope, $rootScope, navBarService, documentLookupService,
         var dailyFeed = $scope.dailyFeed;
         for (var o = 0; o < dailyFeed.length; o++) {
             for (var p = 0; p < profilePictures.length; p++) {
-                if (dailyFeed[o].user.userId === profilePictures[p].userId) {
+                if (dailyFeed[o].hasOwnProperty('user') && (dailyFeed[o].user.userId === profilePictures[p].userId) ) {
+                    $scope.dailyFeed[o].profilePicture = profilePictures[p].picData;
+                }
+                else if (dailyFeed[o].hasOwnProperty('changeUser') && dailyFeed[o].changeUser.userId === profilePictures[p].userId) {
                     $scope.dailyFeed[o].profilePicture = profilePictures[p].picData;
                 }
             }

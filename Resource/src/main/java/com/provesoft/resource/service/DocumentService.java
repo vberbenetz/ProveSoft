@@ -1,6 +1,7 @@
 package com.provesoft.resource.service;
 
 import com.provesoft.resource.entity.Document.*;
+import com.provesoft.resource.entity.UserDetails;
 import com.provesoft.resource.repository.*;
 import com.provesoft.resource.utils.DocumentHelpers;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -97,14 +98,14 @@ public class DocumentService {
         3) Add initial Revision
         4) Add document
      */
-    public Document addDocument(Document document, Long suffix, Long userId) {
+    public Document addDocument(Document document, Long suffix, UserDetails user) {
         documentTypeRepository.updateCurrentSuffix(document.getDocumentType().getId(), suffix);
 
         DocumentRevisions initialRev = new DocumentRevisions(document.getCompanyName(),
                                                                 document.getId(),
                                                                 "A",
                                                                 "Document Created",
-                                                                userId,
+                                                                user,
                                                                 document.getDate(),
                                                                 false);
 

@@ -3,6 +3,7 @@ package com.provesoft.resource.entity.SignoffPath;
 import com.provesoft.resource.entity.UserDetails;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 public class SignoffPathSteps {
@@ -31,6 +32,7 @@ public class SignoffPathSteps {
     private Long templateId;
     private String action;
     private Boolean approved;
+    private Date approvalDate;
 
     @ManyToOne
     @JoinColumn
@@ -89,6 +91,14 @@ public class SignoffPathSteps {
 
     public void setApproved(Boolean approved) {
         this.approved = approved;
+    }
+
+    public Date getApprovalDate() {
+        return approvalDate;
+    }
+
+    public void setApprovalDate(Date approvalDate) {
+        this.approvalDate = approvalDate;
     }
 
     public UserDetails getUser() {

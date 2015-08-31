@@ -3,6 +3,7 @@ package com.provesoft.resource.entity.Document;
 import com.provesoft.resource.entity.Organizations;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 public class Document {
@@ -40,7 +41,7 @@ public class Document {
     private String title;
     private String revision;
     private String state;
-    private String date;
+    private Date date;
 
     public String getId() {
         return id;
@@ -106,11 +107,11 @@ public class Document {
         this.state = state;
     }
 
-    public String getDate() {
+    public Date getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(Date date) {
         this.date = date;
     }
 }

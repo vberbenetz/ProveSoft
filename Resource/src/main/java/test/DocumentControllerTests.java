@@ -4,6 +4,7 @@ import com.provesoft.resource.ResourceApplication;
 import com.provesoft.resource.entity.Document.Document;
 import com.provesoft.resource.entity.Document.DocumentType;
 import com.provesoft.resource.entity.Organizations;
+import com.provesoft.resource.entity.UserDetails;
 import com.provesoft.resource.exceptions.ResourceNotFoundException;
 import com.provesoft.resource.service.DocumentService;
 import com.provesoft.resource.service.OrganizationsService;
@@ -67,7 +68,7 @@ public class DocumentControllerTests {
                         documentId = documentId + suffix;
                         newDocument.setId(documentId);
 
-                        documentService.addDocument(newDocument, suffix, 1L);
+                        //documentService.addDocument(newDocument, suffix, new UserDetails("TEST", "test", "test", "test@test.com", "test", ));
 
                         return;
                     }

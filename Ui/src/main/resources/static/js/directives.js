@@ -162,12 +162,12 @@ function dropzone($cookies) {
     return function(scope, element, attrs) {
 
         var config = {
-            url: '/resource/upload',
-            maxFilesize: 100,
-            paramName: "uploadfile",
+            url: scope.dropzoneConfig.url,
+            maxFilesize: scope.dropzoneConfig.maxFileSize,
+            paramName: scope.dropzoneConfig.paramName,
             maxThumbnailFilesize: 10,
             parallelUploads: 1,
-            autoProcessQueue: false,
+            autoProcessQueue: scope.dropzoneConfig.autoProcessQueue,
             headers: {
                 "X-XSRF-TOKEN": xsrfToken
             }
@@ -185,10 +185,12 @@ function dropzone($cookies) {
             },
 
             'sending': function (file, xhr, formData) {
-                formData.append('documentId', scope.documentId);
-                formData.append('isRedline', scope.isRedline);
-                formData.append('tempUpload', scope.tempUpload);
-                formData.append('tempRevId', scope.tempRevId);
+                if (scope.isDocumentUpload) {
+                    formData.append('documentId', scope.documentId);
+                    formData.append('isRedline', scope.isRedline);
+                    formData.append('tempUpload', scope.tempUpload);
+                    formData.append('tempRevId', scope.tempRevId);
+                }
             },
 
             'success': function (file, response) {

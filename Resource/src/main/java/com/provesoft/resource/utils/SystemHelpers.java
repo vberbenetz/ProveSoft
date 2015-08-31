@@ -7,7 +7,7 @@ public final class SystemHelpers {
 
     private SystemHelpers() {}
 
-    public static String getCurrentDate() {
+    public static String getCurrentDateString() {
         SimpleDateFormat sdf = new SimpleDateFormat("MMMM dd, yyyy");
         return sdf.format(new Date());
     }

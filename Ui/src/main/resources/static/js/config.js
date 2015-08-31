@@ -193,7 +193,21 @@ function config($stateProvider, $locationProvider, $urlRouterProvider, $ocLazyLo
         .state('home.profile', {
             url: "profile",
             templateUrl: "views/profile.html",
-            data: { pageTitle: 'My Profile' }
+            controller: profileCtrl,
+            data: { pageTitle: 'My Profile' },
+            resolve: {
+                loadPlugin: function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        {
+                            files: [
+                                'css/plugins/dropzone/basic.css',
+                                'css/plugins/dropzone/dropzone.css',
+                                'js/plugins/dropzone/dropzone.js'
+                            ]
+                        }
+                    ])
+                }
+            }
         });
 
 

@@ -235,7 +235,20 @@ function documentLookupCtrl($scope, $rootScope, $window, $q, $timeout, $modal, u
                     // Append child comments
                     if (documentCommentIds.length > 0) {
                         documentLookupService.childDocumentComments.query({parentCommentIds: documentCommentIds}, function(childComments) {
-                            $scope.matchChildCommentsToParent(childComments);
+                            // Append child comment profile pictures
+                            var childCommentUserIds = [];
+                            for (var w = 0; w < childComments.length; w++) {
+                                childCommentUserIds.push(childComments[w].user.userId);
+                            }
+
+                            userService.profilePictureByIds.query({userIds: childCommentUserIds}, function(childProfilePics) {
+                                childComments = $scope.matchProfilePicToList(childProfilePics, childComments);
+                                $scope.matchChildCommentsToParent(childComments);
+                            }, function(error) {
+                                $scope.error = error;
+                                $scope.matchChildCommentsToParent(childComments);
+                            });
+
                         }, function(error) {
                             $scope.error = error;
                         });
@@ -247,7 +260,7 @@ function documentLookupCtrl($scope, $rootScope, $window, $q, $timeout, $modal, u
                         });
                     }
 
-                    // Append profile pictures
+                    // Append parent comment profile pictures
                     if (userIds.length > 0) {
                         userService.profilePictureByIds.query({userIds: userIds}, function(profilePictures) {
                             $scope.matchProfilePicToActivity(profilePictures);
@@ -307,6 +320,10 @@ function documentLookupCtrl($scope, $rootScope, $window, $q, $timeout, $modal, u
             for (var i = 0; i < recentDocActivity.length; i++) {
                 if (recentDocActivity[i].hasOwnProperty('message')) {
                     if (recentDocActivity[i].id === parentCommentId) {
+                        // Initialize childComments if none exist
+                        if (typeof recentDocActivity[i].childComments === 'undefined') {
+                            $scope.recentDocumentActivity[i].childComments = [];
+                        }
                         $scope.recentDocumentActivity[i].childComments.push(data);
                     }
                 }
@@ -487,6 +504,18 @@ function documentLookupCtrl($scope, $rootScope, $window, $q, $timeout, $modal, u
         }
     };
 
+    // Helper function to line up profile picture with an arbitrary list
+    $scope.matchProfilePicToList = function(profilePictures, list) {
+        for (var e = 0; e < list.length; e++) {
+            for (var f = 0; f < profilePictures.length; f++) {
+                if (list[e].user.userId === profilePictures[f].userId) {
+                    list[e].profilePicture = profilePictures[f].picData;
+                }
+            }
+        }
+        return list;
+    };
+
 }
 
 function documentCreationCtrl($scope, $rootScope, $window, $state, documentCreationService, signoffPathsService, generalSettingsService) {
@@ -498,6 +527,14 @@ function documentCreationCtrl($scope, $rootScope, $window, $state, documentCreat
     // ------------------ Initialize -------------------- //
 
     // Initialize file upload (dropzone)
+    $scope.dropzoneConfig = {
+        url: '/resource/upload',
+        maxFileSize: 100,
+        paramName: "uploadfile",
+        autoProcessQueue: false
+    };
+    $scope.isDocumentUpload = true;
+
     $scope.fileAdded = false;
     $scope.submitClicked = false;
     $scope.uploadSuccessful = false;
@@ -675,6 +712,15 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
     }
 
     // ------------------ Initialize -------------------- //
+
+    // Dropzone element
+    $scope.dropzoneConfig = {
+        url: '/resource/upload',
+        maxFileSize: 100,
+        paramName: "uploadfile",
+        autoProcessQueue: false
+    };
+    $scope.isDocumentUpload = true;
 
     // Keep track of form progress
     $scope.reviseDocumentForm = 1;
@@ -901,8 +947,7 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
 
 }
 
-function signoffModalCtrl($scope, $modalInstance, steps) {
-    $scope.steps = steps;
+function signoffModalCtrl($scope, $modalInstance, steps, userService) {
 
     $scope.ok = function() {
         $modalInstance.close();
@@ -910,11 +955,53 @@ function signoffModalCtrl($scope, $modalInstance, steps) {
 
     $scope.cancel = function() {
         $modalInstance.dismiss('cancel');
+    };
+
+    function formatDateForList(list) {
+        var currentDate = new Date();
+        for (var i = 0; i < list.length; i++) {
+
+            var docDate = new Date(list[i].approvalDate);
+
+            if ( docDate.getFullYear()==currentDate.getFullYear() &&
+                docDate.getMonth()==currentDate.getMonth() &&
+                docDate.getDate()==currentDate.getDate()
+            ) {
+                list[i].approvalDate = 'Today at '+ docDate.getHours() + ':' + (docDate.getMinutes()<10?'0':'') + docDate.getMinutes();
+            }
+        }
+        return list;
     }
+
+    function matchProfilePicToStep(profilePics) {
+        var steps = $scope.steps;
+        for (var i = 0; i < steps.length; i++) {
+            for (var j = 0; j < profilePics.length; j++) {
+                if (steps[i].user.userId === profilePics[j].userId) {
+                    steps[i].profilePicture = profilePics[j].picData;
+                }
+            }
+        }
+        $scope.steps = steps;
+    }
+
+
+    // Initialize modal
+
+    $scope.steps = formatDateForList(steps);
+
+    var userIds = [];
+    for (var j = 0; j < steps.length; j++) {
+        userIds.push(steps[j].user.userId);
+    }
+    userService.profilePictureByIds.query({userIds: userIds}, function(profilePics) {
+        matchProfilePicToStep(profilePics);
+    }, function(error) {
+        $scope.error = error;
+    });
 }
 
-function approvalHistoryModalCtrl($scope, $modalInstance, history) {
-    $scope.history = history;
+function approvalHistoryModalCtrl($scope, $modalInstance, history, userService) {
 
     $scope.ok = function() {
         $modalInstance.close();
@@ -922,7 +1009,50 @@ function approvalHistoryModalCtrl($scope, $modalInstance, history) {
 
     $scope.cancel = function() {
         $modalInstance.dismiss('cancel');
+    };
+
+    function formatDateForList(list) {
+        var currentDate = new Date();
+        for (var i = 0; i < list.length; i++) {
+
+            var docDate = new Date(list[i].date);
+
+            if ( docDate.getFullYear()==currentDate.getFullYear() &&
+                docDate.getMonth()==currentDate.getMonth() &&
+                docDate.getDate()==currentDate.getDate()
+            ) {
+                list[i].date = 'Today at '+ docDate.getHours() + ':' + (docDate.getMinutes()<10?'0':'') + docDate.getMinutes();
+            }
+        }
+        return list;
     }
+
+    function matchProfilePicToStep(profilePics) {
+        var history = $scope.history;
+        for (var i = 0; i < history.length; i++) {
+            for (var j = 0; j < profilePics.length; j++) {
+                if (history[i].user.userId === profilePics[j].userId) {
+                    history[i].profilePicture = profilePics[j].picData;
+                }
+            }
+        }
+        $scope.history = history;
+    }
+
+
+    // Initialize modal
+
+    $scope.history = formatDateForList(history);
+
+    var userIds = [];
+    for (var j = 0; j < history.length; j++) {
+        userIds.push(history[j].user.userId);
+    }
+    userService.profilePictureByIds.query({userIds: userIds}, function(profilePics) {
+        matchProfilePicToStep(profilePics);
+    }, function(error) {
+        $scope.error = error;
+    });
 }
 
 angular

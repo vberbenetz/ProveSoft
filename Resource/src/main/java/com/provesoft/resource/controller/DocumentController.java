@@ -295,7 +295,7 @@ public class DocumentController {
                             // Get user for revision details
                             UserDetails user = userDetailsService.findByCompanyNameAndEmail(companyName, auth.getName());
 
-                            String currentDate = SystemHelpers.getCurrentDate();
+                            Date currentDate = new Date();
 
                             documentId = documentId + suffix;
                             newDocument.setId(documentId);
@@ -335,7 +335,7 @@ public class DocumentController {
 
                             }
 
-                            return documentService.addDocument(newDocument, suffix, user.getUserId());
+                            return documentService.addDocument(newDocument, suffix, user);
                         }
 
                         else {
@@ -392,7 +392,7 @@ public class DocumentController {
             Boolean redlineDocPresent = rootNode.get("redlineDocPresent").booleanValue();
 
             String companyName = UserHelpers.getCompany(auth);
-            String currentDate = SystemHelpers.getCurrentDate();
+            Date currentDate = new Date();
 
             UserDetails changeUser = userDetailsService.findByCompanyNameAndEmail(companyName, changeUserEmail);
 
@@ -427,7 +427,7 @@ public class DocumentController {
                             documentId,
                             documentRevisionId,
                             changeReason,
-                            changeUser.getUserId(),
+                            changeUser,
                             currentDate,
                             redlineDocPresent
                     );

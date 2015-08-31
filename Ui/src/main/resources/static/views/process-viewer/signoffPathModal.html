@@ -13,6 +13,7 @@
                         <th>User</th>
                         <th>Primary Organization</th>
                         <th>Status</th>
+                        <th>Approval Date</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -23,11 +24,16 @@
                             <button ng-if="n.action=='OR'" class="btn btn-warning">OR</button>
                         </td>
                         <td>
-                            {{ n.user.firstName }} {{ n.user.lastName }}
+                            <img class="img-circle-approval-modal" src="" ng-src="{{ n.profilePicture }}" />
+                            <p>{{ n.user.firstName }} {{ n.user.lastName }}</p>
                         </td>
                         <td>{{ n.user.primaryOrganization.name }}</td>
                         <td ng-show="n.approved">Approved</td>
                         <td ng-show="!n.approved">Pending</td>
+                        <td>
+                            <p ng-if="n.approvalDate.substring(0,4)=='Today'" class="pull-right text-navy">{{ n.approvalDate }}</p>
+                            <p ng-if="n.approvalDate.substring(0,4)!='Today'" class="pull-right text-navy">{{ n.approvalDate | date: "MMMM d, yyyy" }}</p>
+                        </td>
                     </tr>
                     </tbody>
                 </table>

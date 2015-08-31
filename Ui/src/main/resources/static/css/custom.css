@@ -184,3 +184,15 @@ textarea {
     margin-left: 10px;
     margin-right: 10px;
 }
+
+.img-circle-child-comment {
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+}
+
+.img-circle-approval-modal {
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+}

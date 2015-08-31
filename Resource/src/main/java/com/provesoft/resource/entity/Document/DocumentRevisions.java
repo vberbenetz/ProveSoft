@@ -1,7 +1,12 @@
 package com.provesoft.resource.entity.Document;
 
+import com.provesoft.resource.entity.UserDetails;
+
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import java.util.Date;
 
 @Entity
 public class DocumentRevisions {
@@ -10,13 +15,13 @@ public class DocumentRevisions {
                              String documentId,
                              String revisionId,
                              String changeReason,
-                             Long changeUserId,
-                             String changeDate,
+                             UserDetails changeUser,
+                             Date changeDate,
                              Boolean redlineDocPresent) {
 
         this.key = new DocumentRevisionsKey(companyName, documentId, revisionId);
         this.changeReason = changeReason;
-        this.changeUserId = changeUserId;
+        this.changeUser = changeUser;
         this.changeDate = changeDate;
         this.redlineDocPresent = redlineDocPresent;
     }
@@ -29,8 +34,12 @@ public class DocumentRevisions {
     private DocumentRevisionsKey key;
 
     private String changeReason;
-    private Long changeUserId;
-    private String changeDate;
+
+    @ManyToOne
+    @JoinColumn
+    private UserDetails changeUser;
+
+    private Date changeDate;
     private Boolean redlineDocPresent;
 
     public DocumentRevisionsKey getKey() {
@@ -49,19 +58,19 @@ public class DocumentRevisions {
         this.changeReason = changeReason;
     }
 
-    public Long getChangeUserId() {
-        return changeUserId;
+    public UserDetails getChangeUser() {
+        return changeUser;
     }
 
-    public void setChangeUserId(Long changeUserId) {
-        this.changeUserId = changeUserId;
+    public void setChangeUser(UserDetails changeUser) {
+        this.changeUser = changeUser;
     }
 
-    public String getChangeDate() {
+    public Date getChangeDate() {
         return changeDate;
     }
 
-    public void setChangeDate(String changeDate) {
+    public void setChangeDate(Date changeDate) {
         this.changeDate = changeDate;
     }
 

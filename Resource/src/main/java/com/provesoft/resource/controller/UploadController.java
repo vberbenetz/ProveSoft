@@ -131,6 +131,9 @@ public class UploadController {
     }
 
 
+
+
+
 //=======================================================
 /*
     TEMPORARY METHOD FOR UPLOADING PROFILE PICTURE
@@ -141,8 +144,7 @@ public class UploadController {
             value = "/upload/profilePicture",
             method = RequestMethod.POST
     )
-    public ResponseEntity uploadProfilePicture(@RequestParam("userId") Long userId,
-                                               MultipartHttpServletRequest request,
+    public ResponseEntity uploadProfilePicture(MultipartHttpServletRequest request,
                                                Authentication auth) {
 
         try {
@@ -154,6 +156,8 @@ public class UploadController {
                 String uploadedFile = itr.next();
                 MultipartFile file = request.getFile(uploadedFile);
                 byte[] bytes = file.getBytes();
+
+                Long userId = userDetailsService.findUserIdByCompanyNameAndEmail(companyName, auth.getName());
 
                 ProfilePicture newPic = new ProfilePicture(companyName, userId, bytes);
                 userDetailsService.uploadProfilePicture(newPic);
