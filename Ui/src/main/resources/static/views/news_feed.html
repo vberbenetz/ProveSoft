@@ -1,6 +1,6 @@
 <div class="row wrapper border-bottom white-bg page-heading">
     <div class="col-lg-10">
-        <h2>News Feed</h2>
+        <h2>My Dashboard</h2>
     </div>
 </div>
 <div class="wrapper wrapper-content">
@@ -94,7 +94,7 @@
                                                 <td ng-show="n.document.revision!='A'"><span class="label label-warning">Change</span></td>
                                                 <td><p class="org-desc">{{ n.document.id }} - {{ n.document.title }}</p></td>
                                                 <td>
-                                                    <img class="client-avatar img-circle" ng-src="{{ n.profilePicture }}" />
+                                                    <img alt="" src="img/default_profile.png" class="client-avatar img-circle" ng-src="{{ n.profilePicture }}" />
                                                     &nbsp;&nbsp;{{n.revision.changeUser.firstName}}&nbsp;{{n.revision.changeUser.lastName}}
                                                 </td>
                                                 <td><p class="org-desc">{{ n.document.organization.name }}</p></td>
@@ -141,7 +141,7 @@
                             <!-- Is Comment -->
                             <div ng-if="n.hasOwnProperty('message')">
                                 <div class="pull-left">
-                                    <img alt="image" class="img-circle" ng-src="{{ n.profilePicture }}"><br/><br/>
+                                    <img alt="" src="img/default_profile.png" class="img-circle" ng-src="{{ n.profilePicture }}"><br/><br/>
                                     <div class="label label-primary">
                                         Suggestion
                                     </div>
@@ -163,7 +163,7 @@
                             <!-- Is Document Revision -->
                             <div ng-if="!n.hasOwnProperty('message')">
                                 <div class="pull-left">
-                                    <img alt="image" class="img-circle" ng-src="{{ n.profilePicture }}"><br/><br/>
+                                    <img alt="" src="img/default_profile.png" class="img-circle" ng-src="{{ n.profilePicture }}"><br/><br/>
                                     <div ng-show="n.key.revisionId=='A'" class="label label-success">
                                         New
                                     </div>

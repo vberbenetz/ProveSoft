@@ -4,7 +4,7 @@
             <li class="nav-header">
 
                 <div class="dropdown profile-element" dropdown>
-                    <img alt="" class="img-circle sidebar-avatar" ng-src="{{ profilePicture }}"/>
+                    <img alt="" src="img/default_profile.png" class="img-circle sidebar-avatar" ng-src="{{ profilePicture }}"/>
                     <span class="clear">
                         <span class="block m-t-xs">
                             <strong class="font-bold">{{ userDetails.name }}</strong>
@@ -20,10 +20,7 @@
             </li>
 
             <li ui-sref-active="active">
-                <a ui-sref="home.news-feed"><i class="fa fa-rss-square"></i> <span class="nav-label">News Feed</span></a>
-            </li>
-            <li ui-sref-active="active">
-                <a ><i class="fa fa-desktop"></i> <span class="nav-label">Task Manager</span></a>
+                <a ui-sref="home.news-feed"><i class="fa fa-rss-square"></i> <span class="nav-label">My Dashboard</span></a>
             </li>
             <li ng-class="{active: $state.includes('process-viewer')}">
                 <a><i class="fa fa-server"></i> <span class="nav-label">Process Viewer</span></a>
