@@ -3,6 +3,7 @@ package com.provesoft.resource.controller;
 import com.provesoft.resource.entity.UserDetails;
 import com.provesoft.resource.exceptions.ResourceNotFoundException;
 import com.provesoft.resource.service.UserDetailsService;
+import com.provesoft.resource.utils.AuthPkg;
 import com.provesoft.resource.utils.ProfilePicturePkg;
 import com.provesoft.resource.utils.UserFirstLastNamePkg;
 import com.provesoft.resource.utils.UserHelpers;
@@ -18,14 +19,33 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Controller deals with everything related to the User.
+ * Some sensitive methods encompassing the User can only be found in the AdminController
+ */
 @RestController
 public class UserController {
     
     @Autowired
     UserDetailsService userDetailsService;
 
+    /**
+     * Method retrieves an AuthPkg used by the security in the frontend (Angular) to check if user is authenicated.
+     * @param auth Authentication object
+     * @return AuthPkg
+     * @see AuthPkg
+     */
     @RequestMapping(
-            value = "/userDetails",
+            value = "/user/auth",
+            method = RequestMethod.GET
+    )
+    public AuthPkg findUser(Authentication auth) {
+
+        return new AuthPkg(auth);
+    }
+
+    @RequestMapping(
+            value = "/user/details",
             method = RequestMethod.GET
     )
     public ResponseEntity<?> getUserDetails (@RequestParam(value = "userIds", required = false) Long[] userIds,
@@ -48,28 +68,33 @@ public class UserController {
         }
     }
 
+    /**
+     * Method retrieves profile pictures for a list of users or for this user, depending on which parameters are passed
+     * in
+     * @param userIds Array of userIds
+     * @param auth Authentication object
+     * @return ResponseEntity containing ProfilePicturePkg as its payload
+     * @see ProfilePicturePkg
+     */
     @RequestMapping(
             value = "/user/profilePic",
             method = RequestMethod.GET
     )
-    public ProfilePicturePkg getProfilePicture (Authentication auth) {
+    public ResponseEntity<?> getProfilePicture (@RequestParam(value = "userIds", required = false) Long[] userIds,
+                                                Authentication auth) {
 
         String companyName = UserHelpers.getCompany(auth);
-        String email = auth.getName();
-        Long userId = userDetailsService.findUserIdByCompanyNameAndEmail(companyName, email);
 
-        return userDetailsService.findProfilePictureForUser(companyName, userId);
-    }
-
-    @RequestMapping(
-            value = "/user/profilePicByIds",
-            method = RequestMethod.GET
-    )
-    public List<ProfilePicturePkg> getProfilePictureById (@RequestParam("userIds") Long[] userIds,
-                                                          Authentication auth) {
-
-        String companyName = UserHelpers.getCompany(auth);
-        return userDetailsService.findProfilePicturesByIds(companyName, userIds);
+        if ( (userIds != null) && (userIds.length > 0) ) {
+            List<ProfilePicturePkg> ppp = userDetailsService.findProfilePicturesByIds(companyName, userIds);
+            return new ResponseEntity<Object>(ppp, HttpStatus.OK);
+        }
+        else {
+            String email = auth.getName();
+            Long userId = userDetailsService.findUserIdByCompanyNameAndEmail(companyName, email);
+            ProfilePicturePkg ppp = userDetailsService.findProfilePictureForUser(companyName, userId);
+            return new ResponseEntity<Object>(ppp, HttpStatus.OK);
+        }
     }
 
 }

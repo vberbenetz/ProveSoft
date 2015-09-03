@@ -22,7 +22,6 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import java.io.IOException;
 import java.util.Iterator;
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -34,6 +33,15 @@ public class UploadController {
     @Autowired
     UserDetailsService userDetailsService;
 
+    /**
+     * Method retrieves a file based on the parameters, formats the headers with the file metadata, and sends a
+     * ResponseEntity with the payload consisting of the file
+     * @param documentId Document Id
+     * @param revisionId Revision Id
+     * @param isRedline Redline flag
+     * @param auth Authentication object
+     * @return ResponseEntity
+     */
     @RequestMapping(
             value = "/download",
             method = RequestMethod.GET
@@ -76,6 +84,18 @@ public class UploadController {
         return new ResponseEntity<>(documentUpload.getFile(), headers, HttpStatus.OK);
     }
 
+    /**
+     * Method accepts a MultipartHttpServletRequest for the file data, and formats it for file uploading to the
+     * database via the corresponding service and repository
+     * @param documentId Document Id
+     * @param isRedline Redline flag
+     * @param tempUpload Temporary upload flag
+     * @param tempRevId UUID assigned to upload because revision Id is not assigned until after user completed revision
+     *                  process
+     * @param request File payload
+     * @param auth Authentication object
+     * @return ResponseEntity with a temporary revision Id (UUID)
+     */
     @RequestMapping(
             value = "/upload",
             method = RequestMethod.POST
@@ -92,7 +112,7 @@ public class UploadController {
 
             String companyName = UserHelpers.getCompany(auth);
 
-            Document document = documentService.findByCompanyNameAndDocumentId(companyName, documentId);
+            Document document = documentService.findDocumentByCompanyNameAndDocumentId(companyName, documentId);
 
             if (document == null) {
                 throw new ResourceNotFoundException();
@@ -140,6 +160,12 @@ public class UploadController {
  */
 //=======================================================
 
+    /**
+     * Method is here temporarily to allow profile picture uploading for testing purposes
+     * @param request Picutre data
+     * @param auth Authentication object
+     * @return ReponseEntity
+     */
     @RequestMapping(
             value = "/upload/profilePicture",
             method = RequestMethod.POST
@@ -174,13 +200,13 @@ public class UploadController {
     }
 
 
-
-
-
-
-
-    /*
-        Update the revision Id after the document revision has been created (Id has been generated)
+    /**
+     * Method updates the revisionId of a document once the revision process if finalized. UUID replaces with rev Id
+     * @param documentId Document Id
+     * @param tempRevId UUID assigned to temporary document upload
+     * @param newRevId Real generated revision Id upon finalization of revision process
+     * @param auth Authentication object
+     * @return ResponseEntity (HTTP Status)
      */
     @RequestMapping(
             value = "/upload/updateRevId",
@@ -204,8 +230,13 @@ public class UploadController {
     }
 
 
-    /*
-        Delete Uploaded Document (Only Used For Temporary Docs. Called upon cancelled revision)
+    /**
+     * Method deletes a temporary uploaded revision document should the user cancel the revision process before
+     * completing it
+     * @param documentId Document Id
+     * @param tempRevId UUID assigned to temporary revision upload
+     * @param auth Authentication object
+     * @return Response Entity (HTTP Status)
      */
     @RequestMapping(
             value = "/upload",

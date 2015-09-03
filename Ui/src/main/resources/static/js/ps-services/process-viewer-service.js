@@ -23,14 +23,17 @@ function documentCreationService($resource) {
             }
         ),
 
-        documentType: $resource('/resource/documentType'),
+        documentType: $resource('/resource/document/type'),
 
-        organization: $resource('/resource/organization'),
-
-        organizations: $resource('/resource/organization/byList',
+        organization: $resource('/resource/organization',
             {},
             {
                 query: {
+                    method: 'GET',
+                    params: {},
+                    isArray: true
+                },
+                queryByOrgIds: {
                     method: 'GET',
                     params: {
                         orgIds: '@orgIds'
@@ -44,74 +47,62 @@ function documentCreationService($resource) {
 
 function documentLookupService($resource) {
     return {
-        lookup: $resource('/resource/document/lookup',
+        document: $resource('/resource/document',
             {},
             {
-                query: {
+                getByDocumentId: {
+                    method: 'GET',
+                    params: {
+                        documentId: '@documentId',
+                        isArray: false
+                    }
+                },
+                queryByDocumentIds: {
+                    method: 'GET',
+                    params: {
+                        documentIds: '@documentIds'
+                    },
+                    isArray: true
+                },
+                queryBySearchString: {
                     method: 'GET',
                     params: {
                         searchString: '@searchString'
                     },
                     isArray: true
-                }
-            }
-        ),
-
-        multiple: $resource('/resource/document/multiple',
-            {},
-            {
-                query: {
+                },
+                queryFirst10: {
                     method: 'GET',
-                    params: {
-                        documentIds: '@documentIds'
-                    },
+                    params: {},
                     isArray: true
                 }
             }
         ),
 
-        first10: $resource('/resource/document/first10'),
-
         revision: $resource('/resource/document/revision',
             {},
             {
-                query: {
+                queryByDocumentId: {
                     method: 'GET',
                     params: {
                         documentId: '@documentId'
                     },
                     isArray: true
-                }
-            }
-        ),
-
-        revisions: $resource('/resource/document/revisions',
-            {},
-            {
-                query: {
+                },
+                queryByDocumentIds: {
                     method: 'GET',
                     params: {
                         documentIds: '@documentIds'
                     },
                     isArray: true
-                }
-            }
-        ),
-
-        latestRevisions: $resource('/resource/document/revision/multiLatest',
-            {},
-            {
-                query: {
+                },
+                queryRecent: {
                     method: 'GET',
-                    params: {
-                        documentIds: '@documentIds'
-                    },
+                    params: {},
                     isArray: true
                 }
             }
         ),
-
-        latestRevisionsForCompany: $resource('/resource/document/revisions/recent'),
 
         approvalHistory: $resource('/resource/approvalHistory',
             {},
@@ -140,23 +131,26 @@ function documentLookupService($resource) {
             }
         ),
 
-        documentComment: $resource('/resource/document/comment'),
-
-        documentComments: $resource('/resource/document/comments',
+        documentComment: $resource('/resource/document/comment',
             {},
             {
-                queryRecent: {
+                queryRecentByDocumentId: {
                     method: 'GET',
                     params: {
                         documentId: '@documentId',
                         recent: true
                     },
                     isArray: true
+                },
+                queryRecent: {
+                    method: 'GET',
+                    params: {},
+                    isArray: true
                 }
             }
         ),
 
-        childDocumentComments: $resource('/resource/document/comments/children',
+        childDocumentComment: $resource('/resource/document/comment/children',
             {},
             {
                 query: {
@@ -167,9 +161,7 @@ function documentLookupService($resource) {
                     isArray: true
                 }
             }
-        ),
-
-        latestCommentsForCompany: $resource('/resource/document/comments/recent')
+        )
     }
 }
 
@@ -219,13 +211,7 @@ function signoffPathsService($resource) {
                         pathId: '@pathId'
                     },
                     isArray: false
-                }
-            }
-        ),
-
-        pathMulti: $resource('/resource/signoffPath/multi',
-            {},
-            {
+                },
                 query: {
                     method: 'GET',
                     params: {

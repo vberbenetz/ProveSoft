@@ -14,6 +14,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Controller encompasses all routes regarding organizations. Any missing methods will be found in
+ * the AdminController because of sensitive information
+ */
 @RestController
 public class OrganizationController {
 
@@ -24,8 +28,13 @@ public class OrganizationController {
     /* ------------------------ GET --------------------------- */
     /* -------------------------------------------------------- */
 
-    /*
-        Retrieve organizations in list
+    /**
+     * Retrieve organizations based on passed in parameters:
+     * 1) By organization Ids array - get organizations based on this list
+     * 2) No parameters - get all organizations for this company
+     * @param orgIds
+     * @param auth
+     * @return List of Organizations
      */
     @RequestMapping(
             value = "/organization/byList",
@@ -36,23 +45,12 @@ public class OrganizationController {
 
         String companyName = UserHelpers.getCompany(auth);
 
-        ArrayList<Long> orgIdList = new ArrayList<>(Arrays.asList(orgIds));
+        if ( (orgIds != null) && (orgIds.length > 0) ) {
+            return organizationsService.findByCompanyNameAndOrganizationIdList(companyName, Arrays.asList(orgIds));
+        }
 
-        return organizationsService.findByCompanyNameAndOrganizationIdList(companyName, orgIdList);
-    }
-
-    /*
-        Get all organizations for company
-     */
-    @RequestMapping(value = "/organization",
-            method = RequestMethod.GET
-    )
-    public List<Organizations> getOrganizations (Authentication auth) {
-
-        // Get all organizations by the user's company
-// TODO: ONLY RETRIEVE RESULTS WHICH THE USER HAS PERMISSIONS FOR
-        String companyName = UserHelpers.getCompany(auth);
-
+        // Return all organizations for this company
         return organizationsService.findByCompany(companyName);
     }
+
 }

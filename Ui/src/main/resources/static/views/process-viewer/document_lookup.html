@@ -213,7 +213,7 @@
                 <div class="feed-activity-list">
                     <div class="feed-element" ng-repeat="n in recentDocumentActivity">
                         <div class="pull-left">
-                            <img alt="" src="../img/default_profile.png" class="img-circle" ng-src="{{ n.profilePicture }}">
+                            <img alt="" src="img/default_profile.png" class="img-circle" ng-src="{{ n.profilePicture }}">
                         </div>
 
                         <!-- Is Comment -->
@@ -229,7 +229,7 @@
                             </div>
                             <div ng-repeat="c in n.childComments" class="well">
                                 <div class="pull-left margin-right-15">
-                                    <img alt="" src="../img/default_profile.png" class="img-circle-child-comment" ng-src="{{ c.profilePicture }}" />
+                                    <img alt="" src="img/default_profile.png" class="img-circle-child-comment" ng-src="{{ c.profilePicture }}" />
                                 </div>
                                 <strong>{{ c.user.firstName }} {{ c.user.lastName }}</strong><br/>
                                 <small class="pull-right text-navy">{{c.date | date: 'yyyy-MM-dd' }}</small>

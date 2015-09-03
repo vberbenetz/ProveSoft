@@ -77,12 +77,12 @@ function manageUsersCtrl($scope, $rootScope, $window, $timeout, userService, man
 
 
     // Load all organizations
-    manageUsersService.allOrganizations.query(function(orgs) {
+    manageUsersService.organization.query(function(orgs) {
 
         $scope.organizations = orgs;
 
         // Load preview of users
-        manageUsersService.allUsers.query(function(users) {
+        manageUsersService.user.queryAll(function(users) {
             $scope.users = users;
 
         }, function(error) {
@@ -121,7 +121,7 @@ function manageUsersCtrl($scope, $rootScope, $window, $timeout, userService, man
 
                         // Retrieve profile pictures
                         var userIds = [data.userId];
-                        userService.profilePictureByIds.query({userIds: userIds}, function(profilePictures) {
+                        userService.profilePicture.query({userIds: userIds}, function(profilePictures) {
 
                             if (profilePictures.length > 0) {
                                 $scope.rightPanel.data.profilePicture = profilePictures[0].picData;
@@ -200,7 +200,7 @@ function manageUsersCtrl($scope, $rootScope, $window, $timeout, userService, man
             if ($scope.userSearchString !== $scope.prevUserSearchString) {
                 $scope.prevUserSearchString = $scope.userSearchString;
 
-                manageUsersService.userWildSearch.query({name: $scope.userSearchString}, function(data, status, headers, config) {
+                manageUsersService.user.queryBySearchString({name: $scope.userSearchString}, function(data, status, headers, config) {
                     if (data.length > 0) {
                         $scope.noResultsFound = false;
                         $scope.users = data;
@@ -984,13 +984,13 @@ function signoffPathsSetupCtrl ($scope, $rootScope, $window, manageUsersService,
     $scope.newSteps = [];
     $scope.stepsToRemove = [];
 
-    manageUsersService.allUsers.query(function(users) {
+    manageUsersService.user.queryAll(function(users) {
         $scope.users = users;
     }, function(error) {
         $scope.err = error;
     });
 
-    manageUsersService.allOrganizations.query(function(orgs) {
+    manageUsersService.organization.get(function(orgs) {
         $scope.organizations = orgs;
     }, function(error) {
         $scope.err = error;
@@ -1195,7 +1195,7 @@ function pendingApprovalsCtrl($scope,
     $scope.showRightPanel = false;
     $scope.newSteps = [];
 
-    manageUsersService.allUsers.query(function(users) {
+    manageUsersService.user.queryAll(function(users) {
         $scope.users = users;
     }, function(error) {
         $scope.err = error;

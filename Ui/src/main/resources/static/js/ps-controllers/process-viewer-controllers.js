@@ -62,7 +62,7 @@ function documentLookupCtrl($scope, $rootScope, $window, $q, $timeout, $modal, u
 
 
     // Get initial list of companies
-    documentLookupService.first10.query(function(data) {
+    documentLookupService.document.queryFirst10(function(data) {
         $scope.documentSearchResults = data;
     }, function(error) {
         $scope.err = error;
@@ -81,7 +81,7 @@ function documentLookupCtrl($scope, $rootScope, $window, $q, $timeout, $modal, u
             if ($scope.searchString !== $scope.prevSearchString) {
                 $scope.prevSearchString = $scope.searchString;
 
-                documentLookupService.lookup.query({searchString: $scope.searchString}, function(data, status, headers, config) {
+                documentLookupService.document.queryBySearchString({searchString: $scope.searchString}, function(data, status, headers, config) {
                     if (data.length > 0) {
                         $scope.noResultsFound = false;
                         $scope.documentSearchResults = data;
@@ -187,7 +187,7 @@ function documentLookupCtrl($scope, $rootScope, $window, $q, $timeout, $modal, u
 
     $scope.getRevisions = function(documentId) {
         if ($scope.lastFetchedRevisions != documentId) {
-            documentLookupService.revision.query({documentId: documentId}, function(revisions) {
+            documentLookupService.revision.queryByDocumentId({documentId: documentId}, function(revisions) {
                 $scope.revisions = revisions;
                 $scope.lastFetchedRevisions = documentId;
             }, function(error) {
@@ -201,7 +201,7 @@ function documentLookupCtrl($scope, $rootScope, $window, $q, $timeout, $modal, u
 
             documentLookupService.recentApprovalHistory.query({documentId: documentId}, function(approvalHistory) {
 
-                documentLookupService.documentComments.queryRecent({documentId: documentId}, function(recentComments) {
+                documentLookupService.documentComment.queryRecentByDocumentId({documentId: documentId}, function(recentComments) {
                     var recentDocActivity = approvalHistory.concat(recentComments);
                     $scope.lastFetchedActivity = documentId;
 
@@ -234,14 +234,14 @@ function documentLookupCtrl($scope, $rootScope, $window, $q, $timeout, $modal, u
                     // Append comment likes
                     // Append child comments
                     if (documentCommentIds.length > 0) {
-                        documentLookupService.childDocumentComments.query({parentCommentIds: documentCommentIds}, function(childComments) {
+                        documentLookupService.childDocumentComment.query({parentCommentIds: documentCommentIds}, function(childComments) {
                             // Append child comment profile pictures
                             var childCommentUserIds = [];
                             for (var w = 0; w < childComments.length; w++) {
                                 childCommentUserIds.push(childComments[w].user.userId);
                             }
 
-                            userService.profilePictureByIds.query({userIds: childCommentUserIds}, function(childProfilePics) {
+                            userService.profilePicture.query({userIds: childCommentUserIds}, function(childProfilePics) {
                                 childComments = $scope.matchProfilePicToList(childProfilePics, childComments);
                                 $scope.matchChildCommentsToParent(childComments);
                             }, function(error) {
@@ -253,7 +253,7 @@ function documentLookupCtrl($scope, $rootScope, $window, $q, $timeout, $modal, u
                             $scope.error = error;
                         });
 
-                        commentLikeService.likesForCommmentList.query({documentCommentIds: documentCommentIds}, function(likes) {
+                        commentLikeService.documentCommentLike.query({documentCommentIds: documentCommentIds}, function(likes) {
                             $scope.matchLikesToComment(likes);
                         }, function(error) {
                             $scope.error = error;
@@ -262,7 +262,7 @@ function documentLookupCtrl($scope, $rootScope, $window, $q, $timeout, $modal, u
 
                     // Append parent comment profile pictures
                     if (userIds.length > 0) {
-                        userService.profilePictureByIds.query({userIds: userIds}, function(profilePictures) {
+                        userService.profilePicture.query({userIds: userIds}, function(profilePictures) {
                             $scope.matchProfilePicToActivity(profilePictures);
 
                         }, function(error) {
@@ -339,7 +339,7 @@ function documentLookupCtrl($scope, $rootScope, $window, $q, $timeout, $modal, u
 
     $scope.addLikeForComment = function(commentId) {
 
-        commentLikeService.commentLike.save({documentCommentId: commentId}, function(data, status, headers, config) {
+        commentLikeService.documentCommentLike.save({documentCommentId: commentId}, function(data, status, headers, config) {
             // Mark comment as me liking it
             var recentDocActivity = $scope.recentDocumentActivity;
             for (var i = 0; i < recentDocActivity.length; i++) {
@@ -594,7 +594,7 @@ function documentCreationCtrl($scope, $rootScope, $window, $state, documentCreat
     // Load sign off paths if organization choice changes
     $scope.loadSignoffPaths = function () {
         if ($scope.loadedPathsForOrg != $scope.newDocument.organization.organizationId) {
-            signoffPathsService.pathMulti.query({orgId: $scope.newDocument.organization.organizationId}, function (data) {
+            signoffPathsService.path.query({orgId: $scope.newDocument.organization.organizationId}, function (data) {
                 $scope.signoffPaths = data;
                 $scope.loadedPathsForOrg = $scope.newDocument.organization.organizationId;
             }, function (error) {
@@ -705,7 +705,7 @@ function documentCreationCtrl($scope, $rootScope, $window, $state, documentCreat
 
 }
 
-function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams, documentCreationService, documentRevisionService, generalSettingsService, signoffPathsService) {
+function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams, documentLookupService, documentCreationService, documentRevisionService, generalSettingsService, signoffPathsService) {
 
     if (!$rootScope.authenticated) {
         $window.location.href = '/';
@@ -774,7 +774,7 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
     });
 
     // Get document and associated signoff path and steps
-    documentCreationService.document.get({documentId: $scope.documentId}, function(document) {
+    documentLookupService.document.getByDocumentId({documentId: $scope.documentId}, function(document) {
         $scope.document = document;
 
         signoffPathsService.path.get({pathId: document.signoffPathId}, function(signoffPath) {
@@ -789,7 +789,7 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
                     orgIds.push(steps[i].user.primaryOrganization.organizationId);
                 }
 
-                documentCreationService.organizations.query({orgIds: orgIds}, function(assocOrgs) {
+                documentCreationService.organization.queryByOrgIds({orgIds: orgIds}, function(assocOrgs) {
                     $scope.assocOrgs = assocOrgs;
                 }, function(error) {
                     $scope.error = error;
@@ -994,7 +994,7 @@ function signoffModalCtrl($scope, $modalInstance, steps, userService) {
     for (var j = 0; j < steps.length; j++) {
         userIds.push(steps[j].user.userId);
     }
-    userService.profilePictureByIds.query({userIds: userIds}, function(profilePics) {
+    userService.profilePicture.query({userIds: userIds}, function(profilePics) {
         matchProfilePicToStep(profilePics);
     }, function(error) {
         $scope.error = error;
@@ -1048,7 +1048,7 @@ function approvalHistoryModalCtrl($scope, $modalInstance, history, userService) 
     for (var j = 0; j < history.length; j++) {
         userIds.push(history[j].user.userId);
     }
-    userService.profilePictureByIds.query({userIds: userIds}, function(profilePics) {
+    userService.profilePicture.query({userIds: userIds}, function(profilePics) {
         matchProfilePicToStep(profilePics);
     }, function(error) {
         $scope.error = error;

@@ -17,7 +17,7 @@ function navBarService($resource) {
 
 function userService($resource) {
     return {
-        userDetails: $resource('/resource/userDetails',
+        userDetails: $resource('/resource/user/details',
             {},
             {
                 queryByUserIds: {
@@ -40,12 +40,7 @@ function userService($resource) {
                     method: 'GET',
                     params: {},
                     isArray: false
-                }
-            }
-        ),
-        profilePictureByIds: $resource('/resource/user/profilePicByIds',
-            {},
-            {
+                },
                 query: {
                     method: 'GET',
                     params: {
@@ -60,9 +55,16 @@ function userService($resource) {
 
 function commentLikeService($resource) {
     return {
-        commentLike: $resource('/resource/comment/like',
+        documentCommentLike: $resource('/resource/document/comment/like',
             {},
             {
+                query: {
+                    method: 'GET',
+                    params: {
+                        documentCommentIds: '@documentCommentIds'
+                    },
+                    isArray: true
+                },
                 save: {
                     method: 'POST',
                     params: {
@@ -71,22 +73,7 @@ function commentLikeService($resource) {
                     isArray: false
                 }
             }
-        ),
-
-        countForComment: $resource('/resource/comment/like/count',
-            {},
-            {
-                get: {
-                    method: 'GET',
-                    params: {
-                        documentCommentId: '@documentCommentId'
-                    },
-                    isArray: false
-                }
-            }
-        ),
-
-        likesForCommmentList: $resource('/resource/comment/likes')
+        )
     }
 }
 

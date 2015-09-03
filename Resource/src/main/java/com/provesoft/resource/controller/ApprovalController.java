@@ -24,6 +24,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Controller encompasses all routes pertaining to approvals and notifications
+ */
 @RestController
 public class ApprovalController {
 
@@ -40,6 +43,11 @@ public class ApprovalController {
     DocumentService documentService;
 
 
+    /**
+     * Retrieve all approval notifications for this user.
+     * @param auth
+     * @return List of ApprovalNotifications
+     */
     @RequestMapping(
             value = "/notifications/approvals",
             method = RequestMethod.GET
@@ -54,17 +62,22 @@ public class ApprovalController {
         return approvalService.getApprovalNotifications(companyName, me.getUserId());
     }
 
-    /*
-        Approve request in notification.
-        1) Check if correct parameters are passed in.
-        2) Get the current group of steps by a stepId.
-        3) Mark all the steps in that group as approved.
-        4) Check if notifications exist for this group of steps.
-            - If not then it indicates that an admin approved a set of steps further down the path. Return from here.
-        5) Remove all notifications for this document.
-        6) Get next group of steps.
-        7a) If no steps are returned, end of document has been reached. Mark as released and delete all steps.
-        7b) Create new set of notifications for this group.
+    /**
+     * Approve request in notification.
+     * 1) Check if correct parameters are passed in.
+     * 2) Get the current group of steps by a stepId.
+     * 3) Mark all the steps in that group as approved.
+     * 4) Check if notifications exist for this group of steps.
+     * - If not then it indicates that an admin approved a set of steps further down the path. Return from here.
+     * 5) Remove all notifications for this document.
+     * 6) Get next group of steps.
+     * 7a) If no steps are returned, end of document has been reached. Mark as released and delete all steps.
+     * 7b) Create new set of notifications for this group.
+     * @param notificationId
+     * @param documentId
+     * @param stepId
+     * @param auth
+     * @return ResponseEntity
      */
     @RequestMapping(
             value = "/notifications/approvals",
@@ -152,6 +165,14 @@ public class ApprovalController {
 
 
     /* --------------------------------------- Approval History ------------------------------------------ */
+
+    /**
+     * Retrieve ApprovalHistory for documentId and revisionId
+     * @param documentId
+     * @param revisionId
+     * @param auth
+     * @return List of ApprovalHistory
+     */
     @RequestMapping(
             value = "/approvalHistory",
             method = RequestMethod.GET
@@ -168,6 +189,12 @@ public class ApprovalController {
         throw new ResourceNotFoundException();
     }
 
+    /**
+     * Retrieve recent ApprovalHistory for document
+     * @param documentId
+     * @param auth
+     * @return List of ApprovalHistory
+     */
     @RequestMapping(
             value = "/approvalHistory/recent",
             method = RequestMethod.GET

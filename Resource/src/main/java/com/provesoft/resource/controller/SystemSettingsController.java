@@ -18,8 +18,11 @@ public class SystemSettingsController {
     /* ------------------------ GET --------------------------- */
     /* -------------------------------------------------------- */
 
-    /*
-        Retrieve SystemSetting by company name and setting name
+    /**
+     * Method retrieves SystemSettings by setting name
+     * @param setting Setting name
+     * @param auth Authentication object
+     * @return SystemSettings
      */
     @RequestMapping(
             value = "/setting",
@@ -30,9 +33,7 @@ public class SystemSettingsController {
 
         String companyName = UserHelpers.getCompany(auth);
 
-        SystemSettings s = systemSettingsService.getSettingByCompanyNameAndSetting(companyName, setting);
-
-        return s;
+        return systemSettingsService.getSettingByCompanyNameAndSetting(companyName, setting);
     }
 
 }

@@ -13,7 +13,6 @@ import com.provesoft.resource.exceptions.InternalServerErrorException;
 import com.provesoft.resource.exceptions.ResourceNotFoundException;
 import com.provesoft.resource.service.*;
 import com.provesoft.resource.utils.SignoffPathHelpers;
-import com.provesoft.resource.utils.SystemHelpers;
 import com.provesoft.resource.utils.UserHelpers;
 import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,11 +26,14 @@ import org.springframework.web.bind.annotation.*;
 import javax.transaction.TransactionRolledbackException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * The DocumentController encompasses all routes tied to Document, DocumentType, DocumentRevision, and DocumentComment
+ * objects.
+ */
 @RestController
 public class DocumentController {
 
@@ -57,169 +59,146 @@ public class DocumentController {
 
     /* ------ Document ------ */
 
-    // Find document by Id
+    /**
+     * Method retrieves documents based on which parameters are passed in.
+     * 1) By documentId: returns 1 document based on Id and company
+     * 2) By documentIds: returns list of documents based on list of doc Ids and company
+     * 3) By searchString: returns list of documents based on wildcard search string
+     * @param documentId Single document Id
+     * @param documentIds Array of document Ids
+     * @param searchString String used to perform wildcard search
+     * @param auth Authentication object
+     * @return ReponseEntity with a Document or List of Documents as its payload
+     */
     @RequestMapping(value = "/document",
             method = RequestMethod.GET
     )
-    public Document getDocumentById (@RequestParam("documentId") String documentId,
-                                     Authentication auth) {
+    public ResponseEntity<?> getDocument (@RequestParam(value = "documentId", required = false) String documentId,
+                                          @RequestParam(value = "documentIds", required = false) String[] documentIds,
+                                          @RequestParam(value = "searchString", required = false) String searchString,
+                                          Authentication auth) {
 
         String companyName = UserHelpers.getCompany(auth);
 
-        return documentService.findDocumentById(companyName, documentId);
-    }
-
-    // Find by document Id list
-    @RequestMapping(value = "/document/multiple",
-            method = RequestMethod.GET
-    )
-    public List<Document> getDocumentByIdList (@RequestParam("documentIds") String[] documentIds,
-                                               Authentication auth) {
-
-        String companyName = UserHelpers.getCompany(auth);
-
-        return documentService.findDocumentByIdList(companyName, Arrays.asList(documentIds));
-    }
-
-    // Find all documents by the user's company, and join the like list of Id's and Titles
-    @RequestMapping(value = "/document/lookup",
-            method = RequestMethod.GET
-    )
-    public List<Document> documentLookup (@RequestParam("searchString") String searchString,
-                                          Authentication auth)
-    {
-
-// TODO: (MAYBE) ONLY RETRIEVE RESULTS WHICH THE USER HAS PERMISSIONS FOR
-        String companyName = UserHelpers.getCompany(auth);
-
-        // Add wildcard characters
-        searchString = "%" + searchString + "%";
-
-        return documentService.documentWildCardSearch(companyName, searchString);
-    }
-
-    /*
-        Retrieve first 10 documents sorted alphabetically
-     */
-    @RequestMapping(
-            value = "/document/first10",
-            method = RequestMethod.GET
-    )
-    public List<Document> findFirst10ByCompanyName(Authentication auth) {
-
-// TODO: (MAYBE) ONLY RETRIEVE RESULTS WHICH THE USER HAS PERMISSIONS FOR
-
-        // Retrieve their company
-        String company = UserHelpers.getCompany(auth);
-
-        if (company != null) {
-            return documentService.findFirst10ByCompanyName(company);
+        if (documentId != null) {
+            Document d = documentService.findDocumentById(companyName, documentId);
+            return new ResponseEntity<Object>(d, HttpStatus.OK);
         }
 
-        throw new ResourceNotFoundException();
+        if ( (documentIds != null) && (documentIds.length > 0) ) {
+            List<Document> dList = documentService.findDocumentByIdList(companyName, documentIds);
+            return new ResponseEntity<Object>(dList, HttpStatus.OK);
+        }
+
+        if (searchString != null) {
+
+            // Add wildcard characters
+            searchString = "%" + searchString + "%";
+            List<Document> dList = documentService.findDocumentBySearchString(companyName, searchString);
+            return new ResponseEntity<Object>(dList, HttpStatus.OK);
+        }
+
+        // If all params are non-existant, return first 10 by company
+        List<Document> dList = documentService.findFirst10DocumentsByCompanyName(companyName);
+        return new ResponseEntity<Object>(dList, HttpStatus.OK);
     }
 
 
     /* ------ DocumentType ------ */
 
-    @RequestMapping(value = "/documentType",
+    /**
+     * Method retrieves all DocumentTypes for this company
+     * @param auth Authentication Object
+     * @return List of DocumentType
+     */
+    @RequestMapping(value = "/document/type",
             method = RequestMethod.GET
     )
     public List<DocumentType> getDocumentTypes (Authentication auth) {
 
-        // Get all document types by the user's company
-// TODO: ONLY RETRIEVE RESULTS WHICH THE USER HAS PERMISSIONS FOR
         String companyName = UserHelpers.getCompany(auth);
-
-        return documentService.findByCompanyName(companyName);
+        return documentService.findDocumentTypeByCompanyName(companyName);
     }
+
 
     /* ------ DocumentRevision ------ */
 
-    /*
-        Retrieve all revisions by documentId.
+    /**
+     * Method returns DocumentRevisions List depeneding on which parameters are passed in
+     * 1) Return DocumentRevisions by documentId
+     * 2) Return DocumentRevisions by documentId array
+     * 3) No parameters - return lastest DocumentRevisions for company
+     * @param documentId Single documentId
+     * @param documentIds Array of documentIds
+     * @param auth Authentication object
+     * @return DocumentRevisions List
      */
     @RequestMapping(
             value = "/document/revision",
             method = RequestMethod.GET
     )
-    public List<DocumentRevisions> getRevisionsByDocumentId(@RequestParam String documentId,
-                                                            Authentication auth) {
-
-// TODO: CHECK IF USER HAS VIEW PERMISSIONS FOR THIS DOCUMENT
+    public List<DocumentRevisions> getDocumentRevision(@RequestParam(value = "documentId", required = false) String documentId,
+                                                       @RequestParam(value = "documentIds", required = false) String[] documentIds,
+                                                       Authentication auth) {
 
         String companyName = UserHelpers.getCompany(auth);
+        List<DocumentRevisions> drList;
 
-        return documentService.findDocRevByCompanyNameAndDocumentId(companyName, documentId);
-    }
+        if (documentId != null) {
+            drList = documentService.findDocRevByCompanyNameAndDocumentId(companyName, documentId);
+            return drList;
+        }
 
-    /*
-        Get latest revisions by list of documentIds
-     */
-    @RequestMapping(
-            value = "/document/revisions",
-            method = RequestMethod.GET
-    )
-    public List<DocumentRevisions> getRevisionsByDocumentIds(@RequestParam("documentIds") String[] documentIds,
-                                                                   Authentication auth) {
-        String companyName = UserHelpers.getCompany(auth);
+        if ( (documentIds != null) && (documentIds.length > 0) ) {
+            drList = documentService.findLatestDocRevsByCompanyNameAndDocumentIds(companyName, documentIds);
+            return drList;
+        }
 
-        return documentService.findLatestDocRevsByCompanyNameAndDocumentIds(companyName, documentIds);
-    }
-
-    /*
-        Retrieve latest revisions by Company
-     */
-    @RequestMapping(
-            value = "/document/revisions/recent",
-            method = RequestMethod.GET
-    )
-    public List<DocumentRevisions> getRecentDocumentRevisionsByCompany(Authentication auth) {
-        String companyName = UserHelpers.getCompany(auth);
         return documentService.findLatestDocRevsByCompanyName(companyName);
     }
 
 
     /* ---------- DocumentComment ---------- */
 
-    /*
-        Retrieve recent comments for document
+    /**
+     * Method retrieves List of DocumentComments based on parameters passed in:
+     * 1) By documentId: Get list of comments by documentId
+     * 2) No parameters: Get list of comments by company
+     * @param documentId DocumentId used to lookup comments
+     * @param recent Flag indicating that most recent comments are needed for Document (false version not implemented yet)
+     * @param auth Authentication object
+     * @return List of DocumentComment
      */
     @RequestMapping(
-            value = "/document/comments",
+            value = "/document/comment",
             method = RequestMethod.GET
     )
-    public List<DocumentComment> getRecentDocumentComments(@RequestParam String documentId,
-                                                           @RequestParam(value = "recent", required = false) Boolean recent,
-                                                           Authentication auth) {
-        String companyName = UserHelpers.getCompany(auth);
-
-        if ( (recent != null) && (recent) ) {
-            return documentService.getRecentDocumentComments(companyName, documentId);
-        }
-
+    public List<DocumentComment> getDocumentComments(@RequestParam(value = "documentId", required = false) String documentId,
+                                                     @RequestParam(value = "recent", required = false) Boolean recent,
+                                                     Authentication auth) {
 // TODO: IMPLEMENT METHOD IF RECENT IS NOT TRUE
 
-        throw new ResourceNotFoundException();
-    }
-
-    /*
-        Retrieve most recent comments for Company
-     */
-    @RequestMapping(
-            value = "/document/comments/recent",
-            method = RequestMethod.GET
-    )
-    public List<DocumentComment> getRecentDocumentCommentsForCompany(Authentication auth) {
         String companyName = UserHelpers.getCompany(auth);
+
+        if (documentId != null) {
+
+            if ( (recent != null) && (recent) ) {
+                return documentService.getRecentDocumentComments(companyName, documentId);
+            }
+        }
+
+        // Return recent documents otherwise
         return documentService.findLatestCommentsByCompanyName(companyName);
     }
 
-    /*
-        Retrieve children comments for parentId List
+    /**
+     * Method retrieves all child comments for the list of parent commentIds passed in
+     * @param parentCommentIds Array of parent commentId for which children will be fetched for
+     * @param auth Authentication object
+     * @return List of DocumentComment
      */
     @RequestMapping(
-            value = "/document/comments/children",
+            value = "/document/comment/children",
             method = RequestMethod.GET
     )
     public List<DocumentComment> getChildrenCommentsByParentIds(@RequestParam("parentCommentIds") Long[] parentCommentIds,
@@ -228,14 +207,16 @@ public class DocumentController {
         return documentService.findChildrenCommentsByParentIds(companyName, parentCommentIds);
     }
 
+     /* ------------------- DocumentCommentLike ------------------- */
 
-    /* ------------------- DocumentCommentLike ------------------- */
-
-    /*
-        Get count of likes for comment
+    /**
+     * Method retrieves DocumentCommentLikes for specific DocumentComment
+     * @param documentCommentIds Array of DocumentComment Ids to retrieve likes for
+     * @param auth Authentication object
+     * @return List of DocumentCommentLike
      */
     @RequestMapping(
-            value = "/comment/likes",
+            value = "/document/comment/like",
             method = RequestMethod.GET
     )
     public List<DocumentCommentLike> getLikesForCommentList (@RequestParam("documentCommentIds") Long[] documentCommentIds,
@@ -253,6 +234,16 @@ public class DocumentController {
 
     /* ------ Document ------ */
 
+    /**
+     * Method creates a new Document:
+     * 1) Converts POST payload to base Document object
+     * 2) Get and generate a new unique document Id
+     * 3) Save document object to the database
+     * 4) If signoffs required, retrieve template steps and send notifications to approvers
+     * @param json POST payload containing basic Document info
+     * @param auth Authentication object
+     * @return Document Object
+     */
     @RequestMapping(
             value = "/document",
             method = RequestMethod.POST,
@@ -370,16 +361,27 @@ public class DocumentController {
         throw new ResourceNotFoundException();
     }
 
+
     /* ------ DocumentRevision ------ */
 
+    /**
+     * Method creates a new DocumentRevision
+     * 1) Create basic DocumentRevision object from POST payload
+     * 2) Get and increment a new unique RevisionId for this object
+     * 3) Persist full Revision object to database
+     * 4) If signoffs required, copy template steps and send out notifications to required approvers
+     * @param json POST payload for basic DocumentRevision object
+     * @param auth Authentication object
+     * @return DocumentRevision
+     */
     @RequestMapping(
             value = "/document/revision",
             method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public DocumentRevisions reviseDocument(@RequestBody String json,
-                                            Authentication auth) {
+    public DocumentRevisions createDocumentRevision(@RequestBody String json,
+                                                    Authentication auth) {
 
 // TODO: CHECK IF USER HAS PERMISSIONS TO EDIT FOR THIS DOCUMENT BELONGING TO ORGANIZATION
 
@@ -401,7 +403,7 @@ public class DocumentController {
             }
 
             // Verify document belongs to company
-            Document docToChange = documentService.findByCompanyNameAndDocumentId(companyName, documentId);
+            Document docToChange = documentService.findDocumentByCompanyNameAndDocumentId(companyName, documentId);
             if (docToChange == null) {
                 throw new ResourceNotFoundException();
             }
@@ -432,7 +434,7 @@ public class DocumentController {
                             redlineDocPresent
                     );
 
-                    newRevision = documentService.addNewRevision(newRevision);
+                    newRevision = documentService.addNewDocumentRevision(newRevision);
 
                     docToChange.setRevision(documentRevisionId);
                     docToChange.setDate(currentDate);
@@ -490,6 +492,12 @@ public class DocumentController {
 
     /* -------------------------- DocumentComment ----------------------------- */
 
+    /**
+     * Method creates a new DocumentComment based on POST payload
+     * @param json POST payload
+     * @param auth Authentication object
+     * @return DocumentComment
+     */
     @RequestMapping(
             value = "/document/comment",
             method = RequestMethod.POST,
@@ -506,7 +514,7 @@ public class DocumentController {
             String companyName = UserHelpers.getCompany(auth);
 
             // Check if document belongs to user's company OR exists
-            Document doc = documentService.findByCompanyNameAndDocumentId(companyName, documentComment.getDocumentId());
+            Document doc = documentService.findDocumentByCompanyNameAndDocumentId(companyName, documentComment.getDocumentId());
             if (doc == null) {
                 throw new ResourceNotFoundException();
             }
@@ -528,12 +536,18 @@ public class DocumentController {
 
     /* ------------------- DocumentCommentLike ------------------- */
 
+    /**
+     * Method adds a DocumentCommentLike to respective DocumentComment
+     * @param documentCommentId DocumentComment for which like will be associated with
+     * @param auth Authentication object
+     * @return DocumentCommentLike
+     */
     @RequestMapping(
-            value = "/comment/like",
+            value = "/document/comment/like",
             method = RequestMethod.POST
     )
-    public DocumentCommentLike createNewCommentLike(@RequestParam("documentCommentId") Long documentCommentId,
-                                                    Authentication auth) {
+    public DocumentCommentLike createCommentLike(@RequestParam("documentCommentId") Long documentCommentId,
+                                                 Authentication auth) {
 
         String companyName = UserHelpers.getCompany(auth);
         Long userId = userDetailsService.findUserIdByCompanyNameAndEmail(companyName, auth.getName());
@@ -548,20 +562,27 @@ public class DocumentController {
     /* ------------------------ UPDATE ------------------------- */
     /* --------------------------------------------------------- */
 
-    /* ------ Document SignoffPath ------ */
+    /**
+     * Method edits document fields. Currently it only updates the signoff path for the document.
+     * In the future this can be expanded to update other aspects of the document
+     * @param documentId Document Id of the document that will be edited
+     * @param signoffPathId SignoffPath Id to append document with. In the future this will be optional
+     * @param auth Authentication object with current user information
+     * @return Updated Document object
+     */
     @RequestMapping(
             value = "/document",
             method = RequestMethod.PUT
     )
-    public Document addSignoffPath(@RequestParam("documentId") String documentId,
-                                   @RequestParam("signoffPathId") Long signoffPathId,
-                                   Authentication auth) {
+    public Document changeDocumentSignoffPath(@RequestParam("documentId") String documentId,
+                                              @RequestParam("signoffPathId") Long signoffPathId,
+                                              Authentication auth) {
 
         if (UserHelpers.isSuperAdmin(auth)) {
 
             String companyName = UserHelpers.getCompany(auth);
 
-            Document doc = documentService.findByCompanyNameAndDocumentId(companyName, documentId);
+            Document doc = documentService.findDocumentByCompanyNameAndDocumentId(companyName, documentId);
 
             if (doc == null) {
                 throw new ResourceNotFoundException();

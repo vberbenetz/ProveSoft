@@ -60,7 +60,7 @@ function NavBarCtrl($scope, navBarService, documentLookupService) {
 
         // Align docs to notification
         if (documentIds.length > 0) {
-            documentLookupService.multiple.query({documentIds: documentIds}, function(documents) {
+            documentLookupService.document.queryByDocumentIds({documentIds: documentIds}, function(documents) {
                 $scope.matchDocumentToApproval(documents);
             }, function(error) {
                 $scope.error = error;
@@ -130,11 +130,11 @@ function NewsFeedCtrl ($scope, $rootScope, navBarService, documentLookupService,
 
         // Align docs to notification
         if (documentIds.length > 0) {
-            documentLookupService.multiple.query({documentIds: documentIds}, function(documents) {
+            documentLookupService.document.queryByDocumentIds({documentIds: documentIds}, function(documents) {
                 $scope.matchDocumentToApproval(documents);
 
                 // Align revisions to notification
-                documentLookupService.revisions.query({documentIds: documentIds}, function(latestRevisions) {
+                documentLookupService.revision.queryByDocumentIds({documentIds: documentIds}, function(latestRevisions) {
                     $scope.matchLatestRevisionToApproval(latestRevisions);
 
                     // Get list of userIds to fetch user details and profile pics
@@ -145,7 +145,7 @@ function NewsFeedCtrl ($scope, $rootScope, navBarService, documentLookupService,
                     }
 
                     // Get all profile pictures
-                    userService.profilePictureByIds.query({userIds: userIds}, function(profilePictures) {
+                    userService.profilePicture.query({userIds: userIds}, function(profilePictures) {
                        $scope.matchProfilePicToApproval(profilePictures);
 
                     }, function(error) {
@@ -166,7 +166,7 @@ function NewsFeedCtrl ($scope, $rootScope, navBarService, documentLookupService,
     });
 
     // Get all daily feed items
-    documentLookupService.latestRevisionsForCompany.query(function(latestRevs) {
+    documentLookupService.revision.queryRecent(function(latestRevs) {
 
         // Get list of userIds to retrieve UserDetails for revision.
         var revUserIds = [];
@@ -176,7 +176,7 @@ function NewsFeedCtrl ($scope, $rootScope, navBarService, documentLookupService,
         }
 
         // Get latest comments for company
-        documentLookupService.latestCommentsForCompany.query(function(latestComments) {
+        documentLookupService.documentComment.queryRecent(function(latestComments) {
 
             // Append comment userIds for profile pic retrieval
             for (var y = 0; y < latestComments.length; y++) {
@@ -207,7 +207,7 @@ function NewsFeedCtrl ($scope, $rootScope, navBarService, documentLookupService,
 
             // Append comment likes
             if (documentCommentIds.length > 0) {
-                commentLikeService.likesForCommmentList.query({documentCommentIds: documentCommentIds}, function(likes) {
+                commentLikeService.documentCommentLike.query({documentCommentIds: documentCommentIds}, function(likes) {
                     $scope.matchLikesToComment(likes);
                 }, function(error) {
                     $scope.error = error;
@@ -215,7 +215,7 @@ function NewsFeedCtrl ($scope, $rootScope, navBarService, documentLookupService,
             }
 
             // Retrieve profile pictures
-            userService.profilePictureByIds.query({userIds: revUserIds}, function(profilePictures) {
+            userService.profilePicture.query({userIds: revUserIds}, function(profilePictures) {
                 $scope.matchProfilePicToDailyFeed(profilePictures);
 
             }, function(error) {

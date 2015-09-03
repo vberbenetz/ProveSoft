@@ -28,6 +28,10 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * This class contains all entry points for all admin routes. It touches all other classes and methods
+ * and consolidates all admin tasks in this class.
+ */
 @RestController
 public class AdminController {
 
@@ -63,79 +67,39 @@ public class AdminController {
 
     // -------------------------------------------------- GET ------------------------------------------------------- //
 
-    /*
-        Retrieve all users part of the admin's company
+    /**
+     * Method returns UserDetails for users depending on parameters:
+     * 1) If all is true, return all users for this company
+     * 2) If searchString exists, perform a wildcard search on the User's name
+     * 3) If not parameters are passed in, return first 10 users
+     * @param all Flag to indicate if all users need to be returned
+     * @param searchString Partial or full search string which will use wildcards to search based on user first/last name
+     * @param auth Authentication object
+     * @return List of UserDetails
      */
     @RequestMapping(
-            value = "/admin/user/all",
+            value = "/admin/user",
             method = RequestMethod.GET
     )
-    public List<UserDetails> findAllUsers(Authentication auth) {
+    public List<UserDetails> findUsers(@RequestParam(value = "all", required = false) Boolean all,
+                                       @RequestParam(value = "searchString", required = false) String searchString,
+                                       Authentication auth) {
 
-        // Check if super admin
         if (UserHelpers.isSuperAdmin(auth)) {
+            String companyName = UserHelpers.getCompany(auth);
 
-            // Retrieve their company
-            String company = UserHelpers.getCompany(auth);
-
-            if (company != null) {
-                return userDetailsService.findAllByCompanyName(company);
+            if ( (all != null) && (all) ) {
+                return userDetailsService.findAllByCompanyName(companyName);
             }
 
-            throw new ResourceNotFoundException();
-        }
-
-        throw new ForbiddenException();
-    }
-
-    /*
-        Retrieve first 10 users sorted alphabetically
-     */
-    @RequestMapping(
-            value = "/admin/user/first10",
-            method = RequestMethod.GET
-    )
-    public List<UserDetails> findFirst10ByCompanyName(Authentication auth) {
-
-        // Check if super admin
-        if (UserHelpers.isSuperAdmin(auth)) {
-
-            // Retrieve their company
-            String company = UserHelpers.getCompany(auth);
-
-            if (company != null) {
-                return userDetailsService.findFirst10ByCompanyName(company);
+            if (searchString != null) {
+                searchString = "%" + searchString + "%";    // Add wildcard values for search
+                return userDetailsService.findByCompanyAndPartialName(companyName, searchString);
             }
 
-            throw new ResourceNotFoundException();
-        }
+            // Return first 10 by default
+            return userDetailsService.findFirst10ByCompanyName(companyName);
 
-        throw new ForbiddenException();
-    }
-
-    /*
-        Retrieve user by partial first or last name.
-        User for wild-card search of users.
-     */
-    @RequestMapping(
-            value = "/admin/user/wildSearch",
-            method = RequestMethod.GET
-    )
-    public List<UserDetails> findUserByPartialName(@RequestParam("name") String name,
-                                                   Authentication auth) {
-
-        // Check if super admin
-        if (UserHelpers.isSuperAdmin(auth)) {
-
-            // Retrieve their company
-            String company = UserHelpers.getCompany(auth);
-
-            if (company != null) {
-                name = "%" + name + "%";    // Add wildcard values for search
-                return userDetailsService.findByCompanyAndPartialName(company, name);
-            }
-
-            throw new ResourceNotFoundException();
         }
 
         throw new ForbiddenException();
@@ -144,9 +108,11 @@ public class AdminController {
 
     // -------------------------------------------------- POST ------------------------------------------------------ //
 
-    /*
-        Create a new user.
-        Currently generates a default password, but are able to login as the new user
+    /**
+     * Method creates a new user by the admin from the user management page. Default password and organization set.
+     * @param json User payload
+     * @param auth Authentication object
+     * @return New UserDetails
      */
     @RequestMapping(value = "/admin/user",
             method = RequestMethod.POST,
@@ -192,8 +158,12 @@ public class AdminController {
         throw new ForbiddenException();
     }
 
-    /*
-        Add UserPermissions to user with userId, based on rolePermissions of roleId.
+    /**
+     * Method updates and enables role permissions for user
+     * @param userId User Id of user to update
+     * @param roleIds Array of Role Ids to enable for user
+     * @param auth Authentication object
+     * @return List of UserPermissions
      */
     @RequestMapping(value = "/admin/user/permissions",
             method = RequestMethod.POST,
@@ -264,8 +234,12 @@ public class AdminController {
 
     }
 
-    /*
-        Update primary organization
+    /**
+     * Method updates and sets a new primary organization for a user
+     * @param userId User Id of user who has their primary organization updated
+     * @param json Organization payload
+     * @param auth Authentication object
+     * @return UserDetails with updated primary organization
      */
     @RequestMapping(
             value = "/admin/user/primaryOrg",
@@ -310,9 +284,14 @@ public class AdminController {
 
     // -------------------------------------------------- PUT ------------------------------------------------------- //
 
-    /*
-        Update user organizations and/or roles
-    */
+    /**
+     * Method updates certain user properties depending on parameters passed in
+     * @param userId User Id of user getting their properties updated
+     * @param alternateOrgIds Alternate organization Ids to replace user's current ones
+     * @param roleIds Roles Ids to replace user's current ones
+     * @param auth Authentication object
+     * @return Empty ResponseEntity
+     */
     @RequestMapping(value = "/admin/user/properties",
             method = RequestMethod.PUT
     )
@@ -357,14 +336,16 @@ public class AdminController {
 
     // ------------------------------------------------- DELETE ----------------------------------------------------- //
 
-    /*
-        Delete user.
-        DOES NOT DELETE USER FROM THE GATEWAY DB
-
-        1) Delete all User permissions
-        2) Delete all roleUser associations
-        3) Delete all orgUser associations
-        4) Delete UserDetails
+    /**
+     * Method deletes a user. This method is called by the front-end from the manage users panel. Pitfall is that this
+     * method does not delete User from Users and Authority tables.
+     * 1) Delete all UserPermissions
+     * 2) Delete all RoleUser associated with this user
+     * 3) Delete all OrgUser associated with this user
+     * 4) Delete UserDetails for this user
+     * @param userId User Id of user being deleted
+     * @param auth Authentication object
+     * @return Empty ResponseEntity
      */
     @RequestMapping(value = "/admin/user",
             method = RequestMethod.DELETE
@@ -372,6 +353,8 @@ public class AdminController {
     public ResponseEntity deleteUser (@RequestParam(value = "userId", required = true) Long userId,
                                       Authentication auth
     ) {
+
+// TODO: Delete user from Users and Authority table
 
         // Check if super admin
         if (UserHelpers.isSuperAdmin(auth)) {
@@ -402,8 +385,13 @@ public class AdminController {
         throw new ForbiddenException();
     }
 
-    /*
-        Remove user's alternate organizations and/or roles pointing to user
+    /**
+     * Method deletes alternate organization Ids or role Ids associated with this user
+     * @param userId User Id of user getting their ids removed
+     * @param orgId Org Id of alternate organization id being removed from user
+     * @param roleId Role Id of role being disassociated from user
+     * @param auth Authentication object
+     * @return Empty ResponseEntity
      */
     @RequestMapping(value = "/admin/user/properties",
             method = RequestMethod.DELETE
@@ -438,8 +426,12 @@ public class AdminController {
         throw new ForbiddenException();
     }
 
-    /*
-        Remove UserPermissions for user of userId based on roleId
+    /**
+     * Method deletes permissions for User in a certain role
+     * @param userId User Id who is getting permissions revoked
+     * @param roleId Role Id to which permissions map to
+     * @param auth Authentication object
+     * @return Empty ResponseEntity
      */
     @RequestMapping(value = "/admin/user/permissions",
             method = RequestMethod.DELETE
@@ -496,61 +488,43 @@ public class AdminController {
 
     // -------------------------------------------------- GET ------------------------------------------------------- //
 
-    /*
-        Retrieve all organizations by the admin's company
-     */
-    @RequestMapping(
-            value = "/admin/organization/all",
-            method = RequestMethod.GET
-    )
-    public List<Organizations> findAllOrganizations(Authentication auth) {
-
-        // Check if super admin
-        if (UserHelpers.isSuperAdmin(auth)) {
-
-            // Retrieve their company
-            String company = UserHelpers.getCompany(auth);
-
-            if (company != null) {
-                return organizationsService.findByCompany(company);
-            }
-
-            throw new ResourceNotFoundException();
-        }
-
-        throw new ForbiddenException();
-    }
-
-    /*
-        Retrieve single organization by organizationId
+    /**
+     * Method retrieves organization by organization Id or by default (if no param) all organizations for company
+     * @param orgId Organization Id of organization to find
+     * @param auth Authentication object
+     * @return ResponseEntity with Organization or List of Organizations as payload
      */
     @RequestMapping(
             value = "/admin/organization",
             method = RequestMethod.GET
     )
-    public Organizations findOrganizationById(@RequestParam("orgId") Long orgId,
-                                              Authentication auth)
-    {
-        // Check if super admin
+    public ResponseEntity<?> findOrganization(@RequestParam(value = "orgId", required = false) Long orgId,
+                                              Authentication auth) {
+
         if (UserHelpers.isSuperAdmin(auth)) {
+            String companyName = UserHelpers.getCompany(auth);
 
-            // Retrieve their company
-            String company = UserHelpers.getCompany(auth);
-
-            if (company != null) {
-                return organizationsService.findByOrganizationIdAndCompanyName(orgId, company);
+            if (orgId != null) {
+                Organizations o = organizationsService.findByOrganizationIdAndCompanyName(orgId, companyName);
+                return new ResponseEntity<>(o, HttpStatus.OK);
             }
 
-            throw new ResourceNotFoundException();
+            // Return all organization by default
+            List<Organizations> oList = organizationsService.findByCompany(companyName);
+            return new ResponseEntity<>(oList, HttpStatus.OK);
         }
 
         throw new ForbiddenException();
     }
 
+
     // -------------------------------------------------- POST ------------------------------------------------------ //
 
-    /*
-        Create a new Organization
+    /**
+     * Method creates a new organization based on passed in payload from organizaiton management in the frontend
+     * @param json Organization payload
+     * @param auth Authentication object
+     * @return Organizations
      */
     @RequestMapping(value = "/admin/organization",
             method = RequestMethod.POST,
@@ -589,15 +563,18 @@ public class AdminController {
 
     // -------------------------------------------------- PUT ------------------------------------------------------- //
 
-    /*
-        Update organization description
-    */
+    /**
+     * Method updates the organizations description
+     * @param orgId Organization Id of organization receiving new description
+     * @param newDescription Description to replace existing one
+     * @param auth Authentication object
+     */
     @RequestMapping(value = "/admin/organization",
             method = RequestMethod.PUT
     )
-    public void updateDescription(@RequestParam("orgId") Long orgId,
-                                  @RequestParam("newDescription") String newDescription,
-                                  Authentication auth) {
+    public void updateOrganizationDescription(@RequestParam("orgId") Long orgId,
+                                              @RequestParam("newDescription") String newDescription,
+                                              Authentication auth) {
 
         // Check if super admin
         if (UserHelpers.isSuperAdmin(auth)) {
@@ -612,8 +589,10 @@ public class AdminController {
 
     // ------------------------------------------------- DELETE ----------------------------------------------------- //
 
-    /*
-        Delete organization
+    /**
+     * Method deletes an organization based on Organization object in the payload
+     * @param json Organization object payload
+     * @param auth Authentication object
      */
     @RequestMapping(value = "/admin/organization",
             method = RequestMethod.DELETE,
@@ -654,8 +633,10 @@ public class AdminController {
 
     // -------------------------------------------------- GET ------------------------------------------------------- //
 
-    /*
-        Retrieve all roles by admin's company
+    /**
+     * Method retrieves all roles for the company
+     * @param auth Authentication object
+     * @return List of Roles
      */
     @RequestMapping(
             value = "/admin/role/all",
@@ -681,16 +662,19 @@ public class AdminController {
 
     // -------------------------------------------------- POST ------------------------------------------------------ //
 
-    /*
-        Create new Role (not including RolePermissions)
+    /**
+     * Method creates a new role for the company via the role management panel in the admin frontend
+     * @param json Role payload
+     * @param auth Authentication object
+     * @return Roles
      */
     @RequestMapping(value = "/admin/role",
             method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public Roles createRole (@RequestBody String json,
-                             Authentication auth) {
+    public Roles addRole (@RequestBody String json,
+                          Authentication auth) {
 
         // Check if super admin
         if (UserHelpers.isSuperAdmin(auth)) {
@@ -713,8 +697,11 @@ public class AdminController {
         throw new ForbiddenException();
     }
 
-    /*
-        Add RolePermissions as dictated by the newly created Role (runs right after new role is created)
+    /**
+     * Add RolePermissions as dictated by the newly created Role (method called right after a new Role is created)
+     * @param json RolePermissions payload
+     * @param auth Authentication object
+     * @return List of RolePermissions
      */
     @RequestMapping(value = "/admin/role/permissions",
             method = RequestMethod.POST,
@@ -728,7 +715,8 @@ public class AdminController {
         if (UserHelpers.isSuperAdmin(auth)) {
             ObjectMapper mapper = new ObjectMapper();
             try {
-                List<RolePermissions> rolePermissionsList = mapper.readValue(json, new TypeReference<List<RolePermissions>>() { } );
+                List<RolePermissions> rolePermissionsList = mapper.readValue(json, new TypeReference<List<RolePermissions>>() {
+                });
 
                 /* ----- Verify all roles and organizations belong to this user's company ----- */
                 String companyName = UserHelpers.getCompany(auth);
@@ -795,6 +783,16 @@ public class AdminController {
          2) All role templates are deleted
          3) User permissions that were assigned by this role remain
       */
+
+    /**
+     * Method deletes a role from the company.
+     * 1) All role permissions are deleted
+     * 2) All role templates are deleted
+     * 3) User permissions assigned by this role remain
+     * @param roleId Role Id of Role to be deleted
+     * @param auth Authentication object
+     * @return Empty ResponseEntity
+     */
     @RequestMapping(value = "/admin/role",
             method = RequestMethod.DELETE
     )
@@ -832,8 +830,12 @@ public class AdminController {
 
     // -------------------------------------------------- GET ------------------------------------------------------- //
 
-    /*
-        Retrieve either Users by organizationId or Organizations by userId
+    /**
+     * Method retrieves User if orgId parameter present or Organizations if userId parameter present
+     * @param userId User Id for which Organizations are queried by
+     * @param orgId Organization Id for which Users are queried by
+     * @param auth Authentication object
+     * @return List of Objects (UserDetails or Organizations)
      */
     @RequestMapping(
             value = "/admin/orgUser",
@@ -904,10 +906,13 @@ public class AdminController {
 
     // -------------------------------------------------- POST ------------------------------------------------------ //
 
-    // TODO: MAY HAVE A SECURITY ISSUE BECAUSE IDS ARE NOT CHECKED AGAINST WHETHER USER HAS RIGHTS TO THEIR COMPANY
-    /*
-        Create additional organization mappings
-    */
+
+    /**
+     * Method creates organization user relationship mappings
+     * @param json OrgUser payload
+     * @param auth Authentication object
+     * @return List of OrgUsers
+     */
     @RequestMapping(value = "/admin/orgUser",
             method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -915,6 +920,8 @@ public class AdminController {
     )
     public List<OrgUser> addAdditionalOrgs (@RequestBody String json,
                                             Authentication auth) {
+
+// TODO: MAY HAVE A SECURITY ISSUE BECAUSE IDS ARE NOT CHECKED AGAINST WHETHER USER HAS RIGHTS TO THEIR COMPANY
 
         // Check if super admin
         if (UserHelpers.isSuperAdmin(auth)) {
@@ -953,16 +960,20 @@ public class AdminController {
 
     // -------------------------------------------------- GET ------------------------------------------------------- //
 
-    /*
-        Retrieve list of RoleUsers by userId or roleId
+    /**
+     * Method retrieves a list of RoleUsers either by userId or roleId
+     * @param userId User Id query parameter for RoleUser
+     * @param roleId Role Id query parameter for RoleUser
+     * @param auth Authentication object
+     * @return List of RoleUser
      */
     @RequestMapping(
             value = "/admin/roleUser",
             method = RequestMethod.GET
     )
-    public List<? extends Object> getRoleUserById (@RequestParam(value = "userId", required = false) Long userId,
-                                                   @RequestParam(value = "roleId", required = false) Long roleId,
-                                                   Authentication auth) {
+    public List<RoleUser> getRoleUserById (@RequestParam(value = "userId", required = false) Long userId,
+                                           @RequestParam(value = "roleId", required = false) Long roleId,
+                                           Authentication auth) {
         // Check if super admin
         if (UserHelpers.isSuperAdmin(auth)) {
 
@@ -999,6 +1010,13 @@ public class AdminController {
 
     // -------------------------------------------------- POST ------------------------------------------------------ //
 
+    /**
+     * Create a new list of Role/User relationship mappings.
+     * @param userId User Id of user for mapping
+     * @param roleIds Role Id of role for mapping
+     * @param auth Authentication object
+     * @return List of RoleUser
+     */
     @RequestMapping(value = "/admin/roleUser",
             method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -1050,8 +1068,11 @@ public class AdminController {
 
     // -------------------------------------------------- GET ------------------------------------------------------- //
 
-    /*
-        Retrieve Document By State
+    /**
+     * Method retrieves all documents based on their state
+     * @param state Document state (Released, Pending)
+     * @param auth Authentication object
+     * @return List of Document
      */
     @RequestMapping(
             value = "/admin/document",
@@ -1077,17 +1098,19 @@ public class AdminController {
     }
 
 
-
 /* ------------------------------------------------------------------------------------------------------------------ */
 /* ------------------------------------------- DOCUMENTTYPE RELATED ------------------------------------------------- */
 /* ------------------------------------------------------------------------------------------------------------------ */
 
     // -------------------------------------------------- GET ------------------------------------------------------- //
 
-    /*
-        Retrieve DocumentType object by documentTypeId
+    /**
+     * Method retrieves DocumentType by document type id
+     * @param id DocumentType id query parameter
+     * @param auth Authentication object
+     * @return List of DocumentType
      */
-    @RequestMapping(value = "/admin/documentType",
+    @RequestMapping(value = "/admin/document/type",
             method = RequestMethod.GET
     )
     public List<DocumentType> getDocumentTypes (@RequestParam(value = "id", required = false) Long id,
@@ -1100,12 +1123,12 @@ public class AdminController {
 
             // Fetch by Id
             if (id != null) {
-
+// TODO: ---------------
             }
 
             // Fetch all
             else {
-                return documentService.findByCompanyName(companyName);
+                return documentService.findDocumentTypeByCompanyName(companyName);
             }
         }
 
@@ -1114,10 +1137,13 @@ public class AdminController {
 
     // -------------------------------------------------- POST ------------------------------------------------------ //
 
-    /*
-        Create new document type
-    */
-    @RequestMapping(value = "/admin/documentType",
+    /**
+     * Method creates a new DocumentType based on DocumentType payload
+     * @param json DocumentType payload
+     * @param auth Authentication object
+     * @return New DocumentType
+     */
+    @RequestMapping(value = "/admin/document/type",
             method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
@@ -1162,8 +1188,12 @@ public class AdminController {
 
     // -------------------------------------------------- GET ------------------------------------------------------- //
 
-    /*
-        Retrieve either list of UserPermissions by userId or RolePermissions by roleId
+    /**
+     * Method retrieves UserPermissions if userId parameter present. Retrieves RolePermissions if roleId is present
+     * @param userId User Id query parameter for UserPermissions
+     * @param roleId Role Id query parameter for RolePermissions
+     * @param auth Authentication object
+     * @return List of Object (UserPermissions or RolePermissions)
      */
     @RequestMapping(
             value = "/admin/permissions",
@@ -1222,8 +1252,11 @@ public class AdminController {
 
     // -------------------------------------------------- POST ------------------------------------------------------ //
 
-    /*
-        Add new system setting
+    /**
+     * Method saves changes to a SystemSetting from the admin frontend panel
+     * @param json SystemSetting payload
+     * @param auth Authentication object
+     * @return SystemSetting
      */
     @RequestMapping(
             value = "/admin/setting",
@@ -1264,8 +1297,10 @@ public class AdminController {
 
     // -------------------------------------------------- GET ------------------------------------------------------- //
 
-    /*
-        Retrieve subset of all company signoff paths
+    /**
+     * Method retrieves first 10 SignoffPaths for company.
+     * @param auth Authentication object
+     * @return List of SignoffPath
      */
     @RequestMapping(
             value = "/admin/signoffPath/first10",
@@ -1286,8 +1321,12 @@ public class AdminController {
 
     // -------------------------------------------------- POST ------------------------------------------------------ //
 
-    /*
-        Create new signoff path
+    /**
+     * Method creates a new SignoffPath
+     * @param userId User Id of user who will be initial step of the SignoffPath
+     * @param json SignoffPath payload
+     * @param auth Authentication object
+     * @return SignoffPath
      */
     @RequestMapping(
             value = "/admin/signoffPath",
@@ -1362,8 +1401,11 @@ public class AdminController {
         throw new ForbiddenException();
     }
 
-    /*
-        Create new signoff path template step
+    /**
+     * Method creates new SignoffPathTemplateSteps
+     * @param json SignoffPathTemplateSteps payload
+     * @param auth Authentication object
+     * @return List of SignoffPathTemplateSteps
      */
     @RequestMapping(
             value = "/admin/signoffPath/steps/template",
@@ -1403,8 +1445,12 @@ public class AdminController {
         throw new ForbiddenException();
     }
 
-    /*
-        Create new signoff path steps. (Extra steps for this document)
+    /**
+     * Method creates additional SignoffPathSteps for this specific Document (does not update template or other docs)
+     * @param documentId Document Id for which additional SignoffPathSteps are to be added
+     * @param json SignoffPathSteps payload
+     * @param auth Authentication object
+     * @return List of SignoffPathSteps
      */
     @RequestMapping(
             value = "/admin/signoffPath/steps",
@@ -1455,6 +1501,14 @@ public class AdminController {
 
     /*
         Remove signoff path steps
+     */
+
+    /**
+     * Method removes specific SignoffPathSteps from a SignoffPathTemplate. All documents in "Pending" state which have
+     * had the original template applied will not see these changes reflected for them until next revision cycle.
+     * @param pathId SignoffPath Id for which template steps need to be removed from
+     * @param stepIds Array of SignoffPathStep Ids to be removed from SignoffPath
+     * @param auth Authentication object
      */
     @RequestMapping(
             value = "/admin/signoffPath/steps/template",

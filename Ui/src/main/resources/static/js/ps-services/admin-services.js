@@ -5,6 +5,25 @@ function manageUsersService($resource) {
         user: $resource('/resource/admin/user',
             {},
             {
+                queryAll: {
+                    method: 'GET',
+                    params: {
+                        all: true
+                    },
+                    isArray: true
+                },
+                queryBySearchString: {
+                    method: 'GET',
+                    params: {
+                        searchString: '@searchString'
+                    },
+                    isArray: true
+                },
+                queryFirst10: {
+                    method: 'GET',
+                    params: {},
+                    isArray: true
+                },
                 remove: {
                     method: 'DELETE',
                     params: {
@@ -14,12 +33,6 @@ function manageUsersService($resource) {
                 }
             }
         ),
-
-        userWildSearch: $resource('/resource/admin/user/wildSearch'),
-
-        allUsers: $resource('/resource/admin/user/all'),
-
-        first10: $resource('/resource/admin/users/first10'),
 
         userPrimaryOrg: $resource('/resource/admin/user/primaryOrg',
             {},
@@ -94,7 +107,23 @@ function manageUsersService($resource) {
 
         allOrganizations: $resource('/resource/admin/organization/all'),
 
-        organization: $resource('/resource/admin/organization'),
+        organization: $resource('/resource/admin/organization',
+            {},
+            {
+                get: {
+                    method: 'GET',
+                    params: {
+                        orgId: '@orgId'
+                    },
+                    isArray: false
+                },
+                query: {
+                    method: 'GET',
+                    params: {},
+                    isArray: true
+                }
+            }
+        ),
 
         allRoles: $resource('/resource/admin/role/all'),
 
@@ -201,7 +230,7 @@ function manageUsersService($resource) {
 function documentTypeService ($resource) {
 
     return {
-        documentType: $resource('/resource/admin/documentType')
+        documentType: $resource('/resource/admin/document/type')
     }
 }
 

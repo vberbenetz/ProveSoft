@@ -12,6 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.transaction.TransactionRolledbackException;
 import java.util.List;
 
+/**
+ * Service contains all methods related to Document
+ */
 @Service
 public class DocumentService {
 
@@ -45,58 +48,77 @@ public class DocumentService {
 
     /* ------------------------ Document -------------------------- */
 
-    // Search method will use wildcards for the title
-    public List<Document> findByTitle(String companyName, String title) {
-        return documentRepository.searchByTitle(companyName, title);
-    }
-
-    // Find single document by Id
+    /**
+     * Find single document by Id
+     * @param companyName
+     * @param id
+     * @return Document
+     */
     public Document findDocumentById(String companyName, String id) {
         return documentRepository.findByCompanyNameAndId(companyName, id);
     }
 
-    // Find documents by state
+    /**
+     * Find documents by state
+     * @param companyName
+     * @param state
+     * @return List of Document
+     */
     public List<Document> findDocumentByState(String companyName, String state) {
         return documentRepository.findByCompanyNameAndState(companyName, state);
     }
 
-    /*
-        Find by list of document ids
+    /**
+     * Find by list of document ids
+     * @param companyName
+     * @param ids
+     * @return List of Document
      */
-    public List<Document> findDocumentByIdList(String companyName, List<String> ids) {
+    public List<Document> findDocumentByIdList(String companyName, String[] ids) {
         return documentRepository.findByCompanyNameAndIdIn(companyName, ids);
     }
 
-
-    /*
-        Complete wildcard search
+    /**
+     * Wildcard search based on search string
+     * @param companyName
+     * @param searchString
+     * @return List of Document
      */
-    public List<Document> documentWildCardSearch(String companyName, String searchString) {
+    public List<Document> findDocumentBySearchString(String companyName, String searchString) {
         return documentRepository.wildCardSearch(companyName, searchString);
     }
 
-    /*
-        Search for document by documentId
+    /**
+     * Search for document by documentId
+     * @param companyName
+     * @param documentId
+     * @return Document
      */
-    public Document findByCompanyNameAndDocumentId(String companyName, String documentId) {
+    public Document findDocumentByCompanyNameAndDocumentId(String companyName, String documentId) {
         return documentRepository.findByCompanyNameAndId(companyName, documentId);
     }
 
-    /*
-        Get first 10 documents for document preview in lookup screen
+    /**
+     * Get first 10 Documents by company
+     * @param companyName
+     * @return List of Document
      */
-    public List<Document> findFirst10ByCompanyName(String companyName) {
+    public List<Document> findFirst10DocumentsByCompanyName(String companyName) {
         return documentRepository.findFirst10ByCompanyNameOrderByIdAsc(companyName);
     }
 
-    /*
-        Add a document and perform a lazy id update for the DocumentType associated.
-        Does not have to be entirely accurate (concurrently modified) because the DocumentTypeId keeps track of this.
-
-        1) Update id in DocumentType
-        2) Add initial RevisionId
-        3) Add initial Revision
-        4) Add document
+    /**
+     * Add a document and perform a lazy id update for the DocumentType associated.
+     * Does not have to be entirely accurate (concurrently modified) because the DocumentTypeId keeps track of this.
+     *
+     * 1) Update id in DocumentType
+     * 2) Add initial RevisionId
+     * 3) Add initial Revision
+     * 4) Add document
+     * @param document
+     * @param suffix
+     * @param user
+     * @return Document
      */
     public Document addDocument(Document document, Long suffix, UserDetails user) {
         documentTypeRepository.updateCurrentSuffix(document.getDocumentType().getId(), suffix);
@@ -107,7 +129,7 @@ public class DocumentService {
                                                                 "Document Created",
                                                                 user,
                                                                 document.getDate(),
-                                                                false);
+                false);
 
         DocumentRevisionIds initialRevId = new DocumentRevisionIds(document.getCompanyName(), document.getId(), "A");
 
@@ -117,8 +139,10 @@ public class DocumentService {
         return documentRepository.saveAndFlush(document);
     }
 
-    /*
-        Update document after a revision or addition of a signoff path
+    /**
+     * Update document after a revision or addition of a signoff path
+     * @param document
+     * @return Document
      */
     public Document updateDocument(Document document) {
         return documentRepository.saveAndFlush(document);
@@ -127,29 +151,41 @@ public class DocumentService {
 
     /* ------------------------ DocumentUpload -------------------------- */
 
-    /*
-        Retrieve uploaded file
+    /**
+     * Retrieve uploaded file
+     * @param companyName
+     * @param documentId
+     * @param revision
+     * @param redline
+     * @return DocumentUpload
      */
     public DocumentUpload findUploadByCompanyNameAndDocumentIdAndRevisionAndRedline(String companyName, String documentId, String revision, Boolean redline) {
         return documentUploadRepository.findByKeyCompanyNameAndKeyDocumentIdAndKeyRevisionAndKeyRedline(companyName, documentId, revision, redline);
     }
 
-    /*
-        Insert uploaded document file
+    /**
+     * Insert uploaded document file
+     * @param documentUpload
      */
     public void addDocumentFile(DocumentUpload documentUpload) {
         documentUploadRepository.saveAndFlush(documentUpload);
     }
 
-    /*
-        Update the temporary revision id of the temporary documents after a commit
+    /**
+     * Update the temporary revision id of the temporary documents after a commit
+     * @param companyName
+     * @param tempRevId
+     * @param newRevId
      */
     public void updateRevisionId(String companyName, String tempRevId, String newRevId) {
         documentUploadRepository.updateRevisionId(companyName, tempRevId, newRevId);
     }
 
-    /*
-        Delete temporary document uploads
+    /**
+     * Delete temporary document uploads
+     * @param companyName
+     * @param documentId
+     * @param tempRevId
      */
     public void deleteTempUploads(String companyName, String documentId, String tempRevId) {
         //documentUploadRepository.deleteByKeyCompanyNameAndKeyDocumentIdAndKeyRevision(companyName, documentId, tempRevId);
@@ -159,13 +195,20 @@ public class DocumentService {
 
     /* ------------------------ DocumentType -------------------------- */
 
-    public List<DocumentType> findByCompanyName(String companyName) {
+    /**
+     * Retrieve all DocumentType for company
+     * @param companyName
+     * @return List of DocumentType
+     */
+    public List<DocumentType> findDocumentTypeByCompanyName(String companyName) {
         return documentTypeRepository.findByCompanyName(companyName);
     }
 
-    /*
-        Add new DocumentType.
-        Insert new DocumentTypeId to maintain Id generation
+    /**
+     * Add new DocumentType.
+     * Insert new DocumentTypeId to maintain Id generation
+     * @param documentType
+     * @return DocumentType
      */
     public DocumentType addDocumentType(DocumentType documentType) {
         DocumentType newDocumentType = documentTypeRepository.saveAndFlush(documentType);
@@ -174,15 +217,15 @@ public class DocumentService {
         return newDocumentType;
     }
 
-    public void deleteDocumentTypeById(Long id, String companyName) {
-        documentTypeRepository.deleteDocumentTypeById(id, companyName);
-    }
-
 
     /* ------------------------ DocumentTypeId -------------------------- */
 
-    /*
-        Generate new unique id for document of documentType
+    /**
+     * Generate new unique id for document of documentType
+     * @param companyName
+     * @param documentTypeId
+     * @return DocumentTypeId
+     * @throws TransactionRolledbackException
      */
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public DocumentTypeId getAndGenerateDocumentId(String companyName, Long documentTypeId) throws TransactionRolledbackException {
@@ -195,36 +238,50 @@ public class DocumentService {
 
     /* ------------------------ DocumentRevisions -------------------------- */
 
-    /*
-        Add new DocumentRevision
+    /**
+     * Add new DocumentRevision
+     * @param documentRevision
+     * @return DocumentRevisions
      */
-    public DocumentRevisions addNewRevision (DocumentRevisions documentRevision) {
+    public DocumentRevisions addNewDocumentRevision(DocumentRevisions documentRevision) {
         return documentRevisionsRepository.saveAndFlush(documentRevision);
     }
 
-    /*
-        Retrieve DocumentRevision by userId (and companyName)
+    /**
+     * Retrieve DocumentRevision by userId (and companyName)
+     * @param companyName
+     * @param documentId
+     * @return DocumentRevisions
      */
     public List<DocumentRevisions> findDocRevByCompanyNameAndDocumentId (String companyName, String documentId) {
         return documentRevisionsRepository.findByKeyCompanyNameAndKeyDocumentIdOrderByKeyRevisionIdDesc(companyName, documentId);
     }
 
-    /*
-        Retrieve a single DocumentRevision by companyname, documentId, and revisionId
+    /**
+     * Retrieve a single DocumentRevision by companyname, documentId, and revisionId
+     * @param companyName
+     * @param documentId
+     * @param revisionId
+     * @return DocumentRevisions
      */
     public DocumentRevisions findDocRevByCompanyNameAndDocumentIdAndRevisionId (String companyName, String documentId, String revisionId) {
         return documentRevisionsRepository.findByKeyCompanyNameAndKeyDocumentIdAndKeyRevisionId(companyName, documentId, revisionId);
     }
 
-    /*
-        Retrieve latest revision per documentId in documentId list
+    /**
+     * Retrieve latest revision per documentId in documentId list
+     * @param companyName
+     * @param documentIds
+     * @return List of DocumentRevisions
      */
     public List<DocumentRevisions> findLatestDocRevsByCompanyNameAndDocumentIds (String companyName, String[] documentIds) {
         return documentRevisionsRepository.findRevisionByKeyCompanyNameAndKeyDocumentIdIn(companyName, documentIds);
     }
 
-    /*
-        Retrieve latest revisons by Company
+    /**
+     * Retrieve latest revisons by Company
+     * @param companyName
+     * @return List of DocumentRevisions
      */
     public List<DocumentRevisions> findLatestDocRevsByCompanyName (String companyName) {
         return documentRevisionsRepository.findFirst5ByKeyCompanyNameOrderByChangeDateDesc(companyName);
@@ -233,8 +290,12 @@ public class DocumentService {
 
     /* ------------------------ DocumentRevisionIds -------------------------- */
 
-    /*
-        Generate a new revisionId for the document
+    /**
+     * Generate a new revisionId for the document
+     * @param companyName
+     * @param documentId
+     * @return String (DocumentRevision Id)
+     * @throws TransactionRolledbackException
      */
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public String getAndGenerateDocumentRevisionId(String companyName, String documentId) throws TransactionRolledbackException {
@@ -248,29 +309,39 @@ public class DocumentService {
 
     /* ------------------------------ DocumentComments ------------------------------- */
 
-    /*
-        Retrieve recent comments for particular document
+    /**
+     * Retrieve recent comments for particular document
+     * @param companyName
+     * @param documentId
+     * @return List of DocumentComment
      */
     public List<DocumentComment> getRecentDocumentComments(String companyName, String documentId) {
         return documentCommentRepository.findFirst5ParentsByCompanyNameAndDocumentIdOrderByDateDesc(companyName, documentId);
     }
 
-    /*
-        Retrieve latest comments by Company
+    /**
+     * Retrieve latest comments by Company
+     * @param companyName
+     * @return List of DocumentComment
      */
     public List<DocumentComment> findLatestCommentsByCompanyName (String companyName) {
         return documentCommentRepository.findFirst5ParentsByCompanyNameOrderByDateDesc(companyName);
     }
 
-    /*
-        Find children comments by Company and ParentId list
+    /**
+     * Find children comments by Company and ParentId list
+     * @param companyName
+     * @param parentIds
+     * @return List of DocumentComment
      */
     public List<DocumentComment> findChildrenCommentsByParentIds (String companyName, Long[] parentIds) {
         return documentCommentRepository.findChildrenByCompanyNameAndParentDocumentIdList(companyName, parentIds);
     }
 
-    /*
-        Save comment for document
+    /**
+     * Save comment for document
+     * @param documentComment
+     * @return DocumentComment
      */
     public DocumentComment createDocumentComment(DocumentComment documentComment) {
         return documentCommentRepository.saveAndFlush(documentComment);
@@ -279,22 +350,14 @@ public class DocumentService {
 
     /* ------------------------------ DocumentCommentLikes ------------------------------- */
 
-    /*
-        Retrieve count of likes for comment
-     */
-    public Long getNumberOfLikesForComment(String companyName, Long documentCommentId) {
-        return documentCommentLikeRepository.countByKeyCompanyNameAndKeyDocumentCommentId(companyName, documentCommentId);
-    }
-
-    /*
-        Retrieve likes for comments in list
-     */
     public List<DocumentCommentLike> findLikesByCommentList(String companyName, Long[] documentCommentIds) {
         return documentCommentLikeRepository.findByKeyCompanyNameAndKeyDocumentCommentIdIn(companyName, documentCommentIds);
     }
 
-    /*
-        Create new comment like
+    /**
+     * Create new comment like
+     * @param newLike
+     * @return DocumentCommentLike
      */
     public DocumentCommentLike createCommentLike(DocumentCommentLike newLike) {
         return documentCommentLikeRepository.saveAndFlush(newLike);
