@@ -3,6 +3,9 @@ package com.provesoft.resource.entity;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 
+/**
+ * Entity maps a User to Role.
+ */
 @Entity
 public class RoleUser {
 

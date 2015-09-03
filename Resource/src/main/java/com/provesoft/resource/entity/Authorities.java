@@ -3,7 +3,9 @@ package com.provesoft.resource.entity;
 import javax.persistence.*;
 
 /**
- * Used by GATEWAY for user role purposes
+ * Used by GATEWAY for user role purposes.
+ * Authorities preceeded by double underscores '__' are the names of companies. Each user has one of these applied
+ * to them, which grants them access to that company's data.
  */
 @Entity
 public class Authorities {

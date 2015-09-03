@@ -5,6 +5,9 @@ import com.provesoft.resource.entity.Organizations;
 import javax.persistence.*;
 import java.util.Date;
 
+/**
+ * Entity holds all data for the Document object
+ */
 @Entity
 public class Document {
 

@@ -5,6 +5,10 @@ import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import javax.persistence.*;
 
+/**
+ * Entity is a template which is copied to create steps applied directly to a specific DocumentRevision.
+ * This template is created in the admin panel.
+ */
 @Entity
 public class SignoffPathTemplateSteps {
 

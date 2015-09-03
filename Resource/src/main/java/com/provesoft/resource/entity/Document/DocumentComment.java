@@ -5,6 +5,9 @@ import com.provesoft.resource.entity.UserDetails;
 import javax.persistence.*;
 import java.util.Date;
 
+/**
+ * Entity encompasses all data regarding a comment made by a user for a Document
+ */
 @Entity
 public class DocumentComment {
 

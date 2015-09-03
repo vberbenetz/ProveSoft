@@ -3,6 +3,10 @@ package com.provesoft.resource.entity;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 
+/**
+ * Entity holds organization permissions which are applied to a specific role.
+ * Contains "view", "revise", "comment", and "admin" permissions.
+ */
 @Entity
 public class RolePermissions {
 

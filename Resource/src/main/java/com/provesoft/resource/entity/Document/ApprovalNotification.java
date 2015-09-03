@@ -5,6 +5,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
+/**
+ * Entity contains all pending notifications for document creation or revision approvals
+ */
 @Entity
 public class ApprovalNotification {
 

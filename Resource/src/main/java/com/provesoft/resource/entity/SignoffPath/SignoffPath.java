@@ -7,6 +7,9 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+/**
+ * Entity holds information about a specific path. Certain SignoffPathSteps will be associated with this entity.
+ */
 @Entity
 public class SignoffPath {
 

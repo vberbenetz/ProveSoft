@@ -3,6 +3,9 @@ package com.provesoft.resource.entity;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 
+/**
+ * Entity is a mapping for Users to Organizations. This is a lookup table.
+ */
 @Entity
 public class OrgUser {
 

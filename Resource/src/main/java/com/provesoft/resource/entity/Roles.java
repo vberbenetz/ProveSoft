@@ -3,6 +3,9 @@ package com.provesoft.resource.entity;
 
 import javax.persistence.*;
 
+/**
+ * Entity contains information for the Role
+ */
 @Entity
 public class Roles {
 

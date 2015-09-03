@@ -3,6 +3,9 @@ package com.provesoft.resource.entity.Document;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 
+/**
+ * Entity holds information about mapping a DocumentComment Like to a user
+ */
 @Entity
 public class DocumentCommentLike {
 

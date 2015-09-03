@@ -2,6 +2,9 @@ package com.provesoft.resource.entity;
 
 import javax.persistence.*;
 
+/**
+ * Entity holds information for a specific organization.
+ */
 @Entity
 public class Organizations {
 

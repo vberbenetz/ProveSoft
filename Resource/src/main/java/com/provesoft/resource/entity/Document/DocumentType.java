@@ -4,6 +4,10 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
+/**
+ * Entity is a template for Documents created as this type.
+ * This also keeps track of how Document Ids will be generated for this type of document.
+ */
 @Entity
 public class DocumentType {
 

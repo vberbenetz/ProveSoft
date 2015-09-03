@@ -5,6 +5,11 @@ import com.provesoft.resource.entity.UserDetails;
 import javax.persistence.*;
 import java.util.Date;
 
+/**
+ * Entity is a copy of a SignoffPathTemplateStep applied directly to a specific DocumentRevision.
+ * Any changes done to it's twin SignoffPathTemplateStep will not be applied until after another copy is made.
+ * This contains all information for a specific step of the entire SignoffPathStep chain.
+ */
 @Entity
 public class SignoffPathSteps {
 

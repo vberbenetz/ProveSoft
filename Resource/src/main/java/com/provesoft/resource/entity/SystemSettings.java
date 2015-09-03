@@ -3,7 +3,9 @@ package com.provesoft.resource.entity;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 
-
+/**
+ * Entity contains a system setting and its value.
+ */
 @Entity
 public class SystemSettings {
 

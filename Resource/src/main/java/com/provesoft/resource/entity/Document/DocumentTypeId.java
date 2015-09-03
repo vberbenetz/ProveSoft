@@ -3,12 +3,11 @@ package com.provesoft.resource.entity.Document;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 
-/*
-    This entity exists to maintain the current numeric suffix id for a new document of documentType.
-    The reason for a separate entity is to prevent the Isolation.SERIALIZABLE property from locking down the
-    entire DocumentType entity, and only lock down this one when a new document is being generated.
+/**
+ * This entity exists to maintain the current numeric suffix id for a new document of documentType.
+ * The reason for a separate entity is to prevent the Isolation.SERIALIZABLE property from locking down the
+ * entire DocumentType entity, and only lock down this one when a new document is being generated.
  */
-
 @Entity
 public class DocumentTypeId {
 

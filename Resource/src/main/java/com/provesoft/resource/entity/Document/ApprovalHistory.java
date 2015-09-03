@@ -1,11 +1,13 @@
 package com.provesoft.resource.entity.Document;
 
 import com.provesoft.resource.entity.UserDetails;
-import com.provesoft.resource.utils.SystemHelpers;
 
 import javax.persistence.*;
 import java.util.Date;
 
+/**
+ * Entity maintains the history of SignoffPathStep approvals
+ */
 @Entity
 public class ApprovalHistory {
 

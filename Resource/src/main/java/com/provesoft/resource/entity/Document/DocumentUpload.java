@@ -4,6 +4,9 @@ import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Lob;
 
+/**
+ * Entity holds file metadata and file data of file uploads
+ */
 @Entity
 public class DocumentUpload {
 

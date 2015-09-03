@@ -3,6 +3,10 @@ package com.provesoft.resource.entity;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 
+/**
+ * Entity is a copy of the RolePermission, applied to a specific User.
+ * The copy allows fine-grain permission editting for a user.
+ */
 @Entity
 public class UserPermissions {
 

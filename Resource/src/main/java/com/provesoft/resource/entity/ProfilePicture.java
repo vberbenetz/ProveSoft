@@ -4,6 +4,9 @@ import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Lob;
 
+/**
+ * Entity contains the User's picture data as well as its metadata.
+ */
 @Entity
 public class ProfilePicture {
 

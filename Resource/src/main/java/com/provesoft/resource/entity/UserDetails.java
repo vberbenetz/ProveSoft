@@ -2,6 +2,10 @@ package com.provesoft.resource.entity;
 
 import javax.persistence.*;
 
+/**
+ * Entity holds all secondary information for a User (no credential, authority, or other sensitive data).
+ * Users of a company can retrieve and see this data.
+ */
 @Entity
 public class UserDetails {
 

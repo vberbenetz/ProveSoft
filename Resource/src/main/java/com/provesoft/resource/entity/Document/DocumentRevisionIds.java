@@ -3,12 +3,11 @@ package com.provesoft.resource.entity.Document;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 
-/*
-    This entity exists to maintain the current revision id for the document.
-    It is segregated to prevent locking down the document revision table
-    because Isolation.SERIALIZABLE is being used.
+/**
+ * This entity exists to maintain the current revision id for the document.
+ * It is segregated to prevent locking down the document revision table
+ * because Isolation.SERIALIZABLE is being used.
  */
-
 @Entity
 public class DocumentRevisionIds {
 

@@ -8,6 +8,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import java.util.Date;
 
+/**
+ * Entity holds information regarding a revision made for a Document
+ */
 @Entity
 public class DocumentRevisions {
 
