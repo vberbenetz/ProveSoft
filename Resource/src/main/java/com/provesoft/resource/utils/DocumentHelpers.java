@@ -1,9 +1,17 @@
 package com.provesoft.resource.utils;
 
+/**
+ * Class contains helper methods revolving Documents
+ */
 public final class DocumentHelpers {
 
     private DocumentHelpers() {}
 
+    /**
+     * Method determines the next revision Id, and handles digit rollover (ex: Z -> AA)
+     * @param currentRevId Current revision Id
+     * @return Next revision Id String
+     */
     public static String genNextRevId(String currentRevId) {
         String nextRevId = "";
         char lastIdChar = currentRevId.charAt(currentRevId.length() - 1);

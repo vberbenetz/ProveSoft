@@ -1,5 +1,8 @@
 package com.provesoft.resource.utils;
 
+/**
+ * Class is used to return basic metadata for profile picture
+ */
 public class ProfilePicturePkg {
 
     public ProfilePicturePkg(Long userId, String picData) {

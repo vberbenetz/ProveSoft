@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Service contains all routes and methods corresponding to Organizations and its mappings
+ */
 @Service
 public class OrganizationsService {
 
@@ -18,10 +21,22 @@ public class OrganizationsService {
     @Autowired
     OrgUserRepository orgUserRepository;
 
+
+    /**
+     * Method retrieves complete list of organizations for the entire company
+     * @param companyName Company query parameter
+     * @return List of Organizations
+     */
     public List<Organizations> findByCompany(String companyName) {
         return organizationsRepository.findByCompanyNameOrderByOrganizationIdAsc(companyName);
     }
 
+    /**
+     * Method retrieves organizations by company and organization Id list.
+     * @param companyName Company query parameter
+     * @param organizationIds List of organization Ids
+     * @return List of organizations
+     */
     public List<Organizations> findByCompanyNameAndOrganizationIdList(String companyName, List<Long> organizationIds) {
         return organizationsRepository.findByCompanyNameAndOrganizationIdIn(companyName, organizationIds);
     }

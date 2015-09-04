@@ -17,6 +17,10 @@ import org.apache.commons.codec.binary.Base64;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Service encompasses all routes and methods regarding User properties and details. This excludes all sensitive
+ * data such as authentication and user authorities.
+ */
 @Service
 public class UserDetailsService {
 
@@ -50,6 +54,12 @@ public class UserDetailsService {
         return userDetailsRepository.findByCompanyNameAndUserIdIn(companyName, userIds);
     }
 
+    /**
+     * Method is used to perform a wildcard lookup for a user based on a partial first or last name.
+     * @param companyName Company query parameter
+     * @param name Partial first or last name string
+     * @return List of UserDetails
+     */
     public List<UserDetails> findByCompanyAndPartialName(String companyName, String name) {
         List<UserDetails> results = userDetailsRepository.findByCompanyAndPartialName(companyName, name);
         int upToIndex = 0;
@@ -101,6 +111,13 @@ public class UserDetailsService {
 
     /* ---------------------- Profile Picture -------------------- */
 
+    /**
+     * Method retrieves the profile picture for the user and convert the picture data to a Base64 string.
+     * It is preceeded with the necessary metadata in order for browsers to render the image based on the string.
+     * @param companyName Company query parameter
+     * @param userId User id of user whose profile picture is being retrieved
+     * @return ProfilePicturePkg
+     */
     public ProfilePicturePkg findProfilePictureForUser (String companyName, Long userId) {
 
         ProfilePicture pic = profilePictureRepository.findByKeyCompanyNameAndKeyUserId(companyName, userId);
@@ -117,6 +134,13 @@ public class UserDetailsService {
         return new ProfilePicturePkg(userId, sb.toString());
     }
 
+    /**
+     * Method retrieves profile picture for multiple users and converts them to Base64 strings.
+     * These strings are preceeded with metadata for the browser to render them correctly.
+     * @param companyName Company query parameter
+     * @param userIds List of userIds for which the profile pictures are being retrieved for
+     * @return List of ProfilePicturePkg
+     */
     public List<ProfilePicturePkg> findProfilePicturesByIds (String companyName, Long[] userIds) {
 
         List<ProfilePicture> pics = profilePictureRepository.findByKeyCompanyNameAndKeyUserIdIn(companyName, userIds);

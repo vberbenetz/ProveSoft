@@ -3,6 +3,9 @@ package com.provesoft.resource.utils;
 
 import org.springframework.security.core.Authentication;
 
+/**
+ * Class is used to return basic authentication information about a User.
+ */
 public class AuthPkg {
 
     private AuthPkg() {}

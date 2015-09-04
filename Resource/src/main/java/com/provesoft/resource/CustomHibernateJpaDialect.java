@@ -12,6 +12,10 @@ import javax.persistence.PersistenceException;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+/**
+ * Class implements a custom JPA Dialect to allow the Isolation.SERIALIZABLE property for several entity
+ * Id's to allow atomic Id generation.
+ */
 public class CustomHibernateJpaDialect extends HibernateJpaDialect {
 
     private static final long serialVersionUID = 1L;
