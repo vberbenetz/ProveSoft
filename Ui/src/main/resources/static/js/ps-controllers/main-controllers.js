@@ -2,7 +2,7 @@
 
 function MainCtrl($scope, $rootScope, $window, authService, userService) {
 
-     // ---------- Authentication ----------- //
+    // ---------- Authentication ----------- //
 
     authService.getUserAuth.get(function(data) {
         if (data.userName) {
@@ -26,6 +26,7 @@ function MainCtrl($scope, $rootScope, $window, authService, userService) {
     };
 
     // --------------------------------------- //
+
 
     // Get my UserDetails
     userService.userDetails.getMe(function(myDetails) {
