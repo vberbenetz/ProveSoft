@@ -8,7 +8,7 @@ public final class DocumentHelpers {
     private DocumentHelpers() {}
 
     /**
-     * Method determines the next revision Id, and handles digit rollover (ex: Z -> AA)
+     * Method determines the next revision Id, and handles digit rollover (ex: Z -&amp; AA)
      * @param currentRevId Current revision Id
      * @return Next revision Id String
      */
