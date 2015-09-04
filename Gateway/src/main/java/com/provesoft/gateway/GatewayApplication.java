@@ -12,6 +12,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
@@ -57,7 +58,8 @@ public class GatewayApplication {
                     .authoritiesByUsernameQuery(
                             "SELECT Users.username, Authorities.authority as authorities " +
                                     "FROM Users, Authorities " +
-                                    "WHERE Users.username = ? AND Users.username = Authorities.username");
+                                    "WHERE Users.username = ? AND Users.username = Authorities.username")
+                    .passwordEncoder(new BCryptPasswordEncoder());
         }
 
         @Override

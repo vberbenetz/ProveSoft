@@ -216,12 +216,14 @@ function NewsFeedCtrl ($scope, $rootScope, navBarService, documentLookupService,
             }
 
             // Retrieve profile pictures
-            userService.profilePicture.query({userIds: revUserIds}, function(profilePictures) {
-                $scope.matchProfilePicToDailyFeed(profilePictures);
+            if (revUserIds.length > 0) {
+                userService.profilePicture.query({userIds: revUserIds}, function(profilePictures) {
+                    $scope.matchProfilePicToDailyFeed(profilePictures);
 
-            }, function(error) {
-                $scope.error = error;
-            });
+                }, function(error) {
+                    $scope.error = error;
+                });
+            }
 
         }, function(error) {
             $scope.error = error;

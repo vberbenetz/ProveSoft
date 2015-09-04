@@ -53,6 +53,7 @@ function($scope, $http, $window) {
 	};
 
     $scope.reg = {};
+    $scope.successfullyRegistered = false;
     $scope.register = function() {
         $http.post('register', {
             firstName: $scope.reg.firstName,
@@ -62,13 +63,10 @@ function($scope, $http, $window) {
             title: $scope.reg.title,
             password: $scope.reg.password
         }).success(function(newUser) {
-            $scope.credentials = {
-                username: newUser.username,
-                password: newUser.password
-            };
-            $scope.login();
+            $scope.successfullyRegistered = true;
+            $scope.reg = {};
         }).error(function(error) {
         });
-    }
+    };
 
 });

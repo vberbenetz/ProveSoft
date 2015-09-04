@@ -6,6 +6,8 @@ import com.provesoft.gateway.entity.*;
 import com.provesoft.gateway.exceptions.ResourceNotFoundException;
 import com.provesoft.gateway.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -61,12 +63,16 @@ public class AuthController {
             String email = rootNode.get("email").textValue();
             String companyName = rootNode.get("companyName").textValue();
             String title = rootNode.get("title").textValue();
-            String password = rootNode.get("password").textValue();
+            String rawPassword = rootNode.get("password").textValue();
 
-            if (password.equals("pass123")) {
+            if (rawPassword.equals("pass123")) {
+
+                // Hash and encrypt password
+                PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+                String hashedPassword = passwordEncoder.encode(rawPassword);
 
                 // Add gateway user
-                Users newUser = new Users(email, password, true);
+                Users newUser = new Users(email, hashedPassword, true);
                 usersService.saveUser(newUser);
 
                 // Add authorities

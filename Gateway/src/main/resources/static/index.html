@@ -129,7 +129,7 @@
                                     </div>
                                 </form>
                             </div>
-                            <div class="col-sm-6"><h4>Not a member?</h4>
+                            <div ng-hide="successfullyRegistered" class="col-sm-6"><h4>Not a member?</h4>
                                 <p>You can create an account:</p>
                                 <form role="form" ng-submit="register()">
                                     <div class="form-group"><label>First Name</label> <input type="text" id="regFirstName" placeholder="First Name" class="form-control" ng-model="reg.firstName"></div>
@@ -142,6 +142,9 @@
                                         <button class="btn btn-sm btn-primary pull-right m-t-n-xs" type="submit"><strong>Register</strong></button>
                                     </div>
                                 </form>
+                            </div>
+                            <div ng-show="successfullyRegistered" class="show-hide-notifications alert alert-success col-sm-6">
+                                <h4>Successfully Registered. Please login with new account.</h4>
                             </div>
                         </div>
                     </div>
