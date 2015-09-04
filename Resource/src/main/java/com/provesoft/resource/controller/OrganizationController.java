@@ -37,10 +37,10 @@ public class OrganizationController {
      * @return List of Organizations
      */
     @RequestMapping(
-            value = "/organization/byList",
+            value = "/organization",
             method = RequestMethod.GET
     )
-    public List<Organizations> getOrganizationsByList (@RequestParam("orgIds") Long[] orgIds,
+    public List<Organizations> getOrganizationsByList (@RequestParam(value = "orgIds", required = false) Long[] orgIds,
                                                        Authentication auth) {
 
         String companyName = UserHelpers.getCompany(auth);

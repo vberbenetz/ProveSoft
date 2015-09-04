@@ -990,7 +990,7 @@ function signoffPathsSetupCtrl ($scope, $rootScope, $window, manageUsersService,
         $scope.err = error;
     });
 
-    manageUsersService.organization.get(function(orgs) {
+    manageUsersService.organization.query(function(orgs) {
         $scope.organizations = orgs;
     }, function(error) {
         $scope.err = error;
