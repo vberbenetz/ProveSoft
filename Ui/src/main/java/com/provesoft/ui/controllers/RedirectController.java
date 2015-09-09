@@ -15,8 +15,11 @@ public class RedirectController implements ErrorController {
 
     @RequestMapping(value = PATH)
     public ModelAndView redirect(HttpServletRequest request) {
-        String host = request.getHeader("Host").split(":")[0];
-        return new ModelAndView("redirect:" + "http://" + host + ":8080" + "/ui/");
+        String serverUrl = request.getRequestURL().toString().split("/")[2].split(":")[0];
+        return new ModelAndView("redirect:" + "http://" + serverUrl + ":8080" + "/ui/");
+
+        // Remote server deployment
+        // return new ModelAndView("redirect:" + "http://" + serverUrl + "/ui/");
     }
 
     @Override

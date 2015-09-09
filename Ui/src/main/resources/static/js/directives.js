@@ -66,7 +66,7 @@ function iboxTools($timeout) {
 
 /**
  * minimalizaSidebar - Directive for minimalize sidebar
-*/
+ */
 function minimalizaSidebar($timeout) {
     return {
         restrict: 'A',

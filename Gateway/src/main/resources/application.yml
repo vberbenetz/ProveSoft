@@ -7,9 +7,10 @@ zuul:
   routes:
     ui:
       url: http://localhost:8081
+      # Remote server deployment
+      # url: http://provesoft.cantango.ca:8081
     resource:
       url: http://localhost:9000
 multipart:
   max-file-size: 100MB
   max-request-size: 100MB
-      
