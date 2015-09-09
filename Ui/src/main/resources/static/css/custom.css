@@ -196,3 +196,7 @@ textarea {
     width: 36px;
     height: 36px;
 }
+
+.text-white {
+    color: #FFFFFF;
+}
