@@ -3,10 +3,11 @@ package com.provesoft.gateway.controllers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.provesoft.gateway.entity.*;
-import com.provesoft.gateway.exceptions.BadRequestException;
-import com.provesoft.gateway.exceptions.ResourceNotFoundException;
+import com.provesoft.gateway.exceptions.*;
 import com.provesoft.gateway.service.*;
+import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -15,11 +16,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.transaction.TransactionRolledbackException;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -71,6 +74,8 @@ public class AuthController {
     @ResponseBody
     public Users register(@RequestBody String json) {
 
+        Users newUser = null;
+
         ObjectMapper mapper = new ObjectMapper();
         try {
             JsonNode rootNode = mapper.readTree(json);
@@ -91,17 +96,69 @@ public class AuthController {
             PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
             String hashedPassword = passwordEncoder.encode(rawPassword);
 
-            // Add gateway user
-            Users newUser = new Users(email, hashedPassword, true);
-            usersService.saveUser(newUser);
+            // Create new user
+            newUser = new Users(email, hashedPassword, true);
 
-            // Add authorities
+            // Atmoic check and add of new user
+            // Retry if deadlock occurs until the resource becomes free or timeout occurs
+            for (long stop=System.currentTimeMillis()+ TimeUnit.SECONDS.toMillis(30L); stop > System.currentTimeMillis();) {
+                try {
+                    // The user save does an atomic check and save of the user (See UsersService for more details)
+                    usersService.checkAndSaveUser(newUser);
+                    break;
+                }
+                catch (CannotAcquireLockException | LockAcquisitionException | TransactionRolledbackException ex) {
+
+                    // Sleep and try to get resource again
+                    try {
+                        Thread.sleep(5L);
+                    }
+                    catch (InterruptedException ie) {
+                        ie.printStackTrace();
+                    }
+                }
+                catch (UserExistsException uee) {
+                    throw uee;
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                    throw new InternalServerErrorException();
+                }
+            }
+
+            // Create authorities
+            Authorities newCompanyAuth = new Authorities("__" + companyName, newUser);
             Authorities newUserAuth = new Authorities("ROLE_USER", newUser);
             Authorities newAdminAuth = new Authorities("ROLE_SUPER_ADMIN", newUser);
-            Authorities newCompanyAuth = new Authorities("__" + companyName, newUser);
+
+            // Atomic check and save of company. If company exists as an authority, unwind registration process
+            // Retry if deadlock occurs until the resource becomes free or timeout occurs
+            for (long stop=System.currentTimeMillis()+ TimeUnit.SECONDS.toMillis(30L); stop > System.currentTimeMillis();) {
+                try {
+                    // The user save does an atomic check and save of the user (See UsersService for more details)
+                    usersService.checkAndSaveCompany(newCompanyAuth, companyName);
+                    break;
+                }
+                catch (CannotAcquireLockException | LockAcquisitionException | TransactionRolledbackException ex) {
+
+                    // Sleep and try to get resource again
+                    try {
+                        Thread.sleep(5L);
+                    } catch (InterruptedException ie) {
+                        ie.printStackTrace();
+                    }
+                }
+                catch (CompanyExistsException cee) {
+                    throw cee;
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                    throw new InternalServerErrorException();
+                }
+            }
+
             usersService.saveAuthority(newUserAuth);
             usersService.saveAuthority(newAdminAuth);
-            usersService.saveAuthority(newCompanyAuth);
 
             // Initialize the company
             Long numberOfLicenses = 3L;
@@ -122,8 +179,18 @@ public class AuthController {
         catch (IOException ioe) {
             throw new BadRequestException();
         }
+        catch (UserExistsException uee) {
+            throw new ConflictException();
+        }
+        catch (CompanyExistsException cee) {
+            // Delete newly added user to prevent their email from being stuck in purgatory without a company
+            usersService.deleteUser(newUser);
+
+            throw new ConflictException();
+        }
 
     }
+
 
     private Boolean validateRegistrationFields (String firstName,
                                                 String lastName,

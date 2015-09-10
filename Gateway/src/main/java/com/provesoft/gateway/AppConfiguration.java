@@ -6,12 +6,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.util.Properties;
 
 @Configuration
+@EnableTransactionManagement
 public class AppConfiguration {
 
     @Bean
@@ -29,11 +31,13 @@ public class AppConfiguration {
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(
             DataSource dataSource) {
         LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
+
         emf.setPackagesToScan("com.provesoft.gateway.entity");
         emf.setPersistenceProvider(new HibernatePersistenceProvider());
         Properties jpaProperties = new Properties();
         jpaProperties.setProperty("hibernate.hbm2ddl.auto", "update");
         jpaProperties.setProperty("hibernate.show_sql", "true");
+        emf.setJpaDialect(new CustomHibernateJpaDialect());
         emf.setJpaProperties(jpaProperties);
         emf.setDataSource(dataSource);
         return emf;

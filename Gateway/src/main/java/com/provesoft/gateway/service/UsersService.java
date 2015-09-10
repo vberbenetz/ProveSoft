@@ -2,11 +2,16 @@ package com.provesoft.gateway.service;
 
 import com.provesoft.gateway.entity.Authorities;
 import com.provesoft.gateway.entity.Users;
+import com.provesoft.gateway.exceptions.CompanyExistsException;
+import com.provesoft.gateway.exceptions.UserExistsException;
 import com.provesoft.gateway.repository.AuthoritiesRepository;
 import com.provesoft.gateway.repository.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.transaction.TransactionRolledbackException;
 import java.util.List;
 
 @Service
@@ -42,12 +47,31 @@ public class UsersService {
         }
     }
 
-    public Users saveUser(Users user) {
-        return usersRepository.saveAndFlush(user);
-    }
-
     public void saveAuthority(Authorities authority) {
         authoritiesRepository.saveAndFlush(authority);
+    }
+
+    @Transactional(isolation = Isolation.SERIALIZABLE)
+    public Users checkAndSaveUser(Users newUser) throws TransactionRolledbackException, UserExistsException {
+        if (!doesUserExist(newUser.getUsername())) {
+            return usersRepository.saveAndFlush(newUser);
+        }
+
+        throw new UserExistsException();
+    }
+
+    @Transactional(isolation = Isolation.SERIALIZABLE)
+    public Authorities checkAndSaveCompany(Authorities authority, String companyName) throws TransactionRolledbackException, CompanyExistsException {
+        if (!doesCompanyExist(companyName)) {
+            return authoritiesRepository.saveAndFlush(authority);
+        }
+
+        throw new CompanyExistsException();
+    }
+
+    public void deleteUser(Users userToDelete) {
+        usersRepository.delete(userToDelete);
+        usersRepository.flush();
     }
 
 }
