@@ -27,7 +27,6 @@ function MainCtrl($scope, $rootScope, $window, authService, userService) {
 
     // --------------------------------------- //
 
-
     // Get my UserDetails
     userService.userDetails.getMe(function(myDetails) {
         $rootScope.userDetails = myDetails;
@@ -35,14 +34,27 @@ function MainCtrl($scope, $rootScope, $window, authService, userService) {
         $rootScope.authenticated = false;
     });
 
+    $scope.getProfilePicture = function() {
+        userService.profilePicture.getPic(function(pic) {
+            $scope.profilePicture = pic.picData;
+        }, function(error) {
+            $scope.error = error;
+        });
+    };
+
     // Get my profile picture
     $scope.profilePicture = null;
-    userService.profilePicture.getPic(function(pic) {
-        $scope.profilePicture = pic.picData;
-    }, function(error) {
-        $scope.error = error;
-    });
+    $scope.getProfilePicture();
 
+    // Watch for updates to profile picture via uploads
+    $rootScope.$watch('profilePictureUpdated', function(newVal, oldVal) {
+        if (newVal !== oldVal) {
+            if (newVal) {
+                $scope.getProfilePicture();
+                $rootScope.profilePictureUpdated = false;
+            }
+        }
+    });
 }
 
 function NavBarCtrl($scope, navBarService, documentLookupService) {

@@ -1,4 +1,6 @@
-function profileCtrl ($scope) {
+function profileCtrl ($scope, $rootScope) {
+
+    $scope.uploadSuccessful = false;
 
     // Dropzone element
     $scope.dropzoneConfig = {
@@ -7,6 +9,15 @@ function profileCtrl ($scope) {
         paramName: "uploadfile",
         autoProcessQueue: true
     };
+
+    $scope.$watch('uploadSuccessful', function(newVal, oldVal) {
+        if (newVal !== oldVal) {
+            if (newVal) {
+                $rootScope.profilePictureUpdated = true;
+                $scope.uploadSuccessful = false;
+            }
+        }
+    });
 }
 
 angular
