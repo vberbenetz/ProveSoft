@@ -40,6 +40,10 @@ dependencies {
     compile("org.springframework.cloud:spring-cloud-starter-zuul:1.0.1.RELEASE")
     compile("org.springframework.cloud:spring-cloud-starter-security:1.0.1.RELEASE")
     compile("org.apache.httpcomponents:httpclient")
+    compile("com.fasterxml:jackson-module-json-org:0.9.1")
+    compile("commons-codec:commons-codec:1.9")
+    compile("javax.mail:mail:1.4")
+    compile("javax.activation:activation:1.0.2")
 }
 
 task wrapper(type: Wrapper) {

@@ -1,10 +1,12 @@
 package com.provesoft.gateway.service;
 
 import com.provesoft.gateway.entity.Authorities;
+import com.provesoft.gateway.entity.RecoveryTokens;
 import com.provesoft.gateway.entity.Users;
 import com.provesoft.gateway.exceptions.CompanyExistsException;
 import com.provesoft.gateway.exceptions.UserExistsException;
 import com.provesoft.gateway.repository.AuthoritiesRepository;
+import com.provesoft.gateway.repository.RecoveryTokensRepository;
 import com.provesoft.gateway.repository.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,14 @@ public class UsersService {
 
     @Autowired
     AuthoritiesRepository authoritiesRepository;
+
+    @Autowired
+    RecoveryTokensRepository recoveryTokensRepository;
+
+
+    public Users findUserByEmail(String email) {
+        return usersRepository.findByUsername(email);
+    }
 
     public Boolean doesUserExist(String email) {
         if (usersRepository.findByUsername(email) == null) {
@@ -41,8 +51,7 @@ public class UsersService {
             } else {
                 return true;
             }
-        }
-        catch (NullPointerException npe) {
+        } catch (NullPointerException npe) {
             return false;
         }
     }
@@ -69,9 +78,33 @@ public class UsersService {
         throw new CompanyExistsException();
     }
 
+    public void updateUser(Users userToUpdate) {
+        usersRepository.saveAndFlush(userToUpdate);
+    }
+
     public void deleteUser(Users userToDelete) {
         usersRepository.delete(userToDelete);
         usersRepository.flush();
+    }
+
+
+    /* ------------------------- RecoveryTokens ----------------------------- */
+
+    public RecoveryTokens findTokenByTokenId(String token) {
+        return recoveryTokensRepository.findByToken(token);
+    }
+
+    public RecoveryTokens findTokenByEmail(String email) {
+        return recoveryTokensRepository.findByEmail(email);
+    }
+
+    public void saveRecoveryToken(RecoveryTokens newToken) {
+        recoveryTokensRepository.saveAndFlush(newToken);
+    }
+
+    public void deleteRecoveryToken(RecoveryTokens oldToken) {
+        recoveryTokensRepository.delete(oldToken);
+        recoveryTokensRepository.flush();
     }
 
 }

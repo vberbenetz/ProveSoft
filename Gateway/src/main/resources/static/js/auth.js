@@ -4,7 +4,7 @@ angular.module('auth', []).config(function($httpProvider) {
 
 }).controller('navigation',
 
-function($scope, $http, $window) {
+function($scope, $http, $window, $location, $timeout) {
 
     /* ----------- Initialize variables ----------- */
     $scope.tab = 1;
@@ -27,6 +27,28 @@ function($scope, $http, $window) {
     };
 
     $scope.successfullyRegistered = false;
+
+    $scope.passReset = {
+        email: ''
+    };
+
+    $scope.passResetVerificationInput = {
+        email: '',
+        newPassword: '',
+        verifyNewPassword: '',
+        token: '',
+        validationErrors: {}
+    };
+    $scope.successfullyReset = false;
+
+
+    // Perform check if password recovery
+    $scope.passResetForm = false;
+    var checkForParams = $location.absUrl().split('?');
+    if (checkForParams.length > 1) {
+        $scope.passResetVerificationInput.token = checkForParams[1].split('=')[1];
+        $scope.passResetForm = true;
+    }
 
 
 	var authenticate = function(credentials, callback) {
@@ -113,7 +135,6 @@ function($scope, $http, $window) {
         // 1 Uppercase
         // 1 Lowercase
         // 1 Number
-        // 1 Special Character
         var passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
 
         // Check if email is valid
@@ -267,23 +288,109 @@ function($scope, $http, $window) {
             });
         }
 
-    }
+    };
 
 
+    $scope.passResetReq = function() {
+        if ($scope.passReset.email !== '') {
+            $scope.processingEmail = true;
+            $http.post('/pr', {
+                email: $scope.passReset.email,
+                url: $location.absUrl()
+            }).success(function(data) {
+                $scope.passReset.email = '';
+                $scope.showForgotPass = false;
+                $scope.processingEmail = false;
+            }).error(function(error) {
+                $scope.passReset.email = '';
+                $scope.showForgotPass = false;
+                $scope.processingEmail = false;
+            });
+        }
+    };
 
 
+    /* --------------- Password Reset Procedure --------------------- */
 
+    $scope.validatePassword = function() {
 
+        $scope.passResetVerificationInput.validationErrors = {};
 
+        var validationFailed = false;
 
+        // Email format
+        var emailRegex = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
 
+        // Min 8 characters
+        // 1 Uppercase
+        // 1 Lowercase
+        // 1 Number
+        var passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
 
+        var email = $scope.passResetVerificationInput.email;
+        var password = $scope.passResetVerificationInput.newPassword;
+        var verifyPassword = $scope.passResetVerificationInput.verifyNewPassword;
 
+        if (email.length > 254) {
+            $scope.passResetVerificationInput.validationErrors.email = 'Please enter a valid email of less than 250 characters';
+            validationFailed = true;
+        }
+        else if (email === '') {
+            $scope.passResetVerificationInput.validationErrors.email = 'Please enter an email';
+            validationFailed = true;
+        }
+        else if (!emailRegex.test(email)) {
+            $scope.passResetVerificationInput.validationErrors.email = 'Please enter a valid email';
+            validationFailed = true;
+        }
 
+        if (password.length > 254) {
+            $scope.passResetVerificationInput.validationErrors.password = 'Please limit password to 255 characters';
+            validationFailed = true;
+        }
+        else if (password === '') {
+            $scope.passResetVerificationInput.validationErrors.password = 'Please enter a password';
+            validationFailed = true;
+        }
+        else if ( !passwordRegex.test(password) ) {
+            $scope.passResetVerificationInput.validationErrors.password = 'Password must contain at least 8 characters long, 1 uppercase letter, 1 lowercase letter and 1 number';
+            validationFailed = true;
+        }
+        else if (password !== verifyPassword) {
+            $scope.passResetVerificationInput.validationErrors.password = 'Passwords do not match';
+            $scope.passResetVerificationInput.validationErrors.verifyPassword = ' ';
+            validationFailed = true;
+        }
 
+        return !validationFailed;
+    };
 
+    $scope.recover = function() {
+        if ($scope.validatePassword()) {
+            $http.post('ps', {
+                email: $scope.passResetVerificationInput.email,
+                password: $scope.passResetVerificationInput.newPassword,
+                token: $scope.passResetVerificationInput.token
+            }).success(function(data) {
+                $scope.successfullyReset = true;
+            }).error(function(error) {
+            });
+        }
+    };
 
+    $scope.flashNotification = function() {
+        $timeout(function() {
+            $window.location.href = '/';
+        }, 2000);
+    };
 
+    $scope.$watch('successfullyReset', function(newVal, oldVal) {
+        if (newVal !== oldVal) {
+            if (newVal) {
+                $scope.flashNotification();
+            }
+        }
+    });
 
 
 

@@ -28,6 +28,10 @@
     <!-- Styles from lib -->
     <link href="css/style.css" rel="stylesheet">
 
+    <!-- Spinner -->
+    <link href="css/spinkit.css" rel="stylesheet">
+    <link href="css/spinners/6-chasing-dots.css" rel="stylesheet">
+
     <!-- Custom styles -->
     <link href="css/custom.css" rel="stylesheet">
     <link href="css/iCheck/custom.css" rel="stylesheet">
@@ -113,14 +117,14 @@
 </div>
 
 <section id="login" class="container" ng-controller="navigation" >
-    <div class="wrapper wrapper-content animated fadeInRight">
+    <div class="wrapper wrapper-content animated fadeInRight" ng-init="showForgotPass=false" ng-hide="passResetForm">
         <div class="row">
             <div class="col-lg-12" style="margin-top:50px;">
                 <div class="ibox float-e-margins">
                     <div class="ibox-content">
                         <div class="row">
                             <div class="col-sm-6 b-r"><h3 class="m-t-none m-b">Sign in</h3>
-                                <p>Sign in today for more expirience.</p>
+                                <p>Sign in today for more experience.</p>
                                 <form role="form" ng-submit="login()">
                                     <div class="form-group"><label>Email</label> <input type="text" id="username" name="Username" placeholder="Enter username" class="form-control" ng-model="credentials.username"></div>
                                     <div class="form-group"><label>Password</label> <input type="password" id="password" name="password" placeholder="Password" class="form-control" ng-model="credentials.password"></div>
@@ -132,7 +136,7 @@
                             </div>
 
                             <div class="col-sm-6" ng-init="registrationState=1">
-                                <div ng-show="registrationState==1">
+                                <div class="row" ng-show="registrationState==1 && showForgotPass==false">
                                     <h4 class="margin-bottom-30">Not a member?</h4>
                                     <button ng-click="registrationState=2" class="btn btn-primary pull-left"><strong>Register</strong></button>
                                 </div>
@@ -214,12 +218,72 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                <div class="row" ng-show="registrationState==1 && showForgotPass==false">
+                                    <h4 class="margin-top-40 margin-bottom-15">Forgot Your Password?</h4>
+                                    <button ng-click="showForgotPass=true" class="btn btn-sm btn-primary pull-left m-t-n-xs" ><strong>Reset Password</strong></button>
+                                </div>
+
+                            </div>
+
+                            <div ng-show="showForgotPass" class="col-sm-6 b-r margin-top-40">
+                                <h3 class="m-t-none m-b">Password Reset</h3>
+                                <form name="forgotPassForm" novalidate>
+                                    <div class="form-group">
+                                        <label>Your Email</label>
+                                        <input type="text" id="emailPassReset" placeholder="Email address" class="form-control" ng-model="passReset.email">
+                                    </div>
+                                    <button ng-hide="processingEmail" ng-click="passResetReq()" class="btn btn-sm btn-primary pull-right m-t-n-xs"><strong>Reset Password</strong></button>
+                                    <div ng-if="processingEmail" class="sk-chasing-dots pull-right">
+                                        <div class="sk-child spinner sk-dot1"></div>
+                                        <div class="sk-child spinner sk-dot2"></div>
+                                    </div>
+                                </form>
                             </div>
 
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div class="wrapper wrapper-content animated fadeInRight" ng-show="passResetForm">
+        <div class="row">
+            <div class="col-lg-12" style="margin-top:50px;">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-content">
+                        <div class="row">
+                            <div class="col-sm-6 b-r"><h3 class="m-t-none m-b">Sign in</h3>
+                                <p>Sign in today for more experience.</p>
+                                <form role="form" ng-submit="recover()">
+                                    <div class="form-group" ng-class="{ 'has-error': passResetVerificationInput.validationErrors.email }">
+                                        <label>Email</label>
+                                        <input type="text" id="email" name="Email" placeholder="Enter email for verification" class="form-control" ng-model="passResetVerificationInput.email">
+                                        <span class="help-block">{{ passResetVerificationInput.validationErrors.email }}</span>
+                                    </div>
+                                    <div class="form-group" ng-class="{ 'has-error': passResetVerificationInput.validationErrors.password }">
+                                        <label>New Password</label>
+                                        <input type="password" id="newPassword" name="password" placeholder="New Password" class="form-control" ng-model="passResetVerificationInput.newPassword">
+                                        <span class="help-block">{{ passResetVerificationInput.validationErrors.password }}</span>
+                                    </div>
+                                    <div class="form-group" ng-class="{ 'has-error': passResetVerificationInput.validationErrors.verifyPassword }">
+                                        <label>New Password</label>
+                                        <input type="password" id="passwordVerify" name="passwordVerify" placeholder="Verify New Password" class="form-control" ng-model="passResetVerificationInput.verifyNewPassword">
+                                        <span class="help-block">{{ passResetVerificationInput.validationErrors.verifyPassword }}</span>
+                                    </div>
+                                    <div>
+                                        <button class="btn btn-sm btn-primary pull-right m-t-n-xs" type="submit"><strong>Reset Password</strong></button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div ng-show="successfullyReset" class="show-hide-notifications alert alert-success col-sm-3 margin-top-20">
+            Successfully Reset Password. Please login using this.
         </div>
     </div>
 </section>
