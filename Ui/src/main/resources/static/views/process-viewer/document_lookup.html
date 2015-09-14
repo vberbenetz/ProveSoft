@@ -23,14 +23,18 @@
                                 </button>
                             </div>
                         </div>
+                        <div class="input-group margin-top-20">
+                            <input icheck type="checkbox" ng-model="includeObsolete">
+                            <strong>&nbsp;&nbsp;Include Obsolete documents</strong>
+                        </div>
                     </form>
                 </div>
 
-                <div ng-show="noResultsFound" class="margin-top-30">
+                <div ng-show="noResultsFound" class="margin-top-50">
                     <h3>No Results Found</h3>
                 </div>
 
-                <div ng-hide="noResultsFound" class="table-responsive margin-top-30">
+                <div ng-hide="noResultsFound" class="table-responsive margin-top-50">
                     <table class="table table-hover issue-tracker">
                         <colgroup>
                             <col style="width:5%" />

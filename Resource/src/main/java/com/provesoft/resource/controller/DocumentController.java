@@ -65,6 +65,7 @@ public class DocumentController {
      * @param documentId Single document Id
      * @param documentIds Array of document Ids
      * @param searchString String used to perform wildcard search
+     * @param includeObsolete Flag complements search search string to include obsolete documents
      * @param auth Authentication object
      * @return ReponseEntity with a Document or List of Documents as its payload
      */
@@ -74,6 +75,7 @@ public class DocumentController {
     public ResponseEntity<?> getDocument (@RequestParam(value = "documentId", required = false) String documentId,
                                           @RequestParam(value = "documentIds", required = false) String[] documentIds,
                                           @RequestParam(value = "searchString", required = false) String searchString,
+                                          @RequestParam(value = "includeObsolete", required = false) Boolean includeObsolete,
                                           Authentication auth) {
 
         String companyName = UserHelpers.getCompany(auth);
@@ -90,9 +92,13 @@ public class DocumentController {
 
         if (searchString != null) {
 
+            if (includeObsolete == null) {
+                includeObsolete = false;
+            }
+
             // Add wildcard characters
             searchString = "%" + searchString + "%";
-            List<Document> dList = documentService.findDocumentBySearchString(companyName, searchString);
+            List<Document> dList = documentService.findDocumentBySearchString(companyName, searchString, includeObsolete);
             return new ResponseEntity<Object>(dList, HttpStatus.OK);
         }
 

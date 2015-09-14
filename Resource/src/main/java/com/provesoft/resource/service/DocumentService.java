@@ -82,10 +82,17 @@ public class DocumentService {
      * Wildcard search based on search string
      * @param companyName
      * @param searchString
+     * @param includeObsolete
      * @return List of Document
      */
-    public List<Document> findDocumentBySearchString(String companyName, String searchString) {
-        return documentRepository.wildCardSearch(companyName, searchString);
+    public List<Document> findDocumentBySearchString(String companyName, String searchString, Boolean includeObsolete) {
+        if (includeObsolete) {
+            return documentRepository.wildCardSearchWithObsolete(companyName, searchString);
+        }
+        else {
+            return documentRepository.wildCardSearchNoObsolete(companyName, searchString);
+        }
+
     }
 
     /**
@@ -99,12 +106,12 @@ public class DocumentService {
     }
 
     /**
-     * Get first 10 Documents by company
+     * Get first 10 Documents by company. Remove Obsolete state documents by default.
      * @param companyName
      * @return List of Document
      */
     public List<Document> findFirst10DocumentsByCompanyName(String companyName) {
-        return documentRepository.findFirst10ByCompanyNameOrderByIdAsc(companyName);
+        return documentRepository.findFirst10ByCompanyNameAndStateNotOrderByIdAsc(companyName, "Obsolete");
     }
 
     /**

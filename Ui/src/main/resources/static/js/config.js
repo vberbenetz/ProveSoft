@@ -36,7 +36,19 @@ function config($stateProvider, $locationProvider, $urlRouterProvider, $ocLazyLo
             url: "/document-lookup",
             templateUrl: "views/process-viewer/document_lookup.html",
             controller: 'documentLookupCtrl',
-            data: { pageTitle: 'Document Lookup' }
+            data: { pageTitle: 'Document Lookup' },
+            resolve: {
+                loadPlugin: function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        {
+                            files: [
+                                'css/plugins/iCheck/custom.css',
+                                'js/plugins/iCheck/icheck.min.js'
+                            ]
+                        }
+                    ])
+                }
+            }
         })
         .state('process-viewer.document-creation', {
             url: "/document-creation",

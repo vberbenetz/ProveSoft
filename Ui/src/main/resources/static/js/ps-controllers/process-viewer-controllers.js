@@ -15,6 +15,7 @@ function documentLookupCtrl($scope, $rootScope, $window, $q, $timeout, $modal, u
     $scope.noResultsFound = false;
     $scope.searchString = '';
     $scope.prevSearchString = '';
+    $scope.includeObsolete = false;
     $scope.documentSearchResults = [];
     $scope.revisions = [];
     $scope.recentDocumentActivity = [];
@@ -69,32 +70,37 @@ function documentLookupCtrl($scope, $rootScope, $window, $q, $timeout, $modal, u
     });
 
     $scope.$watch('searchString', function(newVal, oldVal) {
-        $scope.executeSearch();
+        // Run if search strings are different and are at least length 1
+        if ( ($scope.searchString !== $scope.prevSearchString) && ($scope.searchString.length > 0) ) {
+            $scope.prevSearchString = $scope.searchString;
+            $scope.executeSearch();
+        }
+    });
+
+    $scope.$watch('includeObsolete', function(newVal, oldVal) {
+        if (($scope.searchString.length > 0)) {
+            $scope.executeSearch();
+        }
     });
 
     /* ---------- Controller Methods ----------- */
 
     $scope.executeSearch = function() {
         $timeout( function() {
+            documentLookupService.document.queryBySearchString({searchString: $scope.searchString, includeObsolete: $scope.includeObsolete}, function(data, status, headers, config) {
+                if (data.length > 0) {
+                    $scope.noResultsFound = false;
+                    $scope.documentSearchResults = data;
+                }
+                else {
+                    $scope.documentSearchResults.length = 0;    // Clear previous search results
+                    $scope.noResultsFound = true;
+                }
 
-            // Run if search strings are different
-            if ($scope.searchString !== $scope.prevSearchString) {
-                $scope.prevSearchString = $scope.searchString;
+            }, function(data, status, headers, config) {
+                $scope.error = status;
+            });
 
-                documentLookupService.document.queryBySearchString({searchString: $scope.searchString}, function(data, status, headers, config) {
-                    if (data.length > 0) {
-                        $scope.noResultsFound = false;
-                        $scope.documentSearchResults = data;
-                    }
-                    else {
-                        $scope.documentSearchResults.length = 0;    // Clear previous search results
-                        $scope.noResultsFound = true;
-                    }
-
-                }, function(data, status, headers, config) {
-                    $scope.error = status;
-                });
-            }
         } , 500);
     };
 

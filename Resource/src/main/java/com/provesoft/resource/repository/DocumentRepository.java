@@ -13,7 +13,7 @@ public interface DocumentRepository extends JpaRepository<Document, String> {
 
     List<Document> findByCompanyNameAndIdIn(String companyName, String[] ids);
 
-    List<Document> findFirst10ByCompanyNameOrderByIdAsc(String companyName);
+    List<Document> findFirst10ByCompanyNameAndStateNotOrderByIdAsc(String companyName, String state);
 
     List<Document> findByCompanyNameAndState(String companyName, String state);
 
@@ -54,7 +54,21 @@ public interface DocumentRepository extends JpaRepository<Document, String> {
                 "OR d.organization.name LIKE :searchString " +
             ")"
     )
-    List<Document> wildCardSearch (@Param("companyName") String companyName,
-                                   @Param("searchString") String searchString);
+    List<Document> wildCardSearchWithObsolete (@Param("companyName") String companyName,
+                                               @Param("searchString") String searchString);
+
+    @Query(
+            "SELECT DISTINCT d " +
+            "FROM Document d " +
+            "WHERE d.companyName=:companyName " +
+            "AND (" +
+            "d.title LIKE :searchString " +
+            "OR d.id LIKE :searchString " +
+            "OR d.organization.name LIKE :searchString " +
+            ") " +
+            "AND d.state<>'Obsolete'"
+    )
+    List<Document> wildCardSearchNoObsolete (@Param("companyName") String companyName,
+                                             @Param("searchString") String searchString);
 
 }
