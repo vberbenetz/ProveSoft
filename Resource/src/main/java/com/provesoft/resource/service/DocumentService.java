@@ -166,9 +166,10 @@ public class DocumentService {
     /**
      * Insert uploaded document file
      * @param documentUpload
+     * @return DocumentUpload
      */
-    public void addDocumentFile(DocumentUpload documentUpload) {
-        documentUploadRepository.saveAndFlush(documentUpload);
+    public DocumentUpload addDocumentFile(DocumentUpload documentUpload) {
+        return documentUploadRepository.saveAndFlush(documentUpload);
     }
 
     /**
@@ -190,6 +191,15 @@ public class DocumentService {
     public void deleteTempUploads(String companyName, String documentId, String tempRevId) {
         //documentUploadRepository.deleteByKeyCompanyNameAndKeyDocumentIdAndKeyRevision(companyName, documentId, tempRevId);
         documentUploadRepository.deleteTempUpload(companyName, documentId, tempRevId);
+    }
+
+    /**
+     * Delete a failed document upload (Only used internally, not accessible by user)
+     * @param du DocumentUpload object
+     */
+    public void deleteErrorUpload(DocumentUpload du) {
+        documentUploadRepository.delete(du);
+        documentUploadRepository.flush();
     }
 
 

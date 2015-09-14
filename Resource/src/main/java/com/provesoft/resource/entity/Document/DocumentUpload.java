@@ -12,14 +12,14 @@ public class DocumentUpload {
 
     public DocumentUpload(String companyName,
                           String documentId,
-                          byte[] file,
+                          String fileId,
                           String filename,
                           String mimeType,
                           String revision,
                           Boolean redline) {
 
         this.key = new DocumentUploadKey(companyName, documentId, revision, redline);
-        this.file = file;
+        this.fileId = fileId;
         this.filename = filename;
         this.mimeType = mimeType;
     }
@@ -31,12 +31,11 @@ public class DocumentUpload {
     @EmbeddedId
     private DocumentUploadKey key;
 
-    @Lob
-    private byte[] file;
-
     private String filename;
 
     private String mimeType;
+
+    private String fileId;
 
     public DocumentUploadKey getKey() {
         return key;
@@ -44,14 +43,6 @@ public class DocumentUpload {
 
     public void setKey(DocumentUploadKey key) {
         this.key = key;
-    }
-
-    public byte[] getFile() {
-        return file;
-    }
-
-    public void setFile(byte[] file) {
-        this.file = file;
     }
 
     public String getFilename() {
@@ -70,4 +61,11 @@ public class DocumentUpload {
         this.mimeType = mimeType;
     }
 
+    public String getFileId() {
+        return fileId;
+    }
+
+    public void setFileId(String fileId) {
+        this.fileId = fileId;
+    }
 }

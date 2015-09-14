@@ -159,12 +159,12 @@
                                         <td>{{ r.changeUser.firstName }} {{ r.changeUser.lastName }}</td>
                                         <td>{{ r.changeDate | date: 'MMMM d, yyyy' }}</td>
                                         <td class="text-center">
-                                            <a target="_blank" href="" class="btn btn-success" ng-href="{{ '/resource/download?documentId=' + r.key.documentId + '&revisionId=' + r.key.revisionId }}">
+                                            <a href="" class="btn btn-success" ng-href="{{ '/resource/download?documentId=' + r.key.documentId + '&revisionId=' + r.key.revisionId }}">
                                                 <span class="fa fa-download"></span>
                                             </a>
                                         </td>
                                         <td class="text-center">
-                                            <a target="_blank" ng-disabled="!isRedlineUsed" ng-hide="r.key.revisionId=='A' || !r.redlineDocPresent" href="" class="btn btn-danger" ng-href="{{ '/resource/download?documentId=' + r.key.documentId + '&revisionId=' + r.key.revisionId + '&isRedline=true' }}">
+                                            <a ng-disabled="!isRedlineUsed" ng-hide="r.key.revisionId=='A' || !r.redlineDocPresent" href="" class="btn btn-danger" ng-href="{{ '/resource/download?documentId=' + r.key.documentId + '&revisionId=' + r.key.revisionId + '&isRedline=true' }}">
                                                 <span class="fa fa-download"></span>
                                             </a>
                                         </td>
