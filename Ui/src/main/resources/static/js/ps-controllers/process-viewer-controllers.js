@@ -734,7 +734,8 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
     $scope.redlineDownloadLink = '/resource/download?documentId=' + $scope.documentId + '&isRedline=true';
 
     $scope.revision = {
-        changeReason: ''
+        changeReason: '',
+        makeObsolete: false
     };
     $scope.fieldValidationFail = {};
 
@@ -874,14 +875,16 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
             $scope.fieldValidationFail.changeReason = true;
             validationFail = true;
         }
-        if (typeof doc === 'undefined') {
-            $scope.fieldValidationFail.uploadedDocument = true;
-            validationFail = true;
-        }
-        if ($scope.redlineRequired) {
-            if (typeof redline === 'undefined') {
-                $scope.fieldValidationFail.uploadedRedline = true;
+        if (!$scope.revision.makeObsolete) {
+            if (typeof doc === 'undefined') {
+                $scope.fieldValidationFail.uploadedDocument = true;
                 validationFail = true;
+            }
+            if ($scope.redlineRequired) {
+                if (typeof redline === 'undefined') {
+                    $scope.fieldValidationFail.uploadedRedline = true;
+                    validationFail = true;
+                }
             }
         }
 
@@ -892,7 +895,8 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
         var revisionPayload = {
             documentId: $scope.documentId,
             changeReason: $scope.revision.changeReason,
-            changeUserEmail: $rootScope.user.userName
+            changeUserEmail: $rootScope.user.userName,
+            changeToObsolete: $scope.revision.makeObsolete
         };
 
         if ($scope.redlineRequired) {
@@ -903,13 +907,17 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
         }
 
         documentRevisionService.revision.save(revisionPayload, function(data, status, headers, config) {
-            $scope.revision = data.key.revisionId;
 
-            documentRevisionService.updateUploadRevisionId.update({documentId: $scope.documentId, tempRevId: $scope.tempRevId, newRevId: data.key.revisionId},
-                function(data) {
-                    $state.go('process-viewer.document-lookup', {}, {reload: true});
-                }, function(error) {
-                });
+            if (!$scope.revision.makeObsolete) {
+                documentRevisionService.updateUploadRevisionId.update({documentId: $scope.documentId, tempRevId: $scope.tempRevId, newRevId: data.key.revisionId},
+                    function(data) {
+                        $state.go('process-viewer.document-lookup', {}, {reload: true});
+                    }, function(error) {
+                    });
+            }
+            else {
+                $state.go('process-viewer.document-lookup', {}, {reload: true});
+            }
 
         }, function(data, status, headers, config) {
             $scope.err = status;

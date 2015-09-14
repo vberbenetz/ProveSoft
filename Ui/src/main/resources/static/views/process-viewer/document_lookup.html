@@ -110,11 +110,12 @@
                                             <td>{{ n.id }}</td>
                                             <td>{{ n.title }}</td>
                                             <td>{{ n.organization.name }}</td>
-                                            <td>{{ n.revision }}</td>
-                                            <td ng-if="n.state=='Released'">
+                                            <td ng-if="n.state!='Obsolete'">{{ n.revision }}</td>
+                                            <td ng-if="n.state=='Obsolete'"></td>
+                                            <td ng-if="n.state=='Released' || n.state=='Obsolete'">
                                                 {{ n.state }}
                                             </td>
-                                            <td ng-if="n.state!='Released'" ng-click="$parent.n.active = !$parent.n.active">
+                                            <td ng-if="n.state=='Changing' || n.state=='New Release'" ng-click="$parent.n.active = !$parent.n.active">
                                                 <p ng-show="n.revision!='A'" class="text-danger">
                                                     <strong>Changing...</strong>
                                                 </p>
@@ -127,7 +128,7 @@
                                             </td>
                                             <td>{{ n.date | date: 'MMMM d, yyyy' }}</td>
                                             <td ng-click="$parent.n.active = !$parent.n.active">
-                                                <div class="text-right">
+                                                <div ng-hide="n.state=='Obsolete'" class="text-right">
                                                     <button ng-disabled="n.state=='Changing'" ui-sref="process-viewer.document-revision({documentId: n.id})" class="btn btn-lg btn-warning" type="button">
                                                         <span class="fa fa-pencil"></span>
                                                     </button>
@@ -159,20 +160,20 @@
                                         <td>{{ r.changeUser.firstName }} {{ r.changeUser.lastName }}</td>
                                         <td>{{ r.changeDate | date: 'MMMM d, yyyy' }}</td>
                                         <td class="text-center">
-                                            <a href="" class="btn btn-success" ng-href="{{ '/resource/download?documentId=' + r.key.documentId + '&revisionId=' + r.key.revisionId }}">
+                                            <a ng-hide="r.key.revisionId=='Obsolete'" href="" class="btn btn-success" ng-href="{{ '/resource/download?documentId=' + r.key.documentId + '&revisionId=' + r.key.revisionId }}">
                                                 <span class="fa fa-download"></span>
                                             </a>
                                         </td>
                                         <td class="text-center">
-                                            <a ng-disabled="!isRedlineUsed" ng-hide="r.key.revisionId=='A' || !r.redlineDocPresent" href="" class="btn btn-danger" ng-href="{{ '/resource/download?documentId=' + r.key.documentId + '&revisionId=' + r.key.revisionId + '&isRedline=true' }}">
+                                            <a ng-hide="r.key.revisionId=='Obsolete'" ng-disabled="!isRedlineUsed" ng-hide="r.key.revisionId=='A' || !r.redlineDocPresent" href="" class="btn btn-danger" ng-href="{{ '/resource/download?documentId=' + r.key.documentId + '&revisionId=' + r.key.revisionId + '&isRedline=true' }}">
                                                 <span class="fa fa-download"></span>
                                             </a>
                                         </td>
                                         <td class="text-center">
-                                            <button ng-show="$index==0 && n.state!='RELEASED'" ng-click="openStepsModal(n)" class="btn btn-primary">
+                                            <button ng-show="$index==0 && (n.state=='Changing' || n.state=='New Release')" ng-click="openStepsModal(n)" class="btn btn-primary">
                                                 <span class="fa fa-list"></span>
                                             </button>
-                                            <button ng-show="$index!=0 || ($index==0 && n.state=='RELEASED')" ng-click="openApprovalHistoryModal(r.key.documentId, r.key.revisionId)" class="btn btn-primary">
+                                            <button ng-show="$index!=0 || (n.state=='Released' || n.state=='Obsolete')" ng-click="openApprovalHistoryModal(r.key.documentId, r.key.revisionId)" class="btn btn-primary">
                                                 <span class="fa fa-list"></span>
                                             </button>
                                         </td>

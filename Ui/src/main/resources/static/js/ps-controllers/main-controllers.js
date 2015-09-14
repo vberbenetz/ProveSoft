@@ -89,8 +89,8 @@ function NavBarCtrl($scope, navBarService, documentLookupService) {
         var approvals = $scope.approvals;
         for (var i = 0; i < approvals.length; i++) {
             for (var j = 0; j < documents.length; j++) {
-                if (approvals[i].documentId === documents[i].id) {
-                    approvals[i].document = documents[i];
+                if (approvals[i].documentId === documents[j].id) {
+                    approvals[i].document = documents[j];
                 }
             }
         }

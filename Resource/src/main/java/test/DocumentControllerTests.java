@@ -96,7 +96,27 @@ public class DocumentControllerTests {
         }
     }
 
-    @Test
+    public class DocumentStateTestRunnable implements Runnable {
+
+        public String documentId = "TEST0001";
+        String companyName = "Company";
+
+        @Override
+        public void run() {
+
+            Document d = documentService.getAndSetDocumentState(this.companyName, this.documentId, "Changing");
+            try {
+                if (d != null) {
+                    System.out.println(Thread.currentThread().getId() + ": " + d.getState());
+                }
+            }
+            catch (Exception e) {
+                assert true;
+            }
+        }
+    }
+
+    //@Test
     public void documentIdGenerationTest() {
 
         ExecutorService executor = Executors.newFixedThreadPool(400);
@@ -114,7 +134,7 @@ public class DocumentControllerTests {
         }
     }
 
-    @Test
+    //@Test
     public void documentRevisionIncrementTest() {
         String id1 = "ABC";
         String id4 = "ABZ";
@@ -137,9 +157,24 @@ public class DocumentControllerTests {
         Assert.assertEquals("AAAAA", nextId3);
     }
 
-    @Test
-    public void getNextSetOfApproversTest() {
+    //@Test
+    public void getNextSetOfApproversTest() {}
 
+    @Test
+    public void documentStateChangeTest() {
+        ExecutorService executor = Executors.newFixedThreadPool(100);
+        for (int i = 0; i < 100; i++) {
+            Runnable worker = new DocumentStateTestRunnable();
+            executor.execute(worker);
+        }
+
+        executor.shutdown();
+        try {
+            executor.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+        }
+        catch(InterruptedException ie) {
+            ie.printStackTrace();
+        }
     }
 
 }

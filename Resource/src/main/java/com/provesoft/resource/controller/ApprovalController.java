@@ -90,6 +90,7 @@ public class ApprovalController {
 
         String companyName = UserHelpers.getCompany(auth);
         ApprovalNotification notification;
+        String nextState;
 
         // Check if parameters are missing
         if (notificationId != null) {
@@ -105,6 +106,7 @@ public class ApprovalController {
 
             documentId = notification.getDocumentId();
             stepId = notification.getStepId();
+            nextState = notification.getNextState();
 
             UserDetails notificationUser = userDetailsService.findByCompanyNameAndUserId(companyName, notification.getUserId());
 
@@ -118,6 +120,8 @@ public class ApprovalController {
             if (!UserHelpers.isSuperAdmin(auth)) {
                 throw new ForbiddenException();
             }
+
+            nextState = approvalService.getNotificationNextState(companyName, documentId, stepId);
         }
         else {
             throw new ResourceNotFoundException();
@@ -142,7 +146,7 @@ public class ApprovalController {
             // Delete all signoff path steps for this document
             if (nextSetOfSteps == null) {
                 Document doc = documentService.findDocumentById(companyName, documentId);
-                doc.setState("Released");
+                doc.setState(nextState);
                 documentService.updateDocument(doc);
 
                 signoffPathService.deleteSignoffPathStepsForDocument(companyName, documentId);
@@ -153,7 +157,7 @@ public class ApprovalController {
                 List<ApprovalNotification> newNotifications = new ArrayList<>();
 
                 for (SignoffPathSteps s : nextSetOfSteps) {
-                    ApprovalNotification newNotification = new ApprovalNotification(companyName, s.getUser().getUserId(), s.getId(), documentId);
+                    ApprovalNotification newNotification = new ApprovalNotification(companyName, s.getUser().getUserId(), s.getId(), documentId, nextState);
                     newNotifications.add(newNotification);
                 }
                 approvalService.addApprovalNotifications(newNotifications);

@@ -11,11 +11,12 @@ import javax.persistence.Id;
 @Entity
 public class ApprovalNotification {
 
-    public ApprovalNotification(String companyName, Long userId, Long stepId, String documentId) {
+    public ApprovalNotification(String companyName, Long userId, Long stepId, String documentId, String nextState) {
         this.companyName = companyName;
         this.userId = userId;
         this.stepId = stepId;
         this.documentId = documentId;
+        this.nextState = nextState;
     }
 
     public ApprovalNotification() {
@@ -30,6 +31,7 @@ public class ApprovalNotification {
     private Long userId;
     private Long stepId;
     private String documentId;
+    private String nextState;
 
     public Long getId() {
         return id;
@@ -71,4 +73,11 @@ public class ApprovalNotification {
         this.documentId = documentId;
     }
 
+    public String getNextState() {
+        return nextState;
+    }
+
+    public void setNextState(String nextState) {
+        this.nextState = nextState;
+    }
 }

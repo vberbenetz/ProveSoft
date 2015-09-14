@@ -148,6 +148,17 @@ public class DocumentService {
         return documentRepository.saveAndFlush(document);
     }
 
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public Document getAndSetDocumentState(String companyName, String documentId, String state) {
+        Document d = documentRepository.findByCompanyNameAndId(companyName,documentId);
+        if ( (d != null) && (d.getState() != null) && (d.getState().equals("Released")) ) {
+            d.setState(state);
+            return documentRepository.saveAndFlush(d);
+        }
+        else {
+            return null;
+        }
+    }
 
     /* ------------------------ DocumentUpload -------------------------- */
 
@@ -161,6 +172,17 @@ public class DocumentService {
      */
     public DocumentUpload findUploadByCompanyNameAndDocumentIdAndRevisionAndRedline(String companyName, String documentId, String revision, Boolean redline) {
         return documentUploadRepository.findByKeyCompanyNameAndKeyDocumentIdAndKeyRevisionAndKeyRedline(companyName, documentId, revision, redline);
+    }
+
+    /**
+     * Retrieve both regular and redline files
+     * @param companyName
+     * @param documentId
+     * @param revision
+     * @return
+     */
+    public List<DocumentUpload> findUploadByCompanyNameAndDocumentIdAndRevision(String companyName, String documentId, String revision) {
+        return documentUploadRepository.findByKeyCompanyNameAndKeyDocumentIdAndKeyRevision(companyName, documentId, revision);
     }
 
     /**

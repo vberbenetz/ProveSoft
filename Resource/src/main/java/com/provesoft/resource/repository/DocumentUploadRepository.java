@@ -14,6 +14,8 @@ public interface DocumentUploadRepository extends JpaRepository<DocumentUpload, 
 
     DocumentUpload findByKeyCompanyNameAndKeyDocumentIdAndKeyRevisionAndKeyRedline(String companyName, String documentId, String revision, Boolean redline);
 
+    List<DocumentUpload> findByKeyCompanyNameAndKeyDocumentIdAndKeyRevision(String companyName, String documentId, String revision);
+
     @Query(
             "UPDATE DocumentUpload du " +
             "SET du.key.revision=:newRevId " +

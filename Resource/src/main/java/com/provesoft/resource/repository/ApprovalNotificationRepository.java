@@ -21,6 +21,17 @@ public interface ApprovalNotificationRepository extends JpaRepository<ApprovalNo
     List<ApprovalNotification> findByCompanyNameAndUserId(String companyName, Long userId);
 
     @Query(
+            "SELECT an.nextState " +
+            "FROM ApprovalNotification an " +
+            "WHERE an.companyName=:companyName " +
+            "AND an.documentId=:documentId " +
+            "AND an.stepId=:stepId"
+    )
+    String getNextState(@Param("companyName") String companyName,
+                        @Param("documentId") String documentId,
+                        @Param("stepId") Long stepId);
+
+    @Query(
             "DELETE FROM ApprovalNotification an " +
             "WHERE an.companyName=:companyName " +
             "AND an.documentId=:documentId"

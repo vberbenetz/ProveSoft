@@ -77,7 +77,9 @@ function config($stateProvider, $locationProvider, $urlRouterProvider, $ocLazyLo
                             files: [
                                 'css/plugins/dropzone/basic.css',
                                 'css/plugins/dropzone/dropzone.css',
-                                'js/plugins/dropzone/dropzone.js'
+                                'js/plugins/dropzone/dropzone.js',
+                                'css/plugins/iCheck/custom.css',
+                                'js/plugins/iCheck/icheck.min.js'
                             ]
                         }
                     ])

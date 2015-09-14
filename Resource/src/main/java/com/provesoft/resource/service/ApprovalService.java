@@ -68,6 +68,17 @@ public class ApprovalService {
     }
 
     /**
+     * Method retrieves the next state from the current notification for a specific document
+     * @param companyName Company query parameter
+     * @param documentId DocumentId corresponding to step
+     * @param stepId Step id for notification
+     * @return String value of nextState
+     */
+    public String getNotificationNextState(String companyName, String documentId, Long stepId) {
+        return approvalNotificationRepository.getNextState(companyName, documentId, stepId);
+    }
+
+    /**
      * Method creates a new notification
      * @param notifications List of ApprovalNotifications to create
      * @return List of ApprovalNotification

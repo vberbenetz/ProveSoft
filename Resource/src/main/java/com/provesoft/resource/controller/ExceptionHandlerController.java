@@ -1,5 +1,6 @@
 package com.provesoft.resource.controller;
 
+import com.provesoft.resource.exceptions.ConflictException;
 import com.provesoft.resource.exceptions.ForbiddenException;
 import com.provesoft.resource.exceptions.InternalServerErrorException;
 import com.provesoft.resource.exceptions.ResourceNotFoundException;
@@ -23,6 +24,9 @@ public class ExceptionHandlerController {
         }
         if (e instanceof ForbiddenException) {
             return new ResponseEntity(HttpStatus.FORBIDDEN);
+        }
+        if (e instanceof ConflictException) {
+            return new ResponseEntity(HttpStatus.CONFLICT);
         }
         if (e instanceof InternalServerErrorException) {
             return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);

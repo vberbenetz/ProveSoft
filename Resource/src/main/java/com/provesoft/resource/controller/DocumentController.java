@@ -8,9 +8,7 @@ import com.provesoft.resource.entity.SignoffPath.SignoffPathSteps;
 import com.provesoft.resource.entity.SignoffPath.SignoffPathTemplateSteps;
 import com.provesoft.resource.entity.SystemSettings;
 import com.provesoft.resource.entity.UserDetails;
-import com.provesoft.resource.exceptions.ForbiddenException;
-import com.provesoft.resource.exceptions.InternalServerErrorException;
-import com.provesoft.resource.exceptions.ResourceNotFoundException;
+import com.provesoft.resource.exceptions.*;
 import com.provesoft.resource.service.*;
 import com.provesoft.resource.utils.SignoffPathHelpers;
 import com.provesoft.resource.utils.UserHelpers;
@@ -319,7 +317,7 @@ public class DocumentController {
                                 List<ApprovalNotification> notifications = new ArrayList<>();
 
                                 for (SignoffPathSteps s : firstSetOfSteps) {
-                                    ApprovalNotification notification = new ApprovalNotification(companyName, s.getUser().getUserId(), s.getId(), documentId);
+                                    ApprovalNotification notification = new ApprovalNotification(companyName, s.getUser().getUserId(), s.getId(), documentId, "Released");
                                     notifications.add(notification);
                                 }
                                 approvalService.addApprovalNotifications(notifications);
@@ -368,7 +366,8 @@ public class DocumentController {
      * Method creates a new DocumentRevision
      * 1) Create basic DocumentRevision object from POST payload
      * 2) Get and increment a new unique RevisionId for this object
-     * 3) Persist full Revision object to database
+     * 3a) Persist full Revision object to database
+     * 3b) If marking as obsolete, do not create a new revision
      * 4) If signoffs required, copy template steps and send out notifications to required approvers
      * @param json POST payload for basic DocumentRevision object
      * @param auth Authentication object
@@ -392,9 +391,15 @@ public class DocumentController {
             String changeReason = rootNode.get("changeReason").textValue();
             String changeUserEmail = rootNode.get("changeUserEmail").textValue();
             Boolean redlineDocPresent = rootNode.get("redlineDocPresent").booleanValue();
+            Boolean changeToObsolete = rootNode.get("changeToObsolete").booleanValue();
 
             String companyName = UserHelpers.getCompany(auth);
             Date currentDate = new Date();
+            String nextState = "Released";
+
+            if (changeToObsolete) {
+                nextState = "Obsolete";
+            }
 
             UserDetails changeUser = userDetailsService.findByCompanyNameAndEmail(companyName, changeUserEmail);
 
@@ -408,9 +413,15 @@ public class DocumentController {
                 throw new ResourceNotFoundException();
             }
 
-            // Check if document is currently under revision
-            if (docToChange.getState().equals("Changing")) {
-                throw new ForbiddenException();
+            // Check if document is obsolete
+            if (docToChange.getState().equals("Obsolete")) {
+                throw new BadRequestException();
+            }
+
+            // Mark document as changing. If state change fails cancel revision
+            docToChange = documentService.getAndSetDocumentState(companyName, documentId, "Changing");
+            if (docToChange == null) {
+                throw new ConflictException();
             }
 
             // Get system setting to see if signoffs are required
@@ -422,7 +433,14 @@ public class DocumentController {
             for (long stop=System.currentTimeMillis()+ TimeUnit.SECONDS.toMillis(30L); stop > System.currentTimeMillis();) {
 
                 try {
-                    String documentRevisionId = documentService.getAndGenerateDocumentRevisionId(companyName, documentId);
+                    String documentRevisionId;
+
+                    if (!changeToObsolete) {
+                        documentRevisionId = documentService.getAndGenerateDocumentRevisionId(companyName, documentId);
+                    }
+                    else {
+                        documentRevisionId = "Obsolete";
+                    }
 
                     DocumentRevisions newRevision = new DocumentRevisions(
                             companyName,
@@ -441,7 +459,6 @@ public class DocumentController {
 
                     // Set document status to changing if signoffs are required
                     if (signoffSetting.getValue().equals("on")) {
-                        docToChange.setState("Changing");
 
                         // Get template path steps
                         Long pathId = docToChange.getSignoffPathId();
@@ -461,7 +478,7 @@ public class DocumentController {
                         List<ApprovalNotification> notifications = new ArrayList<>();
 
                         for (SignoffPathSteps s : firstSetOfSteps) {
-                            ApprovalNotification notification = new ApprovalNotification(companyName, s.getUser().getUserId(), s.getId(), documentId);
+                            ApprovalNotification notification = new ApprovalNotification(companyName, s.getUser().getUserId(), s.getId(), documentId, nextState);
                             notifications.add(notification);
                         }
                         approvalService.addApprovalNotifications(notifications);
@@ -481,6 +498,10 @@ public class DocumentController {
                     }
                 }
             }
+
+            // Revert document state because return block was never triggered (Exception was thrown in transaction attempt loop
+            docToChange.setState("Released");
+            documentService.updateDocument(docToChange);
 
         }
         catch (IOException ioe) {
@@ -598,6 +619,78 @@ public class DocumentController {
             doc.setSignoffPathId( signoffPath.getKey().getPathId() );
 
             return documentService.updateDocument(doc);
+        }
+
+        throw new ForbiddenException();
+    }
+
+    /**
+     * Method marks the document as obsolete (Admin only function. Reserved for future use)
+     * @param documentId Document id of the document to be marked obsolete
+     * @param auth Authentication object
+     * @return Updated Document
+     */
+    @RequestMapping(
+            value = "/document/markObsolete",
+            method = RequestMethod.PUT
+    )
+    public Document markDocumentObsolete(@RequestParam("documentId") String documentId,
+                                         Authentication auth) {
+
+        if (UserHelpers.isSuperAdmin(auth)) {
+
+            String companyName = UserHelpers.getCompany(auth);
+
+            // Verify document belongs to company
+            Document docToChange = documentService.findDocumentByCompanyNameAndDocumentId(companyName, documentId);
+            if (docToChange == null) {
+                throw new ResourceNotFoundException();
+            }
+
+            // Mark document as changing. If state change fails cancel revision
+            docToChange = documentService.getAndSetDocumentState(companyName, documentId, "Changing");
+            if (docToChange == null) {
+                throw new ConflictException();
+            }
+
+            // Get system setting to see if signoffs are required
+            SystemSettings signoffSetting = systemSettingsService.getSettingByCompanyNameAndSetting(companyName, "signoff");
+
+            docToChange.setDate(new Date());
+
+            // Set document status to changing if signoffs are required
+            if (signoffSetting.getValue().equals("on")) {
+
+                // Get template path steps
+                Long pathId = docToChange.getSignoffPathId();
+                List<SignoffPathTemplateSteps> templateSteps = signoffPathService.getTemplateStepsForPath(companyName, pathId);
+
+                // Create path steps from template and apply to this document
+                List<SignoffPathSteps> newSteps = new ArrayList<>();
+                for (SignoffPathTemplateSteps s : templateSteps) {
+                    SignoffPathSteps newStep = new SignoffPathSteps(companyName, documentId, pathId, s.getId(), s.getAction(), s.getUser());
+                    newSteps.add(newStep);
+                }
+                newSteps = signoffPathService.createNewStepsForDocRev(newSteps);
+
+                // Create notifications
+                // Extract initial sequence Ids
+                List<SignoffPathSteps> firstSetOfSteps = SignoffPathHelpers.extractNextSetOfSteps(newSteps);
+                List<ApprovalNotification> notifications = new ArrayList<>();
+
+                for (SignoffPathSteps s : firstSetOfSteps) {
+                    ApprovalNotification notification = new ApprovalNotification(companyName, s.getUser().getUserId(), s.getId(), documentId, "Obsolete");
+                    notifications.add(notification);
+                }
+                approvalService.addApprovalNotifications(notifications);
+
+            }
+            else {
+                docToChange.setState("Obsolete");
+            }
+
+            return documentService.updateDocument(docToChange);
+
         }
 
         throw new ForbiddenException();

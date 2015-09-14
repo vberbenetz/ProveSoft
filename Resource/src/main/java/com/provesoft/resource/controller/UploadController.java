@@ -25,6 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -297,7 +298,18 @@ public class UploadController {
             throw new ForbiddenException();
         }
 
-        documentService.deleteTempUploads(companyName, documentId, tempRevId);
+        List<DocumentUpload> tempUploads = documentService.findUploadByCompanyNameAndDocumentIdAndRevision(companyName, documentId, tempRevId);
+        try {
+            for (DocumentUpload du : tempUploads) {
+                File f = new File(File.separator + "www" + File.separator + "user_uploads" + du.getFileId());
+                f.delete();
+            }
+
+            documentService.deleteTempUploads(companyName, documentId, tempRevId);
+        }
+        catch (Exception e) {
+            throw new InternalServerErrorException();
+        }
 
         return new ResponseEntity<>("{}", HttpStatus.OK);
     }
