@@ -230,7 +230,18 @@ function manageUsersService($resource) {
 function documentTypeService ($resource) {
 
     return {
-        documentType: $resource('/resource/admin/document/type')
+        documentType: $resource('/resource/admin/document/type',
+            {},
+            {
+                remove: {
+                    method: 'DELETE',
+                    params: {
+                        documentTypeId: '@documentTypeId'
+                    },
+                    isArray: false
+                }
+            }
+        )
     }
 }
 

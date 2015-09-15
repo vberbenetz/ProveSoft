@@ -111,7 +111,7 @@
                                     <td>{{ n.startingNumber }}</td>
                                     <td>{{ nextDocumentId[n.id] }}</td>
                                     <td>
-                                        <button class="btn btn-sm btn-danger">
+                                        <button ng-click="removeDocumentType(n)" class="btn btn-sm btn-danger">
                                             <span class="fa fa-times"></span>
                                             &nbsp;Delete
                                         </button>

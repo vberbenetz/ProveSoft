@@ -818,7 +818,7 @@ function manageUsersCtrl($scope, $rootScope, $window, $timeout, userService, man
 
 }
 
-function documentTypeSetupCtrl($scope, $rootScope, $window, documentTypeService) {
+function documentTypeSetupCtrl($scope, $rootScope, $window, $modal, documentTypeService) {
 
     if (!$rootScope.authenticated) {
         $window.location.href = '/';
@@ -940,6 +940,34 @@ function documentTypeSetupCtrl($scope, $rootScope, $window, documentTypeService)
         }
     };
 
+    $scope.removeDocumentType = function(documentType) {
+
+        documentTypeService.documentType.remove({documentTypeId: documentType.id}, function(data) {
+            if (data.deleted) {
+                $scope.removeDocumentTypeFromList(documentType.id);
+            }
+        }, function(error) {
+            if ( (typeof error.data.deleted !== 'undefined') && (!error.data.deleted) ) {
+                $scope.openDocumentTypeModal(documentType.name);
+            }
+            else {
+                $scope.error = error;
+            }
+        });
+    };
+
+    $scope.openDocumentTypeModal = function(documentTypeName) {
+        var modalInstance = $modal.open({
+            templateUrl:'views/admin/documentTypeExistsModal.html',
+            controller: documentTypeModalCtrl,
+            size: 'sm',
+            resolve: {
+                documentTypeName: function() {
+                    return documentTypeName;
+                }
+            }
+        })
+    };
 
     // --------------- Helpers ---------------- //
 
@@ -951,8 +979,30 @@ function documentTypeSetupCtrl($scope, $rootScope, $window, documentTypeService)
             suffix = '0' + suffix;
         }
         return prefix + suffix;
+    };
+
+    $scope.removeDocumentTypeFromList = function(documentTypeId) {
+        var documentTypes = $scope.documentTypes;
+        for (var i = 0; i < documentTypes.length; i++) {
+            if (documentTypes[i].id === documentTypeId) {
+                $scope.documentTypes.splice(i, 1);
+                break;
+            }
+        }
     }
 
+}
+
+function documentTypeModalCtrl ($scope, $modalInstance, documentTypeName) {
+    $scope.documentTypeName = documentTypeName;
+
+    $scope.ok = function() {
+        $modalInstance.close();
+    };
+
+    $scope.cancel = function() {
+        $modalInstance.dismiss('cancel');
+    };
 }
 
 function signoffPathsSetupCtrl ($scope, $rootScope, $window, manageUsersService, signoffPathsService, adminSignoffPathsService) {
@@ -1402,6 +1452,7 @@ angular
     .module('provesoft')
     .controller('manageUsersCtrl', manageUsersCtrl)
     .controller('documentTypeSetupCtrl', documentTypeSetupCtrl)
+    .controller('documentTypeModalCtrl', documentTypeModalCtrl)
     .controller('signoffPathsSetupCtrl', signoffPathsSetupCtrl)
     .controller('pendingApprovalsCtrl', pendingApprovalsCtrl)
     .controller('moduleSettingsCtrl', moduleSettingsCtrl);

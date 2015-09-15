@@ -1,6 +1,7 @@
 package com.provesoft.resource.repository;
 
 import com.provesoft.resource.entity.Document.Document;
+import com.provesoft.resource.entity.Document.DocumentType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -70,5 +71,8 @@ public interface DocumentRepository extends JpaRepository<Document, String> {
     )
     List<Document> wildCardSearchNoObsolete (@Param("companyName") String companyName,
                                              @Param("searchString") String searchString);
+
+    Long countByCompanyNameAndDocumentType (@Param("companyName") String companyName,
+                                            @Param("documentType") DocumentType documentType);
 
 }

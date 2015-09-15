@@ -1,0 +1,13 @@
+<div class="inmodal">
+    <div class="modal-header">
+        <span class="fa fa-times modal-icon"></span>
+        <h4 class="modal-title">DocumentType Deletion Error</h4>
+    </div>
+    <div class="modal-body">
+        <p>Could not delete DocumentType <strong>{{ documentTypeName }}</strong> because documents exist for this type.</p>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-primary" ng-click="ok()">OK</button>
+        <button type="button" class="btn btn-white" ng-click="cancel()">Close</button>
+    </div>
+</div>

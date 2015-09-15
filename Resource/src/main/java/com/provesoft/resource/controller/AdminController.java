@@ -9,6 +9,7 @@ import com.provesoft.resource.entity.SignoffPath.SignoffPath;
 import com.provesoft.resource.entity.SignoffPath.SignoffPathKey;
 import com.provesoft.resource.entity.SignoffPath.SignoffPathSteps;
 import com.provesoft.resource.entity.SignoffPath.SignoffPathTemplateSteps;
+import com.provesoft.resource.exceptions.BadRequestException;
 import com.provesoft.resource.exceptions.ForbiddenException;
 import com.provesoft.resource.exceptions.InternalServerErrorException;
 import com.provesoft.resource.exceptions.ResourceNotFoundException;
@@ -1180,6 +1181,36 @@ public class AdminController {
     // -------------------------------------------------- PUT ------------------------------------------------------- //
 
     // ------------------------------------------------- DELETE ----------------------------------------------------- //
+
+    @RequestMapping(
+            value = "/admin/document/type",
+            method = RequestMethod.DELETE
+    )
+    public ResponseEntity removeDocumentType (@RequestParam("documentTypeId") Long documentTypeId,
+                                              Authentication auth) {
+
+        // Check if super admin
+        if (UserHelpers.isSuperAdmin(auth)) {
+
+            String companyName = UserHelpers.getCompany(auth);
+
+            // Check if documentType belongs to company
+            DocumentType documentType = documentService.findDocumentTypeByCompanyNameAndId(companyName, documentTypeId);
+
+            if (documentType == null) {
+                throw new BadRequestException();
+            }
+
+            if (documentService.removeDocumentType(companyName, documentType)) {
+                return new ResponseEntity<>("{\"deleted\":true}", HttpStatus.OK);
+            }
+            else {
+                return new ResponseEntity<>("{\"deleted\":false}", HttpStatus.BAD_REQUEST);
+            }
+        }
+
+        throw new ForbiddenException();
+    }
 
 
 /* ------------------------------------------------------------------------------------------------------------------ */

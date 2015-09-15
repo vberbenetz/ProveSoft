@@ -244,6 +244,31 @@ public class DocumentService {
     }
 
     /**
+     * Method retrieves one DocumentType
+     * @param companyName
+     * @param documentTypeId
+     * @return
+     */
+    public DocumentType findDocumentTypeByCompanyNameAndId(String companyName, Long documentTypeId) {
+        return documentTypeRepository.findByCompanyNameAndId(companyName, documentTypeId);
+    }
+
+    /**
+     * Method retrieves a count of existing Documents for a DocumentType to see if any exist for that type.
+     * @param companyName
+     * @param documentType
+     * @return
+     */
+    public Boolean documentsForTypeExist(String companyName, DocumentType documentType) {
+        if (documentRepository.countByCompanyNameAndDocumentType(companyName, documentType) > 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    /**
      * Add new DocumentType.
      * Insert new DocumentTypeId to maintain Id generation
      * @param documentType
@@ -254,6 +279,23 @@ public class DocumentService {
         DocumentTypeId newDocumentTypeId = new DocumentTypeId( newDocumentType.getCompanyName(), newDocumentType.getId(), newDocumentType.getCurrentSuffix() );
         documentTypeIdRepository.saveAndFlush(newDocumentTypeId);
         return newDocumentType;
+    }
+
+    /**
+     * Method deletes a DocumentType if no Documents exist for that type
+     * @param companyName
+     * @param documentType
+     * @return Boolean
+     */
+    public Boolean removeDocumentType(String companyName, DocumentType documentType) {
+        if (!documentsForTypeExist(companyName, documentType)) {
+            documentTypeRepository.delete(documentType);
+            documentTypeRepository.flush();
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
 

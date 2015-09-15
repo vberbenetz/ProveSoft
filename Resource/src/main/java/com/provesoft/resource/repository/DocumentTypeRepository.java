@@ -24,12 +24,4 @@ public interface DocumentTypeRepository extends JpaRepository<DocumentType, Long
     @Transactional
     void updateCurrentSuffix(@Param("id") Long id, @Param("newSuffix") Long newSuffix);
 
-    @Query(
-            "DELETE FROM DocumentType d " +
-            "WHERE d.companyName=:companyName " +
-            "AND d.id=:id"
-    )
-    @Modifying
-    @Transactional
-    void deleteDocumentTypeById(@Param("id") Long id, @Param("companyName") String companyName);
 }
