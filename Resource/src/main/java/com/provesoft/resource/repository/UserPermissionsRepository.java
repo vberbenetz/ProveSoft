@@ -14,6 +14,8 @@ public interface UserPermissionsRepository extends JpaRepository<UserPermissions
 
     List<UserPermissions> findByKeyUserId(Long userId);
 
+    Long countByKeyOrganizationId(Long organzationId);
+
     @Query(
             "DELETE FROM UserPermissions up " +
             "WHERE up.key.userId=:userId"

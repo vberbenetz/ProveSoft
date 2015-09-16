@@ -36,6 +36,21 @@ public class RolesService {
         return rolesRepository.findByCompanyNameAndRoleIdIn(companyName, roleIds);
     }
 
+    /**
+     * Method checks to see if this organization is referred elsewhere in the app
+     * @param companyName
+     * @param role
+     * @return Boolean
+     */
+    public Boolean roleInUse(String companyName, Roles role) {
+        if ( roleUserRepository.countByKeyCompanyNameAndKeyRoleId(companyName, role.getRoleId()) > 0 ) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
     public Roles saveRole(Roles role) {
         return rolesRepository.saveAndFlush(role);
     }
@@ -43,6 +58,24 @@ public class RolesService {
     public void deleteRole(Roles role) {
         rolesRepository.delete(role);
         rolesRepository.flush();
+    }
+
+    /**
+     * Method deletes a Role and it's RolePermissions if it is not referenced anywhere else
+     * @param companyName
+     * @param role
+     * @return Boolean
+     */
+    public Boolean removeRole(String companyName, Roles role) {
+        if (!roleInUse(companyName, role)) {
+            rolesRepository.delete(role);
+            rolePermissionsRepository.deleteByRoleId(role.getRoleId());
+            rolesRepository.flush();
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
 

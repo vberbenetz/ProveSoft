@@ -1,6 +1,7 @@
 package com.provesoft.resource.repository;
 
 
+import com.provesoft.resource.entity.Organizations;
 import com.provesoft.resource.entity.UserDetails;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -16,13 +17,13 @@ public interface UserDetailsRepository extends JpaRepository<UserDetails, Long> 
 
     List<UserDetails> findFirst10ByCompanyNameOrderByLastNameAsc(String companyName);
 
-    String findCompanyNameByUserId(Long userId);
-
     UserDetails findByCompanyNameAndUserId(String companyName, Long userId);
 
     UserDetails findByCompanyNameAndEmail(String companyName, String email);
 
     List<UserDetails> findByCompanyNameAndUserIdIn(String companyName, List<Long> userId);
+
+    Long countByCompanyNameAndPrimaryOrganization(String companyName, Organizations primaryOrganization);
 
     // Get subset of users based on search
     @Query(

@@ -522,7 +522,7 @@ public class AdminController {
     // -------------------------------------------------- POST ------------------------------------------------------ //
 
     /**
-     * Method creates a new organization based on passed in payload from organizaiton management in the frontend
+     * Method creates a new organization based on passed in payload from organization management in the frontend
      * @param json Organization payload
      * @param auth Authentication object
      * @return Organizations
@@ -590,41 +590,34 @@ public class AdminController {
 
     // ------------------------------------------------- DELETE ----------------------------------------------------- //
 
-    /**
-     * Method deletes an organization based on Organization object in the payload
-     * @param json Organization object payload
-     * @param auth Authentication object
-     */
-    @RequestMapping(value = "/admin/organization",
-            method = RequestMethod.DELETE,
-            consumes = MediaType.APPLICATION_JSON_VALUE
+    @RequestMapping(
+            value = "/admin/organization",
+            method = RequestMethod.DELETE
     )
-    public void deleteOrganization (@RequestBody String json,
-                                    Authentication auth) {
+    public ResponseEntity removeOrganization (@RequestParam("organizationId") Long organizationId,
+                                              Authentication auth) {
 
         // Check if super admin
         if (UserHelpers.isSuperAdmin(auth)) {
-            ObjectMapper mapper = new ObjectMapper();
-            try {
-                Organizations organization = mapper.readValue(json, Organizations.class);
 
-                // Check if admin is deleting from their own company
-                String company = UserHelpers.getCompany(auth);
-                if ( company.equals(organization.getCompanyName())) {
-                    organizationsService.deleteOrg(organization);
-                }
-                else {
-                    throw new ForbiddenException();
-                }
-            }
-            catch (IOException | NullPointerException ex) {
-                throw new ResourceNotFoundException();
+            String companyName = UserHelpers.getCompany(auth);
+
+            // Check if organization belongs to company
+            Organizations organization = organizationsService.findByOrganizationIdAndCompanyName(organizationId, companyName);
+
+            if (organization == null) {
+                throw new BadRequestException();
             }
 
+            if (organizationsService.removeOrganization(companyName, organization)) {
+                return new ResponseEntity<>("{\"deleted\":true}", HttpStatus.OK);
+            }
+            else {
+                return new ResponseEntity<>("{\"deleted\":false}", HttpStatus.BAD_REQUEST);
+            }
         }
 
         throw new ForbiddenException();
-
     }
 
 
@@ -779,25 +772,17 @@ public class AdminController {
 
     // ------------------------------------------------- DELETE ----------------------------------------------------- //
 
-    /*
-         1) All role permissions are deleted
-         2) All role templates are deleted
-         3) User permissions that were assigned by this role remain
-      */
-
     /**
-     * Method deletes a role from the company.
-     * 1) All role permissions are deleted
-     * 2) All role templates are deleted
-     * 3) User permissions assigned by this role remain
-     * @param roleId Role Id of Role to be deleted
+     * Method deletes a role if it is not being referenced anywhere else
+     * @param roleId Role id of role to be deleted
      * @param auth Authentication object
-     * @return Empty ResponseEntity
+     * @return ResponseEntity
      */
-    @RequestMapping(value = "/admin/role",
+    @RequestMapping(
+            value = "/admin/role",
             method = RequestMethod.DELETE
     )
-    public ResponseEntity deleteRole (@RequestParam("roleId") Long roleId,
+    public ResponseEntity removeRole (@RequestParam("roleId") Long roleId,
                                       Authentication auth) {
 
         // Check if super admin
@@ -805,23 +790,22 @@ public class AdminController {
 
             String companyName = UserHelpers.getCompany(auth);
 
+            // Check if role belongs to company
             Roles role = rolesService.findByCompanyNameAndRoleId(companyName, roleId);
 
             if (role == null) {
-                throw new ResourceNotFoundException();
+                throw new BadRequestException();
             }
 
-            // Delete all role permissions
-            rolesService.deleteAllRolePermissionsByRoleId(roleId);
-
-            // Delete role
-            rolesService.deleteRole(role);
-
-            return new ResponseEntity<>("{}", HttpStatus.OK);
+            if (rolesService.removeRole(companyName, role)) {
+                return new ResponseEntity<>("{\"deleted\":true}", HttpStatus.OK);
+            }
+            else {
+                return new ResponseEntity<>("{\"deleted\":false}", HttpStatus.BAD_REQUEST);
+            }
         }
 
         throw new ForbiddenException();
-
     }
 
 
@@ -1530,9 +1514,28 @@ public class AdminController {
 
     // ------------------------------------------------- DELETE ----------------------------------------------------- //
 
-    /*
-        Remove signoff path steps
-     */
+    @RequestMapping(
+            value = "/admin/signoffPath",
+            method = RequestMethod.DELETE
+    )
+    public void deleteSignoffPath(@RequestParam("pathId") Long pathId,
+                                  Authentication auth) {
+
+        if (UserHelpers.isSuperAdmin(auth)) {
+
+            String companyName = UserHelpers.getCompany(auth);
+            SignoffPath sfp = signoffPathService.findByCompanyNameAndPathId(companyName, pathId);
+
+            if (sfp == null) {
+                throw new BadRequestException();
+            }
+
+            signoffPathService.deleteSignoffPath(companyName, sfp);
+        }
+        else {
+            throw new ForbiddenException();
+        }
+    }
 
     /**
      * Method removes specific SignoffPathSteps from a SignoffPathTemplate. All documents in "Pending" state which have

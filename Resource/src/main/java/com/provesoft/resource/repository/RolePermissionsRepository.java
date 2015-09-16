@@ -14,6 +14,10 @@ public interface RolePermissionsRepository extends JpaRepository<RolePermissions
 
     List<RolePermissions> findByKeyRoleId(Long roleId);
 
+    Long countByKeyOrganizationId (Long organizationId);
+
+    Long countByKeyRoleId (Long roleId);
+
     @Query (
             "DELETE FROM RolePermissions rp " +
             "WHERE rp.key.roleId=:roleId"

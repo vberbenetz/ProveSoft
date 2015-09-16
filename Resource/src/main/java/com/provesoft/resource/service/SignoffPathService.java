@@ -63,6 +63,13 @@ public class SignoffPathService {
         return signoffPathRepository.saveAndFlush(signoffPath);
     }
 
+    public void deleteSignoffPath(String companyName, SignoffPath signoffPath) {
+        signoffPathRepository.delete(signoffPath);
+        signoffPathRepository.flush();
+        signoffPathTemplateStepsRepository.deleteTemplateForPath(companyName, signoffPath.getKey().getPathId());
+        signoffPathTemplateStepsRepository.flush();
+    }
+
 
     /* ------------------------ SignoffPathId -------------------------- */
 

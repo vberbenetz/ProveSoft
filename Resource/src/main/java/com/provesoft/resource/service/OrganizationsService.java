@@ -2,8 +2,7 @@ package com.provesoft.resource.service;
 
 import com.provesoft.resource.entity.OrgUser;
 import com.provesoft.resource.entity.Organizations;
-import com.provesoft.resource.repository.OrgUserRepository;
-import com.provesoft.resource.repository.OrganizationsRepository;
+import com.provesoft.resource.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +19,18 @@ public class OrganizationsService {
 
     @Autowired
     OrgUserRepository orgUserRepository;
+
+    @Autowired
+    UserDetailsRepository userDetailsRepository;
+
+    @Autowired
+    DocumentRepository documentRepository;
+
+    @Autowired
+    RolePermissionsRepository rolePermissionsRepository;
+
+    @Autowired
+    UserPermissionsRepository userPermissionsRepository;
 
 
     /**
@@ -42,11 +53,34 @@ public class OrganizationsService {
     }
 
     public Organizations findByOrganizationIdAndCompanyName(Long organizationId, String companyName) {
-        return organizationsRepository.findByOrganizationIdAndCompanyName(organizationId, companyName);
+        return organizationsRepository.findByCompanyNameAndOrganizationId(companyName, organizationId);
     }
 
-    public Organizations findByOrganizationNameAndCompanyName(String organizationName, String companyName) {
-        return organizationsRepository.findByNameAndCompanyName(organizationName, companyName);
+    /**
+     * Method checks to see if this organization is referred elsewhere in the app
+     * @param companyName
+     * @param organization
+     * @return Boolean
+     */
+    public Boolean organizationInUse(String companyName, Organizations organization) {
+        if (userDetailsRepository.countByCompanyNameAndPrimaryOrganization(companyName, organization) > 0) {
+            return true;
+        }
+        else if ( orgUserRepository.countByKeyCompanyNameAndKeyOrganizationId(companyName, organization.getOrganizationId()) > 0 ) {
+            return true;
+        }
+        else if ( documentRepository.countByCompanyNameAndOrganization(companyName, organization) > 0 ) {
+            return true;
+        }
+        else if ( rolePermissionsRepository.countByKeyOrganizationId(organization.getOrganizationId()) > 0 ) {
+            return true;
+        }
+        else if ( userPermissionsRepository.countByKeyOrganizationId(organization.getOrganizationId()) > 0 ) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
     public Organizations saveOrg(Organizations organization) {
@@ -57,8 +91,21 @@ public class OrganizationsService {
         organizationsRepository.updateDescription(organizationId, companyName, newDescription);
     }
 
-    public void deleteOrg(Organizations organization) {
-        organizationsRepository.delete(organization);
+    /**
+     * Method deletes an Organization if it is not referred anywhere else
+     * @param companyName
+     * @param organization
+     * @return Boolean
+     */
+    public Boolean removeOrganization(String companyName, Organizations organization) {
+        if (!organizationInUse(companyName, organization)) {
+            organizationsRepository.delete(organization);
+            organizationsRepository.flush();
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
 

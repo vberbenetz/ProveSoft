@@ -121,6 +121,13 @@ function manageUsersService($resource) {
                     method: 'GET',
                     params: {},
                     isArray: true
+                },
+                remove: {
+                    method: 'DELETE',
+                    params: {
+                        organizationId: '@organizationId'
+                    },
+                    isArray: false
                 }
             }
         ),
@@ -130,7 +137,7 @@ function manageUsersService($resource) {
         role: $resource('/resource/admin/role',
             {},
             {
-                removeByRoleId: {
+                remove: {
                     method: 'DELETE',
                     params: {
                         roleId: '@roleId'
@@ -295,6 +302,13 @@ function adminSignoffPathsService ($resource) {
                     method: 'POST',
                     params: {
                         userId: '@userId'
+                    },
+                    isArray: false
+                },
+                remove: {
+                    method: 'DELETE',
+                    params: {
+                        pathId: '@pathId'
                     },
                     isArray: false
                 }

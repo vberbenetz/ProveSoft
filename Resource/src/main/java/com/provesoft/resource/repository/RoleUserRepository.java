@@ -16,6 +16,8 @@ public interface RoleUserRepository extends JpaRepository<RoleUser, RoleUserKey>
 
     List<RoleUser> findByKeyRoleId(Long roleId);
 
+    Long countByKeyCompanyNameAndKeyRoleId (String companyName, Long roleId);
+
     @Query (
             "DELETE FROM RoleUser ru " +
             "WHERE ru.key.companyName=:companyName " +

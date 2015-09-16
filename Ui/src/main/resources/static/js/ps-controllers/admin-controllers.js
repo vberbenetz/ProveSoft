@@ -1,6 +1,6 @@
 'use strict';
 
-function manageUsersCtrl($scope, $rootScope, $window, $timeout, userService, manageUsersService) {
+function manageUsersCtrl($scope, $rootScope, $window, $timeout, $modal, userService, manageUsersService) {
 
     if (!$rootScope.authenticated) {
         $window.location.href = '/';
@@ -583,6 +583,24 @@ function manageUsersCtrl($scope, $rootScope, $window, $timeout, userService, man
         });
     };
 
+    // Deletes an organization if it is not referenced by any other objects
+    $scope.deleteOrganization = function(organization) {
+        manageUsersService.organization.remove({organizationId: organization.organizationId}, function(data) {
+            if (data.deleted) {
+                $scope.removeOrganizationFromList(organization.organizationId);
+            }
+        }, function(error) {
+            if ( (typeof error.data.deleted !== 'undefined') && (!error.data.deleted) ) {
+                var errorTitle = 'Organization Deletion Error';
+                var errorMsg = 'Could not delete Organization ' + organization.name + ' because this organization is referenced elsewhere.';
+                $scope.openAdminErrorModal(errorTitle, errorMsg);
+            }
+            else {
+                $scope.error = error;
+            }
+        });
+    };
+
 
     /* ----------- Role Related ------------ */
 
@@ -627,7 +645,7 @@ function manageUsersCtrl($scope, $rootScope, $window, $timeout, userService, man
     };
 
     /*
-        Remove select organization and its permissions from the role template (Does tno persist and only front-end)
+        Remove select organization and its permissions from the role template (Does not persist and only front-end)
      */
     $scope.removeOrgFromRole = function(index) {
         $scope.newRolePermissions.splice(index, 1);
@@ -734,28 +752,62 @@ function manageUsersCtrl($scope, $rootScope, $window, $timeout, userService, man
         });
     };
 
+    // Deletes a Role if it is not referenced by any other objects
     $scope.deleteRole = function(role) {
-        var roleId = role.roleId;
-
-        manageUsersService.role.removeByRoleId({roleId: roleId}, function(data) {
-
-            var roles = $scope.roles;
-
-            // Remove role from roles
-            for (var i = 0; i < roles.length; i++) {
-                if (roleId === roles[i].roleId) {
-                    $scope.roles.splice(i, 1);
-                    break;
-                }
+        manageUsersService.role.remove({roleId: role.roleId}, function(data) {
+            if (data.deleted) {
+                $scope.removeRoleFromList(role.roleId);
             }
-
-        }, function(err) {
-            $scope.error = err;
-        })
+        }, function(error) {
+            if ( (typeof error.data.deleted !== 'undefined') && (!error.data.deleted) ) {
+                var errorTitle = 'Role Deletion Error';
+                var errorMsg = 'Could not delete Role ' + role.name + ' because this role is referenced elsewhere.';
+                $scope.openAdminErrorModal(errorTitle, errorMsg);
+            }
+            else {
+                $scope.error = error;
+            }
+        });
     };
 
 
     /* ----------- Helpers ------------ */
+
+    $scope.openAdminErrorModal = function(errorTitle, errorMsg) {
+        var modalInstance = $modal.open({
+            templateUrl:'views/admin/adminErrorModal.html',
+            controller: adminErrorModalCtrl,
+            size: 'sm',
+            resolve: {
+                errorTitle: function() {
+                    return errorTitle;
+                },
+                errorMsg: function() {
+                    return errorMsg;
+                }
+            }
+        })
+    };
+
+    $scope.removeOrganizationFromList = function(organizationId) {
+        var organizations = $scope.organizations;
+        for (var i = 0; i < organizations.length; i++) {
+            if (organizations[i].organizationId === organizationId) {
+                $scope.organizations.splice(i, 1);
+                break;
+            }
+        }
+    };
+
+    $scope.removeRoleFromList = function(roleId) {
+        var roles = $scope.roles;
+        for (var i = 0; i < roles.length; i++) {
+            if (roles[i].roleId === roleId) {
+                $scope.roles.splice(i, 1);
+                break;
+            }
+        }
+    };
 
     $scope.getOrgNameById = function(organizationId) {
 
@@ -948,7 +1000,9 @@ function documentTypeSetupCtrl($scope, $rootScope, $window, $modal, documentType
             }
         }, function(error) {
             if ( (typeof error.data.deleted !== 'undefined') && (!error.data.deleted) ) {
-                $scope.openDocumentTypeModal(documentType.name);
+                var errorTitle = 'DocumentType Deletion Error';
+                var errorMsg = 'Could not delete DocumentType ' + documentType.name + ' because documents exist for this type.';
+                $scope.openDocumentTypeModal(errorTitle, errorMsg);
             }
             else {
                 $scope.error = error;
@@ -956,14 +1010,17 @@ function documentTypeSetupCtrl($scope, $rootScope, $window, $modal, documentType
         });
     };
 
-    $scope.openDocumentTypeModal = function(documentTypeName) {
+    $scope.openDocumentTypeModal = function(errorTitle, errorMsg) {
         var modalInstance = $modal.open({
-            templateUrl:'views/admin/documentTypeExistsModal.html',
-            controller: documentTypeModalCtrl,
+            templateUrl:'views/admin/adminErrorModal.html',
+            controller: adminErrorModalCtrl,
             size: 'sm',
             resolve: {
-                documentTypeName: function() {
-                    return documentTypeName;
+                errorTitle: function() {
+                    return errorTitle;
+                },
+                errorMsg: function() {
+                    return errorMsg;
                 }
             }
         })
@@ -991,18 +1048,6 @@ function documentTypeSetupCtrl($scope, $rootScope, $window, $modal, documentType
         }
     }
 
-}
-
-function documentTypeModalCtrl ($scope, $modalInstance, documentTypeName) {
-    $scope.documentTypeName = documentTypeName;
-
-    $scope.ok = function() {
-        $modalInstance.close();
-    };
-
-    $scope.cancel = function() {
-        $modalInstance.dismiss('cancel');
-    };
 }
 
 function signoffPathsSetupCtrl ($scope, $rootScope, $window, manageUsersService, signoffPathsService, adminSignoffPathsService) {
@@ -1169,6 +1214,14 @@ function signoffPathsSetupCtrl ($scope, $rootScope, $window, manageUsersService,
         }
     };
 
+    $scope.deleteSignoffPath = function(signoffPath) {
+        adminSignoffPathsService.path.remove({pathId: signoffPath.key.pathId}, function(data) {
+            $scope.removeSignoffPathFromList(signoffPath.key.pathId);
+        }, function(error) {
+            $scope.error = error;
+        });
+    };
+
     $scope.removeStep = function(step, i) {
         $scope.stepsToRemove.push(step);
         $scope.rightPanel.steps.splice(i, 1);
@@ -1209,6 +1262,16 @@ function signoffPathsSetupCtrl ($scope, $rootScope, $window, manageUsersService,
     };
 
     /* --------------------- Helpers ---------------------- */
+
+    $scope.removeSignoffPathFromList = function(signoffPathId) {
+        var paths = $scope.paths;
+        for (var i = 0; i < paths.length; i++) {
+            if (paths[i].key.pathId === signoffPathId) {
+                $scope.paths.splice(i, 1);
+                break;
+            }
+        }
+    };
 
     $scope.getOrgNameById = function(organizationId) {
 
@@ -1447,12 +1510,25 @@ function moduleSettingsCtrl($scope, $rootScope, $window, adminModuleSettingsServ
 
 }
 
+function adminErrorModalCtrl ($scope, $modalInstance, errorTitle, errorMsg) {
+    $scope.errorTitle = errorTitle;
+    $scope.errorMsg = errorMsg;
+
+    $scope.ok = function() {
+        $modalInstance.close();
+    };
+
+    $scope.cancel = function() {
+        $modalInstance.dismiss('cancel');
+    };
+}
+
 
 angular
     .module('provesoft')
     .controller('manageUsersCtrl', manageUsersCtrl)
     .controller('documentTypeSetupCtrl', documentTypeSetupCtrl)
-    .controller('documentTypeModalCtrl', documentTypeModalCtrl)
+    .controller('adminErrorModalCtrl', adminErrorModalCtrl)
     .controller('signoffPathsSetupCtrl', signoffPathsSetupCtrl)
     .controller('pendingApprovalsCtrl', pendingApprovalsCtrl)
     .controller('moduleSettingsCtrl', moduleSettingsCtrl);

@@ -17,6 +17,8 @@ public interface OrgUserRepository extends JpaRepository<OrgUser, OrgUserKey> {
 
     List<OrgUser> findByKeyCompanyNameAndKeyOrganizationId(String companyName, Long organizationId);
 
+    Long countByKeyCompanyNameAndKeyOrganizationId(String companyName, Long organizationId);
+
     // Delete OrgUser
     @Query(
             "DELETE FROM OrgUser ou " +

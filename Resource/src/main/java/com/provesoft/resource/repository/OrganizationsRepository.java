@@ -17,9 +17,7 @@ public interface OrganizationsRepository extends JpaRepository<Organizations, Lo
 
     List<Organizations> findByCompanyNameAndOrganizationIdIn(String companyName, List<Long> organizationIds);
 
-    Organizations findByOrganizationIdAndCompanyName(Long organizationId, String companyName);
-
-    Organizations findByNameAndCompanyName(String name, String companyName);
+    Organizations findByCompanyNameAndOrganizationId(String companyName, Long organizationId);
 
     // Update description
     @Query(
@@ -33,5 +31,5 @@ public interface OrganizationsRepository extends JpaRepository<Organizations, Lo
     void updateDescription(@Param(value="organizationId") Long organizationId,
                            @Param(value="companyName") String companyName,
                            @Param(value="newDescription") String newDescription);
-    
+
 }
