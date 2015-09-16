@@ -65,17 +65,18 @@ public class GatewayApplication {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http
-                    .httpBasic()
-                    .and()
-                    .logout()
-                    .and()
                     .authorizeRequests()
-                    .antMatchers("/index.html", "/login", "/register", "/check", "/pr", "/ps", "/", "/css/**", "/font-awesome/**", "/fonts/**", "/img/**", "/js/**", "/robots.txt").permitAll()
-                    .anyRequest().authenticated()
-                    .and()
+                        .antMatchers("/index.html", "/login", "/register", "/check", "/pr", "/ps", "/", "/css/**", "/font-awesome/**", "/fonts/**", "/img/**", "/js/**", "/robots.txt").permitAll()
+                        .anyRequest().authenticated()
+                        .and()
+                    .formLogin()
+                        .loginPage("/")
+                        .and()
+                        .logout().logoutSuccessUrl("/").permitAll()
+                        .and()
                     .csrf().csrfTokenRepository(csrfTokenRepository())
-                    .and()
-                    .addFilterAfter(csrfHeaderFilter(), CsrfFilter.class);
+                        .and()
+                        .addFilterAfter(csrfHeaderFilter(), CsrfFilter.class);
         }
 
         private Filter csrfHeaderFilter() {

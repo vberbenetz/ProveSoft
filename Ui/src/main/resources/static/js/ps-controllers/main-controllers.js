@@ -1,8 +1,17 @@
 'use strict';
 
-function MainCtrl($scope, $rootScope, $window, authService, userService) {
+function MainCtrl($scope, $rootScope, $http, $window, authService, userService) {
 
     // ---------- Authentication ----------- //
+
+    // Listen on route change to determine if user is logged in or needs redirect
+    $rootScope.$on('$locationChangeStart', function() {
+        $http.get('/user')
+            .success(function(data) {})
+            .error(function() {
+                $window.location.href = '/';
+            });
+    });
 
     authService.getUserAuth.get(function(data) {
         if (data.userName) {

@@ -1,12 +1,14 @@
-angular.module('auth', []).config(function($httpProvider) {
+angular.module('auth', ['ngCookies']).config(function($httpProvider) {
 
 	$httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
 }).controller('navigation',
 
-function($scope, $http, $window, $location, $timeout) {
+function($scope, $http, $window, $location, $timeout, $cookies) {
 
     /* ----------- Initialize variables ----------- */
+    $scope.userLoggedin = false;
+
     $scope.tab = 1;
 
     $scope.credentials = {};
@@ -41,6 +43,31 @@ function($scope, $http, $window, $location, $timeout) {
     };
     $scope.successfullyReset = false;
 
+    // Check if user is logged in
+    $scope.checkIfUserLoggedIn = function(callback) {
+        $http.get('/user')
+            .success(function(data) {
+                if (typeof data.name !== 'undefined') {
+                    $scope.userLoggedin = true;
+                    callback(true);
+                }
+                else {
+                    $scope.userLoggedin = false;
+                    callback(false);
+                }
+            })
+            .error(function() {
+                $scope.userLoggedin = false;
+                callback(false);
+            });
+    };
+    $scope.checkIfUserLoggedIn(function(value) {});
+
+
+    // Redirect to UI if user is logged in
+    $scope.redirectToUi = function() {
+        $window.location.href = '/ui/';
+    };
 
     // Perform check if password recovery
     $scope.passResetForm = false;
@@ -50,41 +77,37 @@ function($scope, $http, $window, $location, $timeout) {
         $scope.passResetForm = true;
     }
 
-
-	var authenticate = function(credentials, callback) {
-
-		var headers = credentials ? {
-			authorization : "Basic "
-					+ btoa(credentials.username + ":"
-							+ credentials.password)
-		} : {};
-
-		$scope.user = '';
-		$http.get('user', {
-			headers : headers
-		}).success(function(data) {
-			if (data.name) {
-				$scope.authenticated = true;
-				$scope.user = data.name
-			} else {
-				$scope.authenticated = false;
-			}
-			callback && callback(true);
-		}).error(function() {
-			$scope.authenticated = false;
-			callback && callback(false);
-		});
-
-	};
-
-	authenticate();
-
 	$scope.login = function() {
-		authenticate($scope.credentials, function(authenticated) {
-			$scope.authenticated = authenticated;
-			$scope.error = !authenticated;
-            $window.location.href = '/ui/';
-		})
+        var xsrfToken = $cookies['XSRF-TOKEN'];
+
+        $http({
+            method: 'POST',
+            url: '/',
+            headers: {
+                'X-XSRF-TOKEN': xsrfToken,
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            transformRequest: function(obj) {
+                var str = [];
+                for(var p in obj)
+                str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+                return str.join("&");
+            },
+            data: {username: $scope.credentials.username, password: $scope.credentials.password}
+        })
+        .success(function(data) {
+                $scope.checkIfUserLoggedIn(function(result) {
+                    if (result) {
+                        $window.location.href = '/ui/';
+                    }
+                    else {
+                        $scope.loginFailed = true;
+                    }
+                });
+        })
+        .error(function() {
+                $scope.loginFailed = true;
+            });
 	};
 
 	$scope.logout = function() {

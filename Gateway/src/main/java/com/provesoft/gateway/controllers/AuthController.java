@@ -19,10 +19,7 @@ public class AuthController {
         return Collections.<String, Object> singletonMap("name", user.getName());
     }
 
-    @RequestMapping("/login")
-    public String login() {
-        return "forward:/";
-    }
+
 
 
 }
