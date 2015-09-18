@@ -200,3 +200,12 @@ textarea {
 .text-white {
     color: #FFFFFF;
 }
+
+.no-bg-img {
+    background-image: none !important;
+}
+
+.profile-img {
+    max-width: 192px;
+    max-height: 192px;
+}

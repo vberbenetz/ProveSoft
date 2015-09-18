@@ -49,6 +49,16 @@ function userService($resource) {
                     isArray: true
                 }
             }
+        ),
+        pr: $resource('/resource/user/pr',
+            {},
+            {
+                resetRequest: {
+                    method: 'POST',
+                    params: {},
+                    isArray: false
+                }
+            }
         )
     }
 }

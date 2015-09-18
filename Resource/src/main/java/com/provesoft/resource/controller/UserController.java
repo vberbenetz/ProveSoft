@@ -1,21 +1,26 @@
 package com.provesoft.resource.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.provesoft.resource.entity.UserDetails;
-import com.provesoft.resource.exceptions.ResourceNotFoundException;
+import com.provesoft.resource.entity.Users;
+import com.provesoft.resource.exceptions.BadRequestException;
 import com.provesoft.resource.service.UserDetailsService;
+import com.provesoft.resource.service.UsersService;
 import com.provesoft.resource.utils.AuthPkg;
 import com.provesoft.resource.utils.ProfilePicturePkg;
-import com.provesoft.resource.utils.UserFirstLastNamePkg;
 import com.provesoft.resource.utils.UserHelpers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -28,6 +33,9 @@ public class UserController {
     
     @Autowired
     UserDetailsService userDetailsService;
+
+    @Autowired
+    UsersService usersService;
 
     /**
      * Method retrieves an AuthPkg used by the security in the frontend (Angular) to check if user is authenicated.
@@ -94,6 +102,50 @@ public class UserController {
             Long userId = userDetailsService.findUserIdByCompanyNameAndEmail(companyName, email);
             ProfilePicturePkg ppp = userDetailsService.findProfilePictureForUser(companyName, userId);
             return new ResponseEntity<Object>(ppp, HttpStatus.OK);
+        }
+    }
+
+    /**
+     * Method accepts a payload of an old and new password. Old password is compared against current password to
+     * validate user. The new password is then hashed and updated.
+     * @param json POST payload
+     * @param auth Authentication object
+     * @return ResponseEntity with success or error information
+     */
+    @RequestMapping(
+            value = "/user/pr",
+            method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity resetUserPassword (@RequestBody String json,
+                                             Authentication auth) {
+
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            JsonNode rootNode = mapper.readTree(json);
+            String oldPassword = rootNode.get("oldPassword").textValue();
+            String newPassword = rootNode.get("newPassword").textValue();
+
+            String myEmail = auth.getName();
+
+            Users me = usersService.getUser(myEmail);
+
+            // If old password matches, update user
+            if (BCrypt.checkpw(oldPassword, me.getPassword())) {
+                PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+                String hashedNewPassword = passwordEncoder.encode(newPassword);
+                me.setPassword(hashedNewPassword);
+                usersService.saveUser(me);
+
+                return new ResponseEntity<>("{}", HttpStatus.OK);
+            }
+            else {
+                return new ResponseEntity<>("{\"errorCode\":1}", HttpStatus.BAD_REQUEST);
+            }
+        }
+        catch (IOException ioe) {
+            throw new BadRequestException();
         }
     }
 

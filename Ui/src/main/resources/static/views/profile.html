@@ -1,80 +1,54 @@
 <div class="row wrapper border-bottom white-bg page-heading">
     <div class="col-lg-10">
         <h2>Profile</h2>
-        <ol class="breadcrumb">
-            <li>
-                <a href="index.html">Home</a>
-            </li>
-            <li>
-                <a>Extra Pages</a>
-            </li>
-            <li class="active">
-                <strong>Profile</strong>
-            </li>
-        </ol>
-    </div>
-    <div class="col-lg-2">
-
     </div>
 </div>
 <div class="wrapper wrapper-content">
     <div class="row animated fadeInRight">
-        <div class="col-md-4">
+        <div class="col-md-12">
             <div class="ibox float-e-margins">
-                <div class="ibox-title">
-                    <h5>Profile Detail</h5>
-                </div>
                 <div>
-                    <div class="ibox-content no-padding border-left-right">
-                        <img alt="image" class="img-responsive" src="img/profile_big.jpg">
+                    <div class="col-md-6 margin-bottom-30 profile-img margin-left-5">
+                        <img alt="" src="img/default_profile.png" class="img-responsive" ng-src="{{ profilePicture }}">
                     </div>
-                    <div class="ibox-content profile-content">
-                        <h4><strong>Monica Smith</strong></h4>
-
-                        <p><i class="fa fa-map-marker"></i> Riviera State 32/106</p>
-                        <h5>
-                            About me
-                        </h5>
-
-                        <p>
-                            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-                            exercitat.
-                        </p>
-
-                        <div class="row m-t-lg">
-                            <div class="col-md-4">
-                                <bar-chart data="main.BarChart3.data" options="main.BarChart3.options"></line-bar>
-                                <h5><strong>169</strong> Posts</h5>
+                    <div class="ibox-content col-md-6">
+                        <form action="" class="dropzone" dropzone="" id="dropzone" style="border: 1px solid #676A6C">
+                            <div class="dz-default dz-message no-bg-img">
+                                <h1>Drag Profile Picture Here</h1>
+                                <h4>(or click)</h4>
                             </div>
-                            <div class="col-md-4">
-                                <line-chart data="main.LineChart.data" options="main.LineChart.options"></line-bar>
-                                <h5><strong>28</strong> Following</h5>
-                            </div>
-                            <div class="col-md-4">
-                                <bar-chart data="main.BarChart2.data" options="main.BarChart2.options"></line-bar>
-                                <h5><strong>240</strong> Followers</h5>
-                            </div>
-                        </div>
-                        <div class="user-button">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <button type="button" class="btn btn-primary btn-sm btn-block"><i class="fa fa-envelope"></i> Send Message</button>
-                                </div>
-                                <div class="col-md-6">
-                                    <button type="button" class="btn btn-default btn-sm btn-block"><i class="fa fa-coffee"></i> Buy a coffee</button>
+                        </form>
+                    </div>
+                    <div class="ibox-content profile-content col-lg-6 col-md-8">
+                        <form class="form-horizontal" ng-submit="resetPassword()">
+                            <div class="form-group" ng-class="{'has-error': passReset.validationErrors.oldPassword}">
+                                <label class="col-md-4 control-label">Old Password</label>
+                                <div class="col-md-8">
+                                    <input ng-model="passReset.oldPassword" type="password" placeholder="" class="form-control" maxlength="255">
+                                    <p class="text-danger" ng-show="passReset.validationErrors.oldPassword">{{ passReset.validationErrors.oldPassword }}</p>
                                 </div>
                             </div>
+                            <div class="form-group" ng-class="{'has-error': passReset.validationErrors.newPassword}">
+                                <label class="col-md-4 control-label">New Password</label>
+                                <div class="col-md-8">
+                                    <input ng-model="passReset.newPassword" type="password" placeholder="" class="form-control" maxlength="255">
+                                    <p class="text-danger" ng-show="passReset.validationErrors.newPassword">{{ passReset.validationErrors.newPassword }}</p>
+                                </div>
+                            </div>
+                            <div class="form-group" ng-class="{'has-error': passReset.validationErrors.verifyNewPassword}">
+                                <label class="col-md-4 control-label">Verify New Password</label>
+                                <div class="col-md-8">
+                                    <input ng-model="passReset.verifyNewPassword" type="password" placeholder="" class="form-control" maxlength="255">
+                                    <p class="text-danger" ng-show="passReset.validationErrors.verifyNewPassword">{{ passReset.validationErrors.verifyNewPassword }}</p>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary pull-right">Change Password</button>
+                        </form>
+                        <div ng-show="resetSuccessful" class="show-hide-notifications alert alert-success margin-top-20">
+                            Password Successfully Reset
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="col-md-8">
-            <div class="ibox float-e-margins">
-                <form action="" class="dropzone" dropzone="" id="dropzone">
-                    <div class="dz-default dz-message">
-                    </div>
-                </form>
             </div>
         </div>
     </div>

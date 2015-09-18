@@ -20,6 +20,15 @@ public class UsersService {
     AuthoritiesRepository authoritiesRepository;
 
     /**
+     * Retrieve a user by email
+     * @param email
+     * @return
+     */
+    public Users getUser(String email) {
+        return usersRepository.findByUsername(email);
+    }
+
+    /**
      * Save a new user. Used by admin when adding a new user
      * @param user
      * @return Users
