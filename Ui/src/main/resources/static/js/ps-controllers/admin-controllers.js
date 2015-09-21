@@ -505,6 +505,16 @@ function manageUsersCtrl($scope, $rootScope, $window, $timeout, $modal, userServ
 
         }, function(err) {
             $scope.error = err;
+            if (err.data.errorCode === 1) {
+                var errorTitle = 'User Deletion Error';
+                var errorMsg = 'You cannot delete yourself from this panel.';
+                $scope.openAdminErrorModal(errorTitle, errorMsg);
+            }
+            else if (err.data.errorCode === 2) {
+                var errorTitle = 'User Deletion Error';
+                var errorMsg = 'You cannot delete another administrator. Please demote them to a regular user before proceeding.';
+                $scope.openAdminErrorModal(errorTitle, errorMsg);
+            }
         });
     };
 

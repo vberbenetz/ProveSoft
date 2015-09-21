@@ -338,12 +338,14 @@ public class AdminController {
     // ------------------------------------------------- DELETE ----------------------------------------------------- //
 
     /**
-     * Method deletes a user. This method is called by the front-end from the manage users panel. Pitfall is that this
-     * method does not delete User from Users and Authority tables.
+     * Method deletes a user. This method is called by the front-end from the manage users panel.
+     * Method will not delete the user who calls it, or another Super Admin.
      * 1) Delete all UserPermissions
      * 2) Delete all RoleUser associated with this user
      * 3) Delete all OrgUser associated with this user
      * 4) Delete UserDetails for this user
+     * 5) Delete authorities
+     * 6) Delete User (free up email)
      * @param userId User Id of user being deleted
      * @param auth Authentication object
      * @return Empty ResponseEntity
@@ -355,8 +357,6 @@ public class AdminController {
                                       Authentication auth
     ) {
 
-// TODO: Delete user from Users and Authority table
-
         // Check if super admin
         if (UserHelpers.isSuperAdmin(auth)) {
 
@@ -366,6 +366,20 @@ public class AdminController {
 
             if (userDetails == null) {
                 throw new ResourceNotFoundException();
+            }
+
+            List<Authorities> authorities = usersService.getAuthorities(userDetails.getEmail());
+
+            // Check if user is me. Do not delete
+            if (userDetails.getEmail().equals(auth.getName())) {
+                return new ResponseEntity<>("{\"errorCode\":1}", HttpStatus.BAD_REQUEST);
+            }
+
+            // Check if user is admin. Do not delete
+            for (Authorities a : authorities) {
+                if (a.getAuthority().equals("ROLE_SUPER_ADMIN")) {
+                    return new ResponseEntity<>("{\"errorCode\":2}", HttpStatus.BAD_REQUEST);
+                }
             }
 
             // Delete all user permissions
@@ -379,6 +393,12 @@ public class AdminController {
 
             // Delete UserDetails For User
             userDetailsService.deleteByUserId(companyName, userDetails.getUserId());
+
+            // Delete Authorities
+            usersService.deleteUser(userDetails.getEmail());
+
+            // Delete User
+            usersService.deleteUser(userDetails.getEmail());
 
             return new ResponseEntity<>("{}", HttpStatus.OK);
         }
