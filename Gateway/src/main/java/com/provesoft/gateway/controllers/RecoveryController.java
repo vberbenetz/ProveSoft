@@ -2,6 +2,7 @@ package com.provesoft.gateway.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.provesoft.gateway.ExternalConfiguration;
 import com.provesoft.gateway.entity.RecoveryTokens;
 import com.provesoft.gateway.entity.Users;
 import com.provesoft.gateway.exceptions.BadRequestException;
@@ -34,6 +35,9 @@ public class RecoveryController {
     @Autowired
     MailerService mailerService;
 
+    @Autowired
+    ExternalConfiguration externalConfiguration;
+
     // Forgot Password Reset Request
     @RequestMapping (
             value = "/pr",
@@ -47,7 +51,6 @@ public class RecoveryController {
         try {
             JsonNode rootNode = mapper.readTree(json);
             String email = rootNode.get("email").textValue();
-            String url = rootNode.get("url").textValue();
 
             // Check regular users if email exists
             if (usersService.doesUserExist(email)) {
@@ -55,7 +58,7 @@ public class RecoveryController {
                 SecureRandom random = new SecureRandom();
 
                 String token = new BigInteger(256, random).toString(32);
-                String recoveryURL = url + "?r=" + token;
+                String recoveryURL = externalConfiguration.getAbsoluteUrl() + "/?r=" + token;
 
                 // Save token to recovery table
                 RecoveryTokens newToken = new RecoveryTokens(email, token);

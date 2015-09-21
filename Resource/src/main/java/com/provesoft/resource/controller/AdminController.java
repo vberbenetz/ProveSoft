@@ -191,7 +191,7 @@ public class AdminController {
 
                 // Save token and send email
                 usersService.saveNewUserToken(newUserToken);
-                String newUserUrl = externalConfiguration.getAbsoluteUrl() + "?n=" + token;
+                String newUserUrl = externalConfiguration.getAbsoluteUrl() + "/?n=" + token;
 
                 // Send email to new user
                 mailerService.sendNewUser(newUserUrl, newUser);

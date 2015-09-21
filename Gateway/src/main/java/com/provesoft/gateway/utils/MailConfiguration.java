@@ -1,5 +1,7 @@
 package com.provesoft.gateway.utils;
 
+import com.provesoft.gateway.ExternalConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
@@ -8,6 +10,9 @@ import java.util.Properties;
 
 @Configuration
 public class MailConfiguration {
+
+    @Autowired
+    ExternalConfiguration externalConfiguration;
 
     @Bean
     public MailerService mailerService() {
@@ -19,10 +24,10 @@ public class MailConfiguration {
     @Bean
     public JavaMailSenderImpl mailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-        mailSender.setHost("smtp.gmail.com");
-        mailSender.setPort(587);
-        mailSender.setUsername("info@provesoft.com");
-        mailSender.setPassword("Pr0v3$0ftP@55w0rd;");
+        mailSender.setHost(externalConfiguration.getHost());
+        mailSender.setPort(externalConfiguration.getPort());
+        mailSender.setUsername(externalConfiguration.getUser());
+        mailSender.setPassword(externalConfiguration.getPassword());
 
         Properties javaMailProperties = new Properties();
         javaMailProperties.put("mail.smtp.starttls.enable", "true");
