@@ -2,6 +2,7 @@ package com.provesoft.resource.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.provesoft.resource.ExternalConfiguration;
 import com.provesoft.resource.entity.*;
 import com.provesoft.resource.entity.Document.Document;
 import com.provesoft.resource.entity.Document.DocumentType;
@@ -14,6 +15,7 @@ import com.provesoft.resource.exceptions.ForbiddenException;
 import com.provesoft.resource.exceptions.InternalServerErrorException;
 import com.provesoft.resource.exceptions.ResourceNotFoundException;
 import com.provesoft.resource.service.*;
+import com.provesoft.resource.utils.MailerService;
 import com.provesoft.resource.utils.UserHelpers;
 import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,10 +24,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.TransactionRolledbackException;
 import java.io.IOException;
+import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -59,6 +65,12 @@ public class AdminController {
 
     @Autowired
     ApprovalService approvalService;
+
+    @Autowired
+    ExternalConfiguration externalConfiguration;
+
+    @Autowired
+    MailerService mailerService;
 
 
 /* ------------------------------------------------------------------------------------------------------------------ */
@@ -106,6 +118,28 @@ public class AdminController {
         throw new ForbiddenException();
     }
 
+    /**
+     * Method checks if the email is already in use.
+     * @param email Email of user to be created
+     * @param auth Authentication object
+     * @return Map with boolean indicating if email is in use
+     */
+    @RequestMapping(
+            value = "/admin/user/exists",
+            method = RequestMethod.GET
+    )
+    public Map<String, Boolean> doesUserExist(@RequestParam(value = "email") String email,
+                                              Authentication auth) {
+
+        if (UserHelpers.isSuperAdmin(auth)) {
+
+            Map<String, Boolean> retMap = new HashMap<>();
+            retMap.put("exists", usersService.doesUserExist(email));
+            return retMap;
+        }
+
+        throw new ForbiddenException();
+    }
 
     // -------------------------------------------------- POST ------------------------------------------------------ //
 
@@ -138,15 +172,29 @@ public class AdminController {
                 newUser = userDetailsService.addUser(newUser);
 
                 // Create new user gateway login
-                Users newGatewayUser = new Users(newUser.getEmail(), "pass123", true);
+                // Generate random token for registration
+                SecureRandom random = new SecureRandom();
+                String token = new BigInteger(256, random).toString(32);
+                NewUserTokens newUserToken = new NewUserTokens(newUser.getEmail(), token);
+
+                // Leave user disabled until confirmed by them
+                PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+                String tempPassword = passwordEncoder.encode(token);
+                Users newGatewayUser = new Users(newUser.getEmail(), tempPassword, false);
                 usersService.saveUser(newGatewayUser);
 
                 // Create user authorities
                 Authorities userAuth = new Authorities("ROLE_USER", newGatewayUser);
                 Authorities companyAuth = new Authorities("__" + company, newGatewayUser);
-
                 usersService.saveAuthority(userAuth);
                 usersService.saveAuthority(companyAuth);
+
+                // Save token and send email
+                usersService.saveNewUserToken(newUserToken);
+                String newUserUrl = externalConfiguration.getAbsoluteUrl() + "?n=" + token;
+
+                // Send email to new user
+                mailerService.sendNewUser(newUserUrl, newUser);
 
             }
             catch (IOException | NullPointerException ex) {

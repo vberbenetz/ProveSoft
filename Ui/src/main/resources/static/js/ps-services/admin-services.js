@@ -34,6 +34,19 @@ function manageUsersService($resource) {
             }
         ),
 
+        userExists: $resource('/resource/admin/user/exists',
+            {},
+            {
+                check: {
+                    method: 'GET',
+                    params: {
+                        email: '@email'
+                    },
+                    isArray: false
+                }
+            }
+        ),
+
         userPrimaryOrg: $resource('/resource/admin/user/primaryOrg',
             {},
             {

@@ -41,6 +41,8 @@ dependencies {
     compile("org.springframework.boot:spring-boot-starter-redis")
     compile("org.springframework.session:spring-session:1.0.1.RELEASE")
     compile("commons-codec:commons-codec:1.9")
+    compile("javax.mail:mail:1.4")
+    compile("javax.activation:activation:1.0.2")
 }
 
 task wrapper(type: Wrapper) {

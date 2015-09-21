@@ -227,35 +227,94 @@ function manageUsersCtrl($scope, $rootScope, $window, $timeout, $modal, userServ
         var roles = $scope.newUser.roles;
         var primaryOrganization = $scope.newUser.primaryOrganization;
 
+        var alphaRegex = /^[a-zA-z]+$/i;
+        var emailRegex = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
+
         // Reset form validation error messages
         $scope.newUserValidationFail = {};
 
+        // First name
         if ( (typeof firstname === 'undefined') || (firstname === '') || (firstname.length == 0) ) {
-            $scope.newUserValidationFail.firstname = true;
+            $scope.newUserValidationFail.firstname = 'Please enter a first name';
             validationFail = true;
         }
-        if ( (typeof lastname === 'undefined') || (lastname === '') || (lastname.length == 0) ) {
-            $scope.newUserValidationFail.lastname = true;
+        else if (firstname.length > 250) {
+            $scope.newUserValidationFail.firstname = 'Please enter a valid first name under 250 characters';
             validationFail = true;
         }
-        if ( (typeof email === 'undefined') || (email === '') || (email.length == 0) ) {
-            $scope.newUserValidationFail.email = true;
-            validationFail = true;
-        }
-        if ( (typeof title === 'undefined') || (title === '') || (title.length == 0) ) {
-            $scope.newUserValidationFail.title = true;
-            validationFail = true;
-        }
-        if ( (typeof roles === 'undefined') || (roles.length == 0) ) {
-            $scope.newUserValidationFail.roles = true;
-            validationFail = true;
-        }
-        if ( (typeof primaryOrganization === 'undefined') || (Object.getOwnPropertyNames(primaryOrganization).length === 0) ) {
-            $scope.newUserValidationFail.primaryOrganization = true;
+        else if (!alphaRegex.test(firstname)) {
+            $scope.newUserValidationFail.firstname = 'Please use only letters';
             validationFail = true;
         }
 
-        return !validationFail;
+        // Last name
+        if ( (typeof lastname === 'undefined') || (lastname === '') || (lastname.length == 0) ) {
+            $scope.newUserValidationFail.lastname = 'Please enter a last name';
+            validationFail = true;
+        }
+        else if (lastname.length > 250) {
+            $scope.newUserValidationFail.lastname = 'Please enter a valid last name under 250 characters';
+            validationFail = true;
+        }
+        else if (!alphaRegex.test(lastname)) {
+            $scope.newUserValidationFail.lastname = 'Please use only letters';
+            validationFail = true;
+        }
+
+        // Title
+        if ( (typeof title === 'undefined') || (title === '') || (title.length == 0) ) {
+            $scope.newUserValidationFail.title = 'Please enter a title';
+            validationFail = true;
+        }
+        else if (title.length > 250) {
+            $scope.newUserValidationFail.title = 'Please enter a title with fewer than 250 characters';
+            validationFail = true;
+        }
+
+        // Role
+        if ( (typeof roles === 'undefined') || (roles.length == 0) ) {
+            $scope.newUserValidationFail.roles = 'Please choose at least one role';
+            validationFail = true;
+        }
+
+        // Primary organization
+        if ( (typeof primaryOrganization === 'undefined') || (Object.getOwnPropertyNames(primaryOrganization).length === 0) ) {
+            $scope.newUserValidationFail.primaryOrganization = 'Please select a primary organization';
+            validationFail = true;
+        }
+
+        // Email
+        if ( (typeof email === 'undefined') || (email === '') || (email.length == 0) ) {
+            $scope.newUserValidationFail.email = 'Please enter an email';
+            validationFail = true;
+        }
+        else if (email.length > 250) {
+            $scope.newUserValidationFail.email = 'Please enter a valid email under 250 characters';
+            validationFail = true;
+        }
+        else if (!emailRegex.test(email)) {
+            $scope.newUserValidationFail.email = 'Please enter a valid email';
+            validationFail = true;
+        }
+
+        // Perform email exists check if email is valid above
+        if (typeof $scope.newUserValidationFail.email === 'undefined') {
+            manageUsersService.userExists.check({email: email}, function(result) {
+                if (result.exists) {
+                    $scope.newUserValidationFail.email = 'Email is already in use';
+                    return true
+                }
+                else {
+                    return !validationFail;
+                }
+            }, function(error) {
+                $scope.newUserValidationFail.email = 'Error verifying email';
+                return true;
+            });
+        }
+        else {
+            return !validationFail;
+        }
     };
 
     $scope.createNewUser = function() {

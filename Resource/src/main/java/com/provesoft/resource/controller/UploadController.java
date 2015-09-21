@@ -1,5 +1,6 @@
 package com.provesoft.resource.controller;
 
+import com.provesoft.resource.ExternalConfiguration;
 import com.provesoft.resource.entity.Document.Document;
 import com.provesoft.resource.entity.Document.DocumentRevisions;
 import com.provesoft.resource.entity.Document.DocumentUpload;
@@ -36,6 +37,9 @@ public class UploadController {
 
     @Autowired
     UserDetailsService userDetailsService;
+
+    @Autowired
+    ExternalConfiguration externalConfiguration;
 
     /**
      * Method retrieves a file based on the parameters, formats the headers with the file metadata, and sends a
@@ -86,7 +90,7 @@ public class UploadController {
         headers.setContentType( new MediaType(primaryType, subType) );
 
         // Return the file data
-        Path p = Paths.get(File.separator + "www" + File.separator + "user_uploads" + File.separator + documentUpload.getFileId());
+        Path p = Paths.get(externalConfiguration.getFileUploadDirectory() + documentUpload.getFileId());
 
         try {
             byte[] fileData = Files.readAllBytes(p);
@@ -161,7 +165,7 @@ public class UploadController {
                 newUpload = documentService.addDocumentFile(newUploadedFile);
 
                 // Upload file
-                newFileUpload = new File(File.separator + "www" + File.separator + "user_uploads" + File.separator + fileId);
+                newFileUpload = new File(externalConfiguration.getFileUploadDirectory() + fileId);
                 stream = new BufferedOutputStream(new FileOutputStream(newFileUpload));
                 stream.write(bytes);
             }
@@ -301,7 +305,7 @@ public class UploadController {
         List<DocumentUpload> tempUploads = documentService.findUploadByCompanyNameAndDocumentIdAndRevision(companyName, documentId, tempRevId);
         try {
             for (DocumentUpload du : tempUploads) {
-                File f = new File(File.separator + "www" + File.separator + "user_uploads" + du.getFileId());
+                File f = new File(externalConfiguration.getFileUploadDirectory() + du.getFileId());
                 f.delete();
             }
 
