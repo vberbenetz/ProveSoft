@@ -24,3 +24,8 @@ mail:
   port: 587
   user: info@provesoft.com
   password: Pr0v3$0ftP@55w0rd;
+
+token:
+  expiry:
+    recovery: 12
+    registration: 24

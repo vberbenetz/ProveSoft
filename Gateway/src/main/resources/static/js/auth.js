@@ -69,12 +69,23 @@ function($scope, $http, $window, $location, $timeout, $cookies) {
         $window.location.href = '/ui/';
     };
 
-    // Perform check if password recovery
+    // Perform check if password recovery or token registration
     $scope.passResetForm = false;
+    $scope.tokenRegistration = false;
     var checkForParams = $location.absUrl().split('?');
     if (checkForParams.length > 1) {
-        $scope.passResetVerificationInput.token = checkForParams[1].split('=')[1];
-        $scope.passResetForm = true;
+        var type = checkForParams[1].split('=')[0];
+        if (typeof type !== 'undefined') {
+
+            if (type === 'r') {
+                $scope.passResetVerificationInput.token = checkForParams[1].split('=')[1];
+                $scope.passResetForm = true;
+            }
+            else if (type === 'n') {
+                $scope.passResetVerificationInput.token = checkForParams[1].split('=')[1];
+                $scope.tokenRegistration = true;
+            }
+        }
     }
 
 	$scope.login = function() {
@@ -401,6 +412,19 @@ function($scope, $http, $window, $location, $timeout, $cookies) {
         }
     };
 
+    $scope.registerByToken = function() {
+        if ($scope.validatePassword()) {
+            $http.post('tokenReg', {
+                email: $scope.passResetVerificationInput.email,
+                password: $scope.passResetVerificationInput.newPassword,
+                token: $scope.passResetVerificationInput.token
+            }).success(function(data) {
+                $scope.successfullyRegistered = true;
+            }).error(function(error) {
+            });
+        }
+    };
+
     $scope.flashNotification = function() {
         $timeout(function() {
             $window.location.href = '/';
@@ -415,6 +439,16 @@ function($scope, $http, $window, $location, $timeout, $cookies) {
         }
     });
 
+    $scope.$watch('successfullyRegistered', function(newVal, oldVal) {
+        if (newVal !== oldVal) {
+            if (newVal) {
+                $scope.flashNotification();
+            }
+        }
+    });
+
+
+    /* --------------- New user registration via token --------------------- */
 
 
 });

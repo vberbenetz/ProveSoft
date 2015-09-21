@@ -117,7 +117,7 @@
 </div>
 
 <section id="login" class="container" ng-controller="navigation" >
-    <div class="wrapper wrapper-content animated fadeInRight" ng-init="showForgotPass=false" ng-hide="passResetForm">
+    <div class="wrapper wrapper-content animated fadeInRight" ng-init="showForgotPass=false" ng-hide="passResetForm || tokenRegistration">
         <div class="row">
             <div class="col-lg-12" style="margin-top:50px;">
                 <div class="ibox float-e-margins">
@@ -260,6 +260,7 @@
         </div>
     </div>
 
+    <!-- Password reset form with recovery token -->
     <div class="wrapper wrapper-content animated fadeInRight" ng-show="passResetForm">
         <div class="row">
             <div class="col-lg-12" style="margin-top:50px;">
@@ -296,6 +297,46 @@
         </div>
         <div ng-show="successfullyReset" class="show-hide-notifications alert alert-success col-sm-3 margin-top-20">
             Successfully Reset Password. Please login using this.
+        </div>
+    </div>
+
+    <!-- User registration form with token -->
+    <div class="wrapper wrapper-content animated fadeInRight" ng-show="tokenRegistration">
+        <div class="row">
+            <div class="col-lg-12" style="margin-top:50px;">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-content">
+                        <div class="row">
+                            <div class="col-sm-6 b-r"><h3 class="m-t-none m-b">Sign in</h3>
+                                <p>Sign in today for more experience.</p>
+                                <form role="form" ng-submit="registerByToken()">
+                                    <div class="form-group" ng-class="{ 'has-error': passResetVerificationInput.validationErrors.email }">
+                                        <label>Email</label>
+                                        <input type="text" id="email" name="Email" placeholder="Enter email for verification" class="form-control" ng-model="passResetVerificationInput.email">
+                                        <span class="help-block">{{ passResetVerificationInput.validationErrors.email }}</span>
+                                    </div>
+                                    <div class="form-group" ng-class="{ 'has-error': passResetVerificationInput.validationErrors.password }">
+                                        <label>New Password</label>
+                                        <input type="password" id="newPassword" name="password" placeholder="New Password" class="form-control" ng-model="passResetVerificationInput.newPassword">
+                                        <span class="help-block">{{ passResetVerificationInput.validationErrors.password }}</span>
+                                    </div>
+                                    <div class="form-group" ng-class="{ 'has-error': passResetVerificationInput.validationErrors.verifyPassword }">
+                                        <label>New Password</label>
+                                        <input type="password" id="passwordVerify" name="passwordVerify" placeholder="Verify New Password" class="form-control" ng-model="passResetVerificationInput.verifyNewPassword">
+                                        <span class="help-block">{{ passResetVerificationInput.validationErrors.verifyPassword }}</span>
+                                    </div>
+                                    <div>
+                                        <button class="btn btn-sm btn-primary pull-right m-t-n-xs" type="submit"><strong>Reset Password</strong></button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div ng-show="successfullyRegistered" class="show-hide-notifications alert alert-success col-sm-3 margin-top-20">
+            Successfully registered. Please login with your email and new password.
         </div>
     </div>
 </section>

@@ -2,13 +2,16 @@ package com.provesoft.gateway.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.provesoft.gateway.ExternalConfiguration;
 import com.provesoft.gateway.entity.*;
 import com.provesoft.gateway.exceptions.*;
 import com.provesoft.gateway.service.*;
 import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.CannotAcquireLockException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -16,6 +19,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.TransactionRolledbackException;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -43,6 +49,9 @@ public class RegistrationController {
 
     @Autowired
     SystemSettingsService systemSettingsService;
+
+    @Autowired
+    ExternalConfiguration externalConfiguration;
 
     @RequestMapping(
             value = "/register",
@@ -328,5 +337,59 @@ public class RegistrationController {
         }
 
         throw new BadRequestException();
+    }
+
+
+    @RequestMapping(
+            value = "/tokenReg",
+            method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @ResponseBody
+    public ResponseEntity userRegistrationViaToken (@RequestBody String json) {
+
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            JsonNode rootNode = mapper.readTree(json);
+            String email = rootNode.get("email").textValue();
+            String password = rootNode.get("password").textValue();
+            String token = rootNode.get("token").textValue();
+
+            NewUserTokens newUserToken = usersService.findNewUserTokenByTokenId(token);
+
+            // Verify token date
+            LocalDateTime tokenGenDate = newUserToken.getGenDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+            Long tokenAge = ChronoUnit.HOURS.between(tokenGenDate, LocalDateTime.now());
+
+            if (tokenAge > externalConfiguration.getRegistrationTokenHourExpiry()) {
+                throw new BadRequestException();
+            }
+
+            // Verify username
+            if (newUserToken.getEmail().equals(email)) {
+                // Hash and encrypt password
+                PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+                String hashedPassword = passwordEncoder.encode(password);
+
+                // Change user's password and enable the user
+                Users user = usersService.findUserByEmail(email);
+                user.setPassword(hashedPassword);
+                user.setEnabled(true);
+                usersService.updateUser(user);
+
+                // Remove recovery token
+                usersService.deleteNewUserToken(newUserToken);
+
+                return new ResponseEntity<>("{}", HttpStatus.OK);
+            }
+            else {
+                throw new BadRequestException();
+            }
+        }
+        catch (IOException ioe) {
+            throw new BadRequestException();
+        }
+
     }
 }

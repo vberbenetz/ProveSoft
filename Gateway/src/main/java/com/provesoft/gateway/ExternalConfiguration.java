@@ -16,12 +16,17 @@ public class ExternalConfiguration {
     private String user;
     private String password;
 
+    private Integer recoveryTokenHourExpiry;
+    private Integer registrationTokenHourExpiry;
+
     @Autowired
     public ExternalConfiguration(@Value("${url.abs}") String absoluteUrl,
                                  @Value("${mail.host}") String host,
                                  @Value("${mail.port}") Integer port,
                                  @Value("${mail.user}") String user,
-                                 @Value("${mail.password}") String password) {
+                                 @Value("${mail.password}") String password,
+                                 @Value("${token.expiry.recovery}") Integer recoveryTokenHourExpiry,
+                                 @Value("${token.expiry.registration}") Integer registrationTokenHourExpiry) {
 
 
         this.absoluteUrl = absoluteUrl;
@@ -30,6 +35,9 @@ public class ExternalConfiguration {
         this.port = port;
         this.user = user;
         this.password = password;
+
+        this.recoveryTokenHourExpiry = recoveryTokenHourExpiry;
+        this.registrationTokenHourExpiry = registrationTokenHourExpiry;
     }
 
     public String getAbsoluteUrl() {
@@ -50,5 +58,13 @@ public class ExternalConfiguration {
 
     public String getPassword() {
         return password;
+    }
+
+    public Integer getRecoveryTokenHourExpiry() {
+        return recoveryTokenHourExpiry;
+    }
+
+    public Integer getRegistrationTokenHourExpiry() {
+        return registrationTokenHourExpiry;
     }
 }

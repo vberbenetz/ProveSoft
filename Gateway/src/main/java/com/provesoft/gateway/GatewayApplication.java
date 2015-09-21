@@ -66,8 +66,9 @@ public class GatewayApplication {
         protected void configure(HttpSecurity http) throws Exception {
             http
                     .authorizeRequests()
-                        .antMatchers("/index.html", "/login", "/register", "/check", "/pr", "/ps", "/", "/css/**",
-                                "/font-awesome/**", "/fonts/**", "/img/**", "/js/**", "/robots.txt").permitAll()
+                        .antMatchers("/index.html", "/login", "/register", "/tokenReg", "/check", "/pr", "/ps", "/",
+                                "/css/**", "/font-awesome/**", "/fonts/**", "/img/**", "/js/**",
+                                "/robots.txt").permitAll()
                         .anyRequest().authenticated()
                         .and()
                     .formLogin()

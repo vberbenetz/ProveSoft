@@ -1,11 +1,13 @@
 package com.provesoft.gateway.service;
 
 import com.provesoft.gateway.entity.Authorities;
+import com.provesoft.gateway.entity.NewUserTokens;
 import com.provesoft.gateway.entity.RecoveryTokens;
 import com.provesoft.gateway.entity.Users;
 import com.provesoft.gateway.exceptions.CompanyExistsException;
 import com.provesoft.gateway.exceptions.UserExistsException;
 import com.provesoft.gateway.repository.AuthoritiesRepository;
+import com.provesoft.gateway.repository.NewUserTokensRepository;
 import com.provesoft.gateway.repository.RecoveryTokensRepository;
 import com.provesoft.gateway.repository.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,9 @@ public class UsersService {
 
     @Autowired
     RecoveryTokensRepository recoveryTokensRepository;
+
+    @Autowired
+    NewUserTokensRepository newUserTokensRepository;
 
 
     public Users findUserByEmail(String email) {
@@ -105,6 +110,18 @@ public class UsersService {
     public void deleteRecoveryToken(RecoveryTokens oldToken) {
         recoveryTokensRepository.delete(oldToken);
         recoveryTokensRepository.flush();
+    }
+
+
+    /* -------------------------- NewUserTokens -------------------------- */
+
+    public NewUserTokens findNewUserTokenByTokenId(String token) {
+        return newUserTokensRepository.findByToken(token);
+    }
+
+    public void deleteNewUserToken(NewUserTokens oldToken) {
+        newUserTokensRepository.delete(oldToken);
+        newUserTokensRepository.flush();
     }
 
 }

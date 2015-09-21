@@ -98,7 +98,7 @@ public class RecoveryController {
             LocalDateTime tokenGenDate = recoveryTokens.getGenDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
             Long tokenAge = ChronoUnit.HOURS.between(tokenGenDate, LocalDateTime.now());
 
-            if (tokenAge > 12) {
+            if (tokenAge > externalConfiguration.getRecoveryTokenHourExpiry()) {
                 throw new BadRequestException();
             }
 
