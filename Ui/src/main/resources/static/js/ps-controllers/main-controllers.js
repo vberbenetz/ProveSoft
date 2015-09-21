@@ -7,7 +7,11 @@ function MainCtrl($scope, $rootScope, $http, $window, authService, userService) 
     // Listen on route change to determine if user is logged in or needs redirect
     $rootScope.$on('$locationChangeStart', function() {
         $http.get('/user')
-            .success(function(data) {})
+            .success(function(data) {
+                if (typeof data.name === 'undefined') {
+                    $window.location.href = '/';
+                }
+            })
             .error(function() {
                 $window.location.href = '/';
             });
