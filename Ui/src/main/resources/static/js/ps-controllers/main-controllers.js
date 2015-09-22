@@ -201,12 +201,23 @@ function NewsFeedCtrl ($scope, $rootScope, navBarService, documentLookupService,
             revUserIds.push(latestRevs[z].changeUser.userId);
         }
 
+        // Get list of documentIds to retrieve documents for revisions
+        var dailyFeedDocumentIds = [];
+        for (var y = 0; y < latestRevs.length; y++) {
+            dailyFeedDocumentIds.push(latestRevs[y].key.documentId);
+        }
+
         // Get latest comments for company
         documentLookupService.documentComment.queryRecent(function(latestComments) {
 
             // Append comment userIds for profile pic retrieval
             for (var y = 0; y < latestComments.length; y++) {
                 revUserIds.push(latestComments[y].user.userId);
+            }
+
+            // Append comment documentIds for document retrieval
+            for (var z = 0; z < latestComments.length; z++) {
+                dailyFeedDocumentIds.push(latestComments[z].documentId);
             }
 
             var dailyFeed = latestRevs.concat(latestComments);
@@ -235,6 +246,15 @@ function NewsFeedCtrl ($scope, $rootScope, navBarService, documentLookupService,
             if (documentCommentIds.length > 0) {
                 commentLikeService.documentCommentLike.query({documentCommentIds: documentCommentIds}, function(likes) {
                     $scope.matchLikesToComment(likes);
+                }, function(error) {
+                    $scope.error = error;
+                });
+            }
+
+            // Match document to revision and comment
+            if (dailyFeedDocumentIds.length > 0) {
+                documentLookupService.document.queryByDocumentIds({documentIds: dailyFeedDocumentIds}, function(documents) {
+                    $scope.matchDocumentsToDailyFeed(documents);
                 }, function(error) {
                     $scope.error = error;
                 });
@@ -359,6 +379,22 @@ function NewsFeedCtrl ($scope, $rootScope, navBarService, documentLookupService,
         }
     };
 
+    //Helper function to match document to daily feed
+    $scope.matchDocumentsToDailyFeed = function(documents) {
+        var dailyFeed = $scope.dailyFeed;
+        for (var i = 0; i < dailyFeed.length; i++) {
+            for (var j = 0; j < documents.length; j++) {
+                if ((dailyFeed[i].hasOwnProperty('message')) && (dailyFeed[i].documentId === documents[j].id)) {
+                    $scope.dailyFeed[i].document = documents[j];
+                    break;
+                }
+                if ((!dailyFeed[i].hasOwnProperty('message')) && (dailyFeed[i].key.documentId === documents[j].id)) {
+                    $scope.dailyFeed[i].document = documents[j];
+                    break;
+                }
+            }
+        }
+    };
 
     // Approve revision notification
     $scope.approve = function(notificationId, i) {
