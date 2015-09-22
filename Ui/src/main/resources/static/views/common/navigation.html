@@ -23,12 +23,21 @@
                 <a><i class="fa fa-server"></i> <span class="nav-label">Process Viewer</span></a>
                 <ul class="nav nav-second-level" ng-class="{in: $state.includes('process-viewer')}">
                     <li ui-sref-active="active"><a ui-sref="process-viewer.document-lookup"><i class="fa fa-search"></i>Document Lookup</a></li>
-                    <li><a ><i class="fa fa-random"></i>Flow Viewer</a></li>
+                    <li class="disabled">
+                        <a>
+                            <i class="fa fa-random"></i>Flow Viewer&nbsp;&nbsp;
+                            <span class="fa fa-lock"></span>
+                        </a>
+                    </li>
                     <li><a ><i class="fa fa-tree"></i>Tree View</a></li>
                 </ul>
             </li>
-            <li ui-sref-active="active">
-                <a ><i class="fa fa-line-chart"></i> <span class="nav-label">Reporting</span></a>
+            <li ui-sref-active="active" class="disabled">
+                <a>
+                    <i class="fa fa-line-chart"></i>
+                    <span class="nav-label">Reporting&nbsp;&nbsp;</span>
+                    <span class="fa fa-lock"></span>
+                </a>
             </li>
             <li ng-show="user.isSuperAdmin" ng-class="{active: $state.includes('admin')}">
                 <a><i class="fa fa-key"></i> <span class="nav-label">Administration</span></a>
