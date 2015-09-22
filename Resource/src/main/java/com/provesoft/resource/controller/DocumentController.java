@@ -464,7 +464,7 @@ public class DocumentController {
                     docToChange.setDate(currentDate);
 
                     // Set document status to changing if signoffs are required
-                    if (signoffSetting.getValue().equals("on")) {
+                    if ( (signoffSetting.getValue().equals("on")) && (docToChange.getSignoffPathId() != null) ) {
 
                         // Get template path steps
                         Long pathId = docToChange.getSignoffPathId();
@@ -489,6 +489,10 @@ public class DocumentController {
                         }
                         approvalService.addApprovalNotifications(notifications);
 
+                    }
+                    else {
+                        // Change state to Released because Signoffs are not required
+                        docToChange.setState("Released");
                     }
 
                     documentService.updateDocument(docToChange);

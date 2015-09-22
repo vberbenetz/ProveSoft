@@ -1,2 +1,5 @@
 DocumentType:
 description - mediumtext
+
+DocumentRevisions:
+changeReason - mediumtext

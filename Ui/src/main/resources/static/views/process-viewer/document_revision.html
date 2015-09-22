@@ -24,7 +24,7 @@
                             <h3 class="padding-top-15">1. Document Upload</h3>
                         </div>
                         <div class="progress-bar progress-bar-success" ng-class="{ 'progress-bar-plain': reviseDocumentForm==1 || reviseDocumentForm==2 }" style="width:50%">
-                            <h3 class="padding-top-15">2. Signoff Paths</h3>
+                            <h3 class="padding-top-15">2. Summary</h3>
                         </div>
                     </div>
                 </div>
@@ -177,7 +177,7 @@
                                 <h4>{{ documentId }}</h4>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group" ng-hide="!signoffRequired">
                             <label class="col-md-2 control-label margin-left-10">Signoff Path</label>
                             <div class="form-control-static col-md-8 margin-bottom-20">
                                 <h4>{{ signoffPath.name }}</h4>

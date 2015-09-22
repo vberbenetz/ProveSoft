@@ -643,7 +643,9 @@ function documentCreationCtrl($scope, $rootScope, $window, $state, documentCreat
         $scope.creatingDocument = true;
 
         // Append signoff path id
-        if (typeof $scope.signoffPath.selected.key.pathId !== 'undefined') {
+        if ( (typeof $scope.signoffPath.selected !== 'undefined') &&
+             (typeof $scope.signoffPath.selected.key.pathId !== 'undefined') )
+        {
             $scope.newDocument.signoffPathId = $scope.signoffPath.selected.key.pathId;
         }
         else {
@@ -784,31 +786,40 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
     documentLookupService.document.getByDocumentId({documentId: $scope.documentId}, function(document) {
         $scope.document = document;
 
-        signoffPathsService.path.get({pathId: document.signoffPathId}, function(signoffPath) {
-            $scope.signoffPath = signoffPath;
+        if (document.signoffPathId !== null) {
 
-            signoffPathsService.templateSteps.query({pathId: signoffPath.key.pathId}, function(steps) {
-                $scope.signoffPathSteps = steps;
+            signoffPathsService.path.get({pathId: document.signoffPathId}, function(signoffPath) {
+                $scope.signoffPath = signoffPath;
 
-                // Get list of organizations relating to step users
-                var orgIds = [];
-                for (var i = 0; i < steps.length; i++) {
-                    orgIds.push(steps[i].user.primaryOrganization.organizationId);
-                }
+                signoffPathsService.templateSteps.query({pathId: signoffPath.key.pathId}, function(steps) {
+                    $scope.signoffPathSteps = steps;
 
-                documentCreationService.organization.queryByOrgIds({orgIds: orgIds}, function(assocOrgs) {
-                    $scope.assocOrgs = assocOrgs;
+                    // Get list of organizations relating to step users
+                    var orgIds = [];
+                    for (var i = 0; i < steps.length; i++) {
+                        orgIds.push(steps[i].user.primaryOrganization.organizationId);
+                    }
+
+                    documentCreationService.organization.queryByOrgIds({orgIds: orgIds}, function(assocOrgs) {
+                        $scope.assocOrgs = assocOrgs;
+                    }, function(error) {
+                        $scope.error = error;
+                    })
+
                 }, function(error) {
                     $scope.error = error;
                 })
 
             }, function(error) {
                 $scope.error = error;
-            })
+            });
 
-        }, function(error) {
-            $scope.error = error;
-        });
+        }
+        else {
+            $scope.signoffPath = {
+                name: 'NONE'
+            }
+        }
 
     }, function(error) {
         $scope.error = error;
