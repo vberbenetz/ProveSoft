@@ -18,7 +18,7 @@ multipart:
 # Custom
 url:
   abs: provesoft.cantango.ca
-  
+
 mail:
   host: smtp.gmail.com
   port: 587

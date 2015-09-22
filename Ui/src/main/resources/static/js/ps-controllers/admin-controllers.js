@@ -1124,7 +1124,7 @@ function documentTypeSetupCtrl($scope, $rootScope, $window, $modal, documentType
 
 }
 
-function signoffPathsSetupCtrl ($scope, $rootScope, $window, manageUsersService, signoffPathsService, adminSignoffPathsService) {
+function signoffPathsSetupCtrl ($scope, $rootScope, $window, $modal, manageUsersService, signoffPathsService, adminSignoffPathsService) {
 
     if (!$rootScope.authenticated) {
         $window.location.href = '/';
@@ -1290,9 +1290,18 @@ function signoffPathsSetupCtrl ($scope, $rootScope, $window, manageUsersService,
 
     $scope.deleteSignoffPath = function(signoffPath) {
         adminSignoffPathsService.path.remove({pathId: signoffPath.key.pathId}, function(data) {
-            $scope.removeSignoffPathFromList(signoffPath.key.pathId);
+            if (data.deleted) {
+                $scope.removeSignoffPathFromList(signoffPath.key.pathId);
+            }
         }, function(error) {
-            $scope.error = error;
+            if ( (typeof error.data.deleted !== 'undefined') && (!error.data.deleted) ) {
+                var errorTitle = 'SignoffPath Deletion Error';
+                var errorMsg = 'Could not delete SignOffPath ' + signoffPath.name + ' because the path is in use by a document.';
+                $scope.openSignoffPathErrorModal(errorTitle, errorMsg);
+            }
+            else {
+                $scope.error = error;
+            }
         });
     };
 
@@ -1333,6 +1342,22 @@ function signoffPathsSetupCtrl ($scope, $rootScope, $window, manageUsersService,
         });
 
         return stepIds;
+    };
+
+    $scope.openSignoffPathErrorModal = function(errorTitle, errorMsg) {
+        var modalInstance = $modal.open({
+            templateUrl:'views/admin/adminErrorModal.html',
+            controller: adminErrorModalCtrl,
+            size: 'sm',
+            resolve: {
+                errorTitle: function() {
+                    return errorTitle;
+                },
+                errorMsg: function() {
+                    return errorMsg;
+                }
+            }
+        })
     };
 
     /* --------------------- Helpers ---------------------- */

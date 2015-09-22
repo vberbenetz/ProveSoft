@@ -58,16 +58,32 @@ public class SignoffPathService {
         return signoffPathRepository.getPathsByCompanyNameAndOrganizationId(companyName, organizationId);
     }
 
+    /**
+     * Method gets a count of Documents using that SignoffPath
+     * @param companyName
+     * @param signoffPathId
+     * @return True if count is greater than 0, false otherwise
+     */
+    public Boolean isSignoffPathInUse(String companyName, Long signoffPathId) {
+        return documentRepository.countByCompanyNameAndSignoffPathId(companyName, signoffPathId) > 0;
+    }
+
     // Create signoff path and create initial sequence object
     public SignoffPath createNewPath(SignoffPath signoffPath) {
         return signoffPathRepository.saveAndFlush(signoffPath);
     }
 
-    public void deleteSignoffPath(String companyName, SignoffPath signoffPath) {
-        signoffPathRepository.delete(signoffPath);
-        signoffPathRepository.flush();
-        signoffPathTemplateStepsRepository.deleteTemplateForPath(companyName, signoffPath.getKey().getPathId());
-        signoffPathTemplateStepsRepository.flush();
+    public Boolean deleteSignoffPath(String companyName, SignoffPath signoffPath) {
+        if (!isSignoffPathInUse(companyName, signoffPath.getKey().getPathId())) {
+            signoffPathRepository.delete(signoffPath);
+            signoffPathRepository.flush();
+            signoffPathTemplateStepsRepository.deleteTemplateForPath(companyName, signoffPath.getKey().getPathId());
+            signoffPathTemplateStepsRepository.flush();
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
 

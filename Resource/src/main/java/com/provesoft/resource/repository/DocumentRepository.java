@@ -79,4 +79,7 @@ public interface DocumentRepository extends JpaRepository<Document, String> {
     Long countByCompanyNameAndOrganization(@Param("companyName") String companyName,
                                            @Param("organization") Organizations organization);
 
+    Long countByCompanyNameAndSignoffPathId(@Param("companyName") String companyName,
+                                            @Param("signoffPathId") Long signoffPathId);
+
 }

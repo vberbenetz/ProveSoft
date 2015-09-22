@@ -1586,7 +1586,7 @@ public class AdminController {
             value = "/admin/signoffPath",
             method = RequestMethod.DELETE
     )
-    public void deleteSignoffPath(@RequestParam("pathId") Long pathId,
+    public ResponseEntity deleteSignoffPath(@RequestParam("pathId") Long pathId,
                                   Authentication auth) {
 
         if (UserHelpers.isSuperAdmin(auth)) {
@@ -1598,7 +1598,12 @@ public class AdminController {
                 throw new BadRequestException();
             }
 
-            signoffPathService.deleteSignoffPath(companyName, sfp);
+            if (signoffPathService.deleteSignoffPath(companyName, sfp)) {
+                return new ResponseEntity<>("{\"deleted\":true}", HttpStatus.OK);
+            }
+            else {
+                return new ResponseEntity<>("{\"deleted\":false}", HttpStatus.BAD_REQUEST);
+            }
         }
         else {
             throw new ForbiddenException();
