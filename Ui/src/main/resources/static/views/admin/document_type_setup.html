@@ -9,120 +9,104 @@
 <div class="wrapper wrapper-content animated fadeInRight">
     <div class="row">
         <div class="col-lg-12">
-            <div class="ibox">
-                <div class="ibox-content">
-                    <div class="m-b-lg">
-                        <div class="input-group">
-                            <input type="text" placeholder="Search issue by name..." class=" form-control" />
-                            <span class="input-group-btn">
-                                <button type="button" class="btn btn-white"> Search</button>
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-12">
-                        <accordion>
-                            <accordion-group is-open="false" is-disabled="false">
-                                <accordion-heading>
-                                    <button class="btn btn-sm btn-primary">
-                                        <span class="fa fa-plus"></span>
-                                        &nbsp;Create New Document Type
-                                    </button>
-                                </accordion-heading>
-                                <div class="table-responsive" style="overflow-x: hidden;">
-                                    <form class="form-horizontal">
-                                        <div class="form-group" ng-class="{ 'has-error' : fieldValidationFail.name }">
-                                            <label class="col-md-2 control-label">Name</label>
-                                            <div class="col-md-10 margin-bottom-30">
-                                                <input class="form-control" ng-model="newDocumentType.name" type="text" />
-                                                <p class="text-danger" ng-show="fieldValidationFail.name">Please enter a name</p>
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group" ng-class="{ 'has-error' : fieldValidationFail.description }">
-                                            <label class="col-md-2 control-label">Description</label>
-                                            <div class="col-md-10 margin-bottom-30">
-                                                <textarea rows="4" ng-model="newDocumentType.description"></textarea>
-                                                <p class="text-danger" ng-show="fieldValidationFail.description">Please enter a description</p>
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group" ng-class="{ 'has-error' : fieldValidationFail.documentPrefix }">
-                                            <label class="col-md-2 control-label">Document Prefix</label>
-                                            <div class="col-md-10 margin-bottom-30">
-                                                <input class="form-control" ng-model="newDocumentType.documentPrefix" type="text" />
-                                                <p class="text-danger" ng-show="fieldValidationFail.documentPrefix">Please enter a document prefix</p>
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group">
-                                            <label class="col-md-2 control-label">Max Number Of Digits</label>
-                                            <div class="col-md-10 margin-bottom-30">
-                                                <input class="form-control" ng-model="newDocumentType.maxNumberOfDigits" type="text" />
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group">
-                                            <label class="col-md-2 control-label">Starting No.</label>
-                                            <div class="col-md-10 margin-bottom-30">
-                                                <input class="form-control" ng-model="newDocumentType.startingNumber" type="text" />
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group">
-                                            <label class="col-md-2 control-label">Next Document ID</label>
-                                            <div class="col-md-10 margin-bottom-30">
-                                                <pre class="col-lg-4 form-control">{{ newNextDocumentId }}</pre>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-lg-6 col-lg-offset-3">
-                                            <button ng-click="createNewDocumentType()" class="btn btn-block btn-primary">
-                                                Create&nbsp;
-                                                <span class="fa fa-check"></span>
-                                            </button>
-                                        </div>
-                                    </form>
+            <accordion>
+                <accordion-group is-open="false" is-disabled="false">
+                    <accordion-heading>
+                        <button class="btn btn-lg btn-primary">
+                            <span class="fa fa-plus"></span>
+                            &nbsp;Create New Document Type
+                        </button>
+                    </accordion-heading>
+                    <div class="table-responsive" style="overflow-x: hidden;">
+                        <form class="form-horizontal">
+                            <div class="form-group" ng-class="{ 'has-error' : fieldValidationFail.name }">
+                                <label class="col-md-2 control-label">Name</label>
+                                <div class="col-md-10 margin-bottom-30">
+                                    <input class="form-control" ng-model="newDocumentType.name" type="text" />
+                                    <p class="text-danger" ng-show="fieldValidationFail.name">Please enter a name</p>
                                 </div>
-                            </accordion-group>
-                        </accordion>
-                    </div>
+                            </div>
 
-                    <div class="col-lg-12 margin-top-30">
-                        <div class="table-responsive">
-                            <table class="table table-hover issue-tracker">
-                                <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Description</th>
-                                    <th>Document Prefix</th>
-                                    <th>Max Number Of Digits</th>
-                                    <th>Starting No.</th>
-                                    <th>Next Document Id</th>
-                                    <th></th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr ng-repeat="n in documentTypes">
-                                    <td>{{ n.name }}</td>
-                                    <td>{{ n.description }}</td>
-                                    <td>{{ n.documentPrefix }}</td>
-                                    <td>{{ n.maxNumberOfDigits }}</td>
-                                    <td>{{ n.startingNumber }}</td>
-                                    <td>{{ nextDocumentId[n.id] }}</td>
-                                    <td>
-                                        <button ng-click="removeDocumentType(n)" class="btn btn-sm btn-danger">
-                                            <span class="fa fa-times"></span>
-                                            &nbsp;Delete
-                                        </button>
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                            <div class="form-group" ng-class="{ 'has-error' : fieldValidationFail.description }">
+                                <label class="col-md-2 control-label">Description</label>
+                                <div class="col-md-10 margin-bottom-30">
+                                    <textarea rows="4" ng-model="newDocumentType.description"></textarea>
+                                    <p class="text-danger" ng-show="fieldValidationFail.description">Please enter a description</p>
+                                </div>
+                            </div>
 
-                </div>
+                            <div class="form-group" ng-class="{ 'has-error' : fieldValidationFail.documentPrefix }">
+                                <label class="col-md-2 control-label">Document Prefix</label>
+                                <div class="col-md-10 margin-bottom-30">
+                                    <input class="form-control" ng-model="newDocumentType.documentPrefix" type="text" />
+                                    <p class="text-danger" ng-show="fieldValidationFail.documentPrefix">Please enter a document prefix</p>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-md-2 control-label">Max Number Of Digits</label>
+                                <div class="col-md-10 margin-bottom-30">
+                                    <input class="form-control" ng-model="newDocumentType.maxNumberOfDigits" type="text" />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-md-2 control-label">Starting No.</label>
+                                <div class="col-md-10 margin-bottom-30">
+                                    <input class="form-control" ng-model="newDocumentType.startingNumber" type="text" />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-md-2 control-label">Next Document ID</label>
+                                <div class="col-md-10 margin-bottom-30">
+                                    <pre class="col-lg-4 form-control">{{ newNextDocumentId }}</pre>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6 col-lg-offset-3">
+                                <button ng-click="createNewDocumentType()" class="btn btn-block btn-primary">
+                                    Create&nbsp;
+                                    <span class="fa fa-check"></span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </accordion-group>
+            </accordion>
+        </div>
+
+        <div class="col-lg-12 margin-top-30">
+            <div class="table-responsive">
+                <table class="table table-hover issue-tracker">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Document Prefix</th>
+                        <th>Max Number Of Digits</th>
+                        <th>Starting No.</th>
+                        <th>Next Document Id</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="n in documentTypes">
+                        <td>{{ n.name }}</td>
+                        <td>{{ n.description }}</td>
+                        <td>{{ n.documentPrefix }}</td>
+                        <td>{{ n.maxNumberOfDigits }}</td>
+                        <td>{{ n.startingNumber }}</td>
+                        <td>{{ nextDocumentId[n.id] }}</td>
+                        <td>
+                            <button ng-click="removeDocumentType(n)" class="btn btn-sm btn-danger">
+                                <span class="fa fa-times"></span>
+                                &nbsp;Delete
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
