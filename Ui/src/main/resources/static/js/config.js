@@ -93,6 +93,14 @@ function config($stateProvider, $locationProvider, $urlRouterProvider, $ocLazyLo
                                 'css/plugins/iCheck/custom.css',
                                 'js/plugins/iCheck/icheck.min.js'
                             ]
+                        },
+                        {
+                            name:'ui.select',
+                            files: [
+                                'css/plugins/ui-select/select.min.css',
+                                'css/plugins/ui-select/selectize.min.css',
+                                'js/plugins/ui-select/select.min.js'
+                            ]
                         }
                     ])
                 }

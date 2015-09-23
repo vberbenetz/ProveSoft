@@ -743,7 +743,8 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
 
     $scope.revision = {
         changeReason: '',
-        makeObsolete: false
+        makeObsolete: false,
+        newSignoffPath: null
     };
     $scope.fieldValidationFail = {};
 
@@ -778,51 +779,54 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
         else {
             $scope.signoffRequired = false;
         }
-    }, function(error) {
-        $scope.err = error;
-    });
 
-    // Get document and associated signoff path and steps
-    documentLookupService.document.getByDocumentId({documentId: $scope.documentId}, function(document) {
-        $scope.document = document;
+        // Get document and associated signoff path and steps
+        documentLookupService.document.getByDocumentId({documentId: $scope.documentId}, function(document) {
+            $scope.document = document;
 
-        if (document.signoffPathId !== null) {
+            if (document.signoffPathId !== null) {
 
-            signoffPathsService.path.get({pathId: document.signoffPathId}, function(signoffPath) {
-                $scope.signoffPath = signoffPath;
+                signoffPathsService.path.get({pathId: document.signoffPathId}, function(signoffPath) {
+                    $scope.signoffPath = signoffPath;
 
-                signoffPathsService.templateSteps.query({pathId: signoffPath.key.pathId}, function(steps) {
-                    $scope.signoffPathSteps = steps;
+                    signoffPathsService.templateSteps.query({pathId: signoffPath.key.pathId}, function(steps) {
+                        $scope.signoffPathSteps = steps;
 
-                    // Get list of organizations relating to step users
-                    var orgIds = [];
-                    for (var i = 0; i < steps.length; i++) {
-                        orgIds.push(steps[i].user.primaryOrganization.organizationId);
-                    }
+                        // Get list of organizations relating to step users
+                        var orgIds = [];
+                        for (var i = 0; i < steps.length; i++) {
+                            orgIds.push(steps[i].user.primaryOrganization.organizationId);
+                        }
 
-                    documentCreationService.organization.queryByOrgIds({orgIds: orgIds}, function(assocOrgs) {
-                        $scope.assocOrgs = assocOrgs;
+                        documentCreationService.organization.queryByOrgIds({orgIds: orgIds}, function(assocOrgs) {
+                            $scope.assocOrgs = assocOrgs;
+                        }, function(error) {
+                            $scope.error = error;
+                        })
+
                     }, function(error) {
                         $scope.error = error;
                     })
 
                 }, function(error) {
                     $scope.error = error;
-                })
-
-            }, function(error) {
-                $scope.error = error;
-            });
-
-        }
-        else {
-            $scope.signoffPath = {
-                name: 'NONE'
+                });
             }
-        }
+            else {
+                // Retrieve list of signoff paths if path is null and paths are required
+                signoffPathsService.path.query({orgId: document.organization.organizationId}, function(signoffPaths) {
+                    $scope.signoffPaths = signoffPaths;
+                }, function(error) {
+                    $scope.error = error;
+                });
+            }
+
+        }, function(error) {
+            $scope.error = error;
+        });
 
     }, function(error) {
-        $scope.error = error;
+        $scope.err = error;
     });
 
 
@@ -879,6 +883,24 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
         }
     };
 
+    // Watch for change to signoff path selection to update steps
+    // (Only done when signoff path was originally null for the document)
+    $scope.$watch('revision.newSignoffPath.key.pathId', function (newVal, oldVal) {
+        if (newVal !== oldVal) {
+            if (newVal == true) {
+                $scope.loadSignoffPathSteps(newVal);
+            }
+        }
+    });
+
+    $scope.loadSignoffPathSteps = function (pathId) {
+        signoffPathsService.templateSteps.query({pathId: pathId}, function (steps) {
+            $scope.signoffPathSteps = steps;
+        }, function (error) {
+            $scope.error = error;
+        });
+    };
+
     $scope.validateForm = function() {
         var validationFail = false;
         var changeReason = $scope.revision.changeReason;
@@ -923,22 +945,50 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
             revisionPayload.redlineDocPresent = false;
         }
 
-        documentRevisionService.revision.save(revisionPayload, function(data, status, headers, config) {
+        // Update signoff path
+        if ($scope.document.signoffPathId === null) {
+            documentCreationService.document.addSignoffPath({documentId: $scope.documentId, signoffPathId: $scope.revision.newSignoffPath.key.pathId}, function(data) {
 
-            if (!$scope.revision.makeObsolete) {
-                documentRevisionService.updateUploadRevisionId.update({documentId: $scope.documentId, tempRevId: $scope.tempRevId, newRevId: data.key.revisionId},
-                    function(data) {
+                // Update revision
+                documentRevisionService.revision.save(revisionPayload, function(data, status, headers, config) {
+                    if (!$scope.revision.makeObsolete) {
+                        documentRevisionService.updateUploadRevisionId.update({documentId: $scope.documentId, tempRevId: $scope.tempRevId, newRevId: data.key.revisionId},
+                            function(data) {
+                                $state.go('process-viewer.document-lookup', {}, {reload: true});
+                            }, function(error) {
+                                $scope.error = error;
+                            });
+                    }
+                    else {
                         $state.go('process-viewer.document-lookup', {}, {reload: true});
-                    }, function(error) {
-                    });
-            }
-            else {
-                $state.go('process-viewer.document-lookup', {}, {reload: true});
-            }
+                    }
+                }, function(data, status, headers, config) {
+                    $scope.err = status;
+                });
 
-        }, function(data, status, headers, config) {
-            $scope.err = status;
-        });
+            }, function(error) {
+                $scope.error = error;
+            });
+        }
+        else {
+            // Update revision
+            documentRevisionService.revision.save(revisionPayload, function(data, status, headers, config) {
+                if (!$scope.revision.makeObsolete) {
+                    documentRevisionService.updateUploadRevisionId.update({documentId: $scope.documentId, tempRevId: $scope.tempRevId, newRevId: data.key.revisionId},
+                        function(data) {
+                            $state.go('process-viewer.document-lookup', {}, {reload: true});
+                        }, function(error) {
+                            $scope.error = error;
+                        });
+                }
+                else {
+                    $state.go('process-viewer.document-lookup', {}, {reload: true});
+                }
+            }, function(data, status, headers, config) {
+                $scope.err = status;
+            });
+        }
+
     };
 
     $scope.cancelRevision = function() {
