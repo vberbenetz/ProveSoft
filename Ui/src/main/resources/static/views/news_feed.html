@@ -150,7 +150,7 @@
                                     <small ng-show="n.date.substring(0,4)=='Today'" class="pull-right text-navy">{{ n.date }}</small>
                                     <small ng-hide="n.date.substring(0,4)=='Today'" class="pull-right text-navy">{{ n.date | date: "yyyy-MM-dd" }}</small>
                                     <h5><strong class="text-primary">{{ n.user.firstName }} {{n.user.lastName}}</strong>&nbsp;made a suggestion</h5><br>
-                                    <h5>on&nbsp;<strong>{{ n.document.title }}</strong></h5>
+                                    <h5>on&nbsp;<strong>{{ n.documentId }} - {{ n.document.title }}</strong></h5>
                                     <div class="well">{{ n.message }}</div>
                                     <div class="actions">
                                         <span ng-show="n.iLikedIt" class="label label-primary"><span class="fa fa-thumbs-up"></span> I Liked This </span>
@@ -175,7 +175,7 @@
                                     <small ng-show="n.date.substring(0,4)=='Today'" class="pull-right text-navy">{{ n.date }}</small>
                                     <small ng-hide="n.date.substring(0,4)=='Today'" class="pull-right text-navy">{{ n.date | date: "yyyy-MM-dd" }}</small>
                                     <div ng-hide="n.key.revisionId=='A'">
-                                        <h5><strong class="text-primary">{{ n.changeUser.firstName }} {{n.changeUser.lastName}}</strong>&nbsp;changed&nbsp;<strong>{{ n.document.title }}</strong></h5><br>
+                                        <h5><strong class="text-primary">{{ n.changeUser.firstName }} {{n.changeUser.lastName}}</strong>&nbsp;changed&nbsp;<strong>{{ n.key.documentId }} - {{ n.document.title }}</strong></h5><br>
                                         <h5>to <strong>Revision {{ n.key.revisionId }}</strong></h5>
                                         <div class="well">{{ n.changeReason }}</div>
                                         <!--
@@ -185,7 +185,7 @@
                                         -->
                                     </div>
                                     <div ng-show="n.key.revisionId=='A'">
-                                        <h5><strong class="text-primary">{{ n.changeUser.firstName }} {{n.changeUser.lastName}}</strong>&nbsp;added&nbsp;<strong>{{ n.document.title }}</strong></h5><br>
+                                        <h5><strong class="text-primary">{{ n.changeUser.firstName }} {{n.changeUser.lastName}}</strong>&nbsp;added&nbsp;<strong>{{ n.key.documentId }} - {{ n.document.title }}</strong></h5><br>
                                         <!--
                                         <div class="actions">
                                             <a class="btn btn-xs btn-white"><i class="fa fa-thumbs-up"></i> Like This </a>
