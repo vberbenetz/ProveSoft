@@ -61,9 +61,11 @@ public class DocumentController {
      * Method retrieves documents based on which parameters are passed in.
      * 1) By documentId: returns 1 document based on Id and company
      * 2) By documentIds: returns list of documents based on list of doc Ids and company
-     * 3) By searchString: returns list of documents based on wildcard search string
+     * 3) By organizationId: returns list of documents associated with an organization
+     * 4) By searchString: returns list of documents based on wildcard search string
      * @param documentId Single document Id
      * @param documentIds Array of document Ids
+     * @param organizationId Single organization Id
      * @param searchString String used to perform wildcard search
      * @param includeObsolete Flag complements search search string to include obsolete documents
      * @param auth Authentication object
@@ -74,6 +76,7 @@ public class DocumentController {
     )
     public ResponseEntity<?> getDocument (@RequestParam(value = "documentId", required = false) String documentId,
                                           @RequestParam(value = "documentIds", required = false) String[] documentIds,
+                                          @RequestParam(value = "organizationId", required = false) Long organizationId,
                                           @RequestParam(value = "searchString", required = false) String searchString,
                                           @RequestParam(value = "includeObsolete", required = false) Boolean includeObsolete,
                                           Authentication auth) {
@@ -87,6 +90,11 @@ public class DocumentController {
 
         if ( (documentIds != null) && (documentIds.length > 0) ) {
             List<Document> dList = documentService.findDocumentByIdList(companyName, documentIds);
+            return new ResponseEntity<Object>(dList, HttpStatus.OK);
+        }
+
+        if (organizationId != null) {
+            List<Document> dList = documentService.findDocumentByCompanyNameAndOrganizationId(companyName, organizationId);
             return new ResponseEntity<Object>(dList, HttpStatus.OK);
         }
 

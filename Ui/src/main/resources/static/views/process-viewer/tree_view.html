@@ -1,0 +1,40 @@
+<div class="wrapper wrapper-content animated fadeInRight">
+    <accordion id="organizations" close-other="true">
+        <accordion-group ng-repeat="o in organizations">
+            <accordion-heading>
+                <h3 ng-click="getDocuments(o)">
+                    <span class="fa fa-square text-primary"></span>&nbsp;&nbsp;{{ o.name }}
+                </h3>
+            </accordion-heading>
+            <accordion id="document-types" close-other="true" ng-repeat="d in documentTypes">
+                <accordion-group>
+                    <accordion-heading>
+                        <h3>
+                            <span class="fa fa-square text-primary"></span>&nbsp;&nbsp;{{ d.name }} - {{ d.documentPrefix }}
+                        </h3>
+                    </accordion-heading>
+                    <div class="table-responsive">
+                        <table class="table table-hover issue-tracker">
+                            <colgroup>
+                                <col style="width:10%" />
+                                <col style="width:75%" />
+                                <col style="width:15%" />
+                            </colgroup>
+                            <tbody>
+                            <tr ng-repeat="doc in d.setOfDocs">
+                                <td><span class="fa fa-square text-success"></span></td>
+                                <td>{{ doc.id }} - {{ doc.title }}</td>
+                                <td>
+                                    <a href="" class="btn btn-success" ng-href="{{ '/resource/download?documentId=' + doc.id + '&revisionId=' + doc.revision }}">
+                                        <span class="fa fa-download"></span>
+                                    </a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </accordion-group>
+            </accordion>
+        </accordion-group>
+    </accordion>
+</div>

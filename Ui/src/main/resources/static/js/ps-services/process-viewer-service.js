@@ -64,6 +64,13 @@ function documentLookupService($resource) {
                     },
                     isArray: true
                 },
+                queryByOrganizationId: {
+                    method: 'GET',
+                    params: {
+                        organizationId: '@organizationId'
+                    },
+                    isArray: true
+                },
                 queryBySearchString: {
                     method: 'GET',
                     params: {

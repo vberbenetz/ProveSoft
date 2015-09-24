@@ -1022,6 +1022,61 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
 
 }
 
+function treeViewCtrl($scope, documentCreationService, documentLookupService) {
+
+    $scope.organizations = [];
+    $scope.documentTypes = [];
+
+    $scope.previousOrganizationId = '';
+    $scope.previousDocumentTypeId = '';
+
+    // Initialize
+    documentCreationService.organization.query(function(organizations) {
+        $scope.organizations = organizations;
+    }, function(error) {
+        $scope.error = error;
+    });
+
+    $scope.getDocuments = function(organization) {
+        if (organization.organizationId !== $scope.previousOrganizationId) {
+            $scope.documentTypes.length = 0;
+            documentLookupService.document.queryByOrganizationId({organizationId: organization.organizationId}, function(documents) {
+                if (documents.length > 0) {
+                    groupDocumentsByDocumentType(documents);
+                }
+                $scope.previousOrganizationId = organization.organizationId;
+            }, function(error) {
+                $scope.error = error;
+            })
+        }
+    };
+
+    function groupDocumentsByDocumentType(documents) {
+        var prevDocTypeId = documents[0].documentType.id;
+        var documentTypes = [];
+
+        documentTypes.push(documents[0].documentType);
+        documentTypes[0].setOfDocs = [];
+        documentTypes[0].setOfDocs.push(documents[0]);
+
+        for (var i = 1, j = 0; i < documents.length; i++) {
+            if (documents[i].documentType.id === prevDocTypeId) {
+                documentTypes[j].setOfDocs.push(documents[i]);
+            }
+            else {
+                documentTypes.push(documents[i].documentType);
+                j++;
+                documentTypes[j].setOfDocs = [];
+                documentTypes[j].setOfDocs.push(documents[i]);
+                prevDocTypeId = documents[i].documentType.id;
+            }
+        }
+
+        $scope.documentTypes = documentTypes;
+    }
+
+}
+
 function signoffModalCtrl($scope, $modalInstance, steps, userService) {
 
     $scope.ok = function() {
@@ -1135,4 +1190,5 @@ angular
     .controller('documentLookupCtrl', documentLookupCtrl)
     .controller('documentCreationCtrl', documentCreationCtrl)
     .controller('documentRevisionCtrl', documentRevisionCtrl)
+    .controller('treeViewCtrl', treeViewCtrl)
     .controller('signoffModalCtrl', signoffModalCtrl);

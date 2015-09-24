@@ -106,6 +106,16 @@ public class DocumentService {
     }
 
     /**
+     * Find all documents with organization Id
+     * @param companyName
+     * @param organizationId
+     * @return
+     */
+    public List<Document> findDocumentByCompanyNameAndOrganizationId(String companyName, Long organizationId) {
+        return documentRepository.findByOrganizationId(companyName, organizationId);
+    }
+
+    /**
      * Get first 10 Documents by company. Remove Obsolete state documents by default.
      * @param companyName
      * @return List of Document

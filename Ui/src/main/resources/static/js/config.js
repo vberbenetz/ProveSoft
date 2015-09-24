@@ -106,6 +106,12 @@ function config($stateProvider, $locationProvider, $urlRouterProvider, $ocLazyLo
                 }
             }
         })
+        .state('process-viewer.tree-view', {
+            url: "/tree-view",
+            templateUrl: "views/process-viewer/tree_view.html",
+            controller: 'treeViewCtrl',
+            data: { pageTitle: 'Tree View' }
+        })
 
         .state('admin', {
             abstract: true,

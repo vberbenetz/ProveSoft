@@ -23,28 +23,11 @@ public interface DocumentRepository extends JpaRepository<Document, String> {
             "SELECT d " +
             "FROM Document d " +
             "WHERE d.companyName=:companyName " +
-            "AND d.title LIKE :title"
+            "AND d.organization.organizationId=:organizationId " +
+            "ORDER BY d.documentType.name ASC, d.id ASC"
     )
-    List<Document> searchByTitle (@Param("companyName") String companyName,
-                                  @Param("title") String title);
-
-    @Query(
-            "SELECT d " +
-            "FROM Document d " +
-            "WHERE d.companyName=:companyName " +
-            "AND d.id LIKE :id"
-    )
-    List<Document> searchById (@Param("companyName") String companyName,
-                               @Param("id") String id);
-
-    @Query(
-            "SELECT d " +
-            "FROM Document d " +
-            "WHERE d.companyName=:companyName " +
-            "AND d.organization.name LIKE :name"
-    )
-    List<Document> searchByOrganizationName (@Param("companyName") String companyName,
-                                             @Param("name") String name);
+    List<Document> findByOrganizationId (@Param("companyName") String companyName,
+                                         @Param("organizationId") Long organizationId);
 
     @Query(
             "SELECT DISTINCT d " +
