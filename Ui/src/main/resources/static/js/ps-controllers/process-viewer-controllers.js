@@ -1022,10 +1022,12 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
 
 }
 
-function treeViewCtrl($scope, documentCreationService, documentLookupService) {
+function treeViewCtrl($scope, documentCreationService, documentLookupService, userService, commentLikeService) {
 
     $scope.organizations = [];
     $scope.documentTypes = [];
+    $scope.activeDocument = {};
+    $scope.recentDocumentActivity = [];
 
     $scope.previousOrganizationId = '';
     $scope.previousDocumentTypeId = '';
@@ -1050,6 +1052,190 @@ function treeViewCtrl($scope, documentCreationService, documentLookupService) {
             })
         }
     };
+
+    $scope.getRecentDocumentActivity = function(document) {
+        var documentId = document.id;
+        $scope.activeDocument = document;
+
+        if ($scope.lastFetchedActivity != documentId) {
+
+            documentLookupService.recentApprovalHistory.query({documentId: documentId}, function(approvalHistory) {
+
+                documentLookupService.documentComment.queryRecentByDocumentId({documentId: documentId}, function(recentComments) {
+                    var recentDocActivity = approvalHistory.concat(recentComments);
+                    $scope.lastFetchedActivity = documentId;
+
+                    // Sort the recent activity array by date to interleave the approvalHistory with the recentComments
+                    recentDocActivity.sort(function(a, b) {
+                        if (a.date > b.date) {
+                            return -1;
+                        }
+                        if (a.date < b.date) {
+                            return 1;
+                        }
+                        return 0;
+                    });
+
+                    // Format date
+                    $scope.recentDocumentActivity = $scope.formatDateForList(recentDocActivity);
+
+                    // Get list of userIds for profile picture lookup
+                    var userIds = [];
+                    for (var z = 0; z < recentDocActivity.length; z++) {
+                        userIds.push(recentDocActivity[z].user.userId);
+                    }
+
+                    // Get list of commentIds for comment like lookup
+                    var documentCommentIds = [];
+                    for (var y = 0; y < recentComments.length; y++) {
+                        documentCommentIds.push(recentComments[y].id);
+                    }
+
+                    // Append comment likes
+                    // Append child comments
+                    if (documentCommentIds.length > 0) {
+                        documentLookupService.childDocumentComment.query({parentCommentIds: documentCommentIds}, function(childComments) {
+                            // Append child comment profile pictures
+                            var childCommentUserIds = [];
+                            for (var w = 0; w < childComments.length; w++) {
+                                childCommentUserIds.push(childComments[w].user.userId);
+                            }
+
+                            userService.profilePicture.query({userIds: childCommentUserIds}, function(childProfilePics) {
+                                childComments = $scope.matchProfilePicToList(childProfilePics, childComments);
+                                $scope.matchChildCommentsToParent(childComments);
+                            }, function(error) {
+                                $scope.error = error;
+                                $scope.matchChildCommentsToParent(childComments);
+                            });
+
+                        }, function(error) {
+                            $scope.error = error;
+                        });
+
+                        commentLikeService.documentCommentLike.query({documentCommentIds: documentCommentIds}, function(likes) {
+                            $scope.matchLikesToComment(likes);
+                        }, function(error) {
+                            $scope.error = error;
+                        });
+                    }
+
+                    // Append parent comment profile pictures
+                    if (userIds.length > 0) {
+                        userService.profilePicture.query({userIds: userIds}, function(profilePictures) {
+                            $scope.matchProfilePicToActivity(profilePictures);
+
+                        }, function(error) {
+                            $scope.error = error;
+                        });
+                    }
+
+                }, function(error) {
+                    $scope.error = error;
+                });
+
+            }, function(error) {
+                $scope.err = error;
+            });
+        }
+    };
+
+    $scope.formatDateForList = function(docActivity) {
+        var currentDate = new Date();
+        for (var i = 0; i < docActivity.length; i++) {
+
+            var docDate = new Date(docActivity[i].date);
+
+            if ( docDate.getFullYear()==currentDate.getFullYear() &&
+                docDate.getMonth()==currentDate.getMonth() &&
+                docDate.getDate()==currentDate.getDate()
+            ) {
+                docActivity[i].date = 'Today at '+ docDate.getHours() + ':' + (docDate.getMinutes()<10?'0':'') + docDate.getMinutes();
+            }
+        }
+
+        return docActivity;
+    };
+
+    $scope.formatDate = function(rawDate) {
+        var currentDate = new Date();
+        var date = new Date(rawDate);
+        if ( date.getFullYear()==currentDate.getFullYear() &&
+            date.getMonth()==currentDate.getMonth() &&
+            date.getDate()==currentDate.getDate()
+        ) {
+            return 'Today at '+ date.getHours() + ':' + (date.getMinutes()<10?'0':'') + date.getMinutes();
+        }
+        return date;
+    };
+
+    // Helper function to match child comments to parent comment
+    $scope.matchChildCommentsToParent = function(childComments) {
+        var recentDocActivity = $scope.recentDocumentActivity;
+        for (var q = 0; q < recentDocActivity.length; q++) {
+
+            // Only done for comments
+            if (recentDocActivity[q].hasOwnProperty('message')) {
+                recentDocActivity[q].childComments = [];
+                for (var r = 0; r < childComments.length; r++) {
+                    if (recentDocActivity[q].id === childComments[r].parentCommentId) {
+                        childComments[r].date = $scope.formatDate(childComments[r].date);
+                        recentDocActivity[q].childComments.push(childComments[r]);
+                    }
+                }
+            }
+        }
+    };
+
+    // Helper function to line up likes with document comment
+    $scope.matchLikesToComment = function(likes) {
+        var myUserId = $rootScope.userDetails.userId;
+
+        var recentDocActivity = $scope.recentDocumentActivity;
+        for (var f = 0; f < recentDocActivity.length; f++) {
+
+            // Only add likes for comments
+            if (recentDocActivity[f].hasOwnProperty('message')) {
+                $scope.recentDocumentActivity[f].numberOfLikes = 0;
+
+                for (var g = 0; g < likes.length; g++) {
+                    if (recentDocActivity[f].id === likes[g].key.documentCommentId) {
+                        $scope.recentDocumentActivity[f].numberOfLikes++;
+
+                        // Check if I liked it
+                        if (likes[g].key.userId === myUserId) {
+                            $scope.recentDocumentActivity[f].iLikedIt = true;
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    // Helper function to line up profile picture with activity
+    $scope.matchProfilePicToActivity = function(profilePictures) {
+        var recentDocActivity = $scope.recentDocumentActivity;
+        for (var o = 0; o < recentDocActivity.length; o++) {
+            for (var p = 0; p < profilePictures.length; p++) {
+                if (recentDocActivity[o].user.userId === profilePictures[p].userId) {
+                    $scope.recentDocumentActivity[o].profilePicture = profilePictures[p].picData;
+                }
+            }
+        }
+    };
+
+    // Helper function to line up profile picture with an arbitrary list
+    $scope.matchProfilePicToList = function(profilePictures, list) {
+        for (var e = 0; e < list.length; e++) {
+            for (var f = 0; f < profilePictures.length; f++) {
+                if (list[e].user.userId === profilePictures[f].userId) {
+                    list[e].profilePicture = profilePictures[f].picData;
+                }
+            }
+        }
+        return list;
+    };
+
 
     function groupDocumentsByDocumentType(documents) {
         var prevDocTypeId = documents[0].documentType.id;

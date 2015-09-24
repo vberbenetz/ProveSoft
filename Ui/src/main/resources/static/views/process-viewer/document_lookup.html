@@ -248,7 +248,7 @@
 
                         <!-- Is Document Revision -->
                         <div class="media-body" ng-if="!n.hasOwnProperty('message')">
-                            <h4><strong>{{ n.user.firstName }} {{n.user.lastName}}</strong></h4><br>
+                            <h4><strong>{{ n.user.firstName }} {{n.user.lastName}}</strong>&nbsp;&nbsp;approved</h4><br>
                             <small ng-if="n.date.substring(0,4)=='Today'" class="pull-right text-navy">{{ n.date }}</small>
                             <small ng-if="n.date.substring(0,4)!='Today'" class="pull-right text-navy">{{ n.date | date: "yyyy-MM-dd" }}</small>
                             <div class="row margin-bottom-10 margin-left-5">
