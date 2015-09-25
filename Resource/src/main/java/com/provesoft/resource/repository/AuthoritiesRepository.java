@@ -14,6 +14,17 @@ public interface AuthoritiesRepository extends JpaRepository<Authorities, Long> 
 
     List<Authorities> findByUser(Users user);
 
+    Long countByUserAndAuthority(Users user, String authority);
+
+    @Query(
+            "DELETE FROM Authorities a " +
+            "WHERE a.user=:user " +
+            "AND a.authority='ROLE_SUPER_ADMIN'"
+    )
+    @Modifying
+    @Transactional
+    void revokeSuperAdmin(@Param(value = "user") Users user);
+
     @Query(
             "DELETE FROM Authorities a " +
             "WHERE a.user=:user"

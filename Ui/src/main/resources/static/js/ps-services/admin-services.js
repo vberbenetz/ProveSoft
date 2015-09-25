@@ -47,6 +47,27 @@ function manageUsersService($resource) {
             }
         ),
 
+        userIsAdmin: $resource('/resource/admin/user/admin',
+            {},
+            {
+                check: {
+                    method: 'GET',
+                    params: {
+                        email: '@email'
+                    },
+                    isArray: false
+                },
+                update: {
+                    method: 'PUT',
+                    params: {
+                        email: '@email',
+                        updatedValue: '@updatedValue'
+                    },
+                    isArray: false
+                }
+            }
+        ),
+
         userPrimaryOrg: $resource('/resource/admin/user/primaryOrg',
             {},
             {

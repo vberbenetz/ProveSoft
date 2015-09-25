@@ -50,6 +50,20 @@ public class UsersService {
     }
 
     /**
+     * Method checks if user has ROLE_SUPER_ADMIN authority
+     * @param user
+     * @return
+     */
+    public Boolean isUserSuperAdmin(Users user) {
+        if (authoritiesRepository.countByUserAndAuthority(user, "ROLE_SUPER_ADMIN") > 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    /**
      * Retrieve list of authorities for user
      * @param email
      * @return
@@ -88,6 +102,14 @@ public class UsersService {
     }
 
 
+    /**
+     * Method removes Super Admin authority from user
+     * @param email
+     */
+    public void revokeSuperAdmin(String email) {
+        Users user = usersRepository.findByUsername(email);
+        authoritiesRepository.revokeSuperAdmin(user);
+    }
 
     /**
      * Delete a user from the system (email is freed up)

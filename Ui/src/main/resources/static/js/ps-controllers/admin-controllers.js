@@ -108,7 +108,15 @@ function manageUsersCtrl($scope, $rootScope, $window, $timeout, $modal, userServ
         if (view === 'user') {
 
             $scope.rightPanel.data = data;
+            
+            // Check if user is system admin
+            manageUsersService.userIsAdmin.check({email: data.email}, function(result) {
+                $scope.systemAdmin = result.isSystemAdmin;
+            }, function(error) {
+                $scope.error = error;
+            });
 
+            // Retrieve all user data
             manageUsersService.orgUser.queryByUserId({userId: data.userId}, function(additionalOrgs) {
                 $scope.rightPanel.data.additionalOrgs = additionalOrgs;
 
@@ -506,6 +514,31 @@ function manageUsersCtrl($scope, $rootScope, $window, $timeout, $modal, userServ
             }, function(error) {
                 $scope.err = error;
             });
+        }
+    };
+
+    $scope.updateUserSysAdminStatus = function() {
+        if ($scope.rightPanel.data.email !== $rootScope.user.userName) {
+            manageUsersService.userIsAdmin.update({email: $scope.rightPanel.data.email, updatedValue: $scope.systemAdmin}, function(data) {
+                // Send out success alert notification
+                $scope.successfullyModifiedUser = true;
+                setTimeout(function() {
+                    $scope.$apply(function() {
+                        $scope.successfullyModifiedUser = false;
+                    });
+                }, 2000);
+            }, function(error) {
+                $scope.error = error;
+            });
+        }
+        else {
+            // Send out fail alert notification
+            $scope.errorSelfAdminStatusModify = true;
+            setTimeout(function() {
+                $scope.$apply(function() {
+                    $scope.errorSelfAdminStatusModify = false;
+                });
+            }, 2000);
         }
     };
 

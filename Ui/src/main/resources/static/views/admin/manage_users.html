@@ -293,6 +293,11 @@
                                         <div ng-show="successfullyModifiedUser" class="show-hide-notifications col-md-9 text-center alert alert-success">
                                             <h3>Successfully Modified User</h3>
                                         </div>
+
+                                        <!-- Notification of error admin save change -->
+                                        <div ng-show="errorSelfAdminStatusModify" class="show-hide-notifications col-md-9 text-center alert alert-danger">
+                                            <h3>Cannot change admin status for yourself</h3>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -419,6 +424,20 @@
                                                             </tr>
                                                             </tbody>
                                                         </table>
+                                                    </div>
+                                                </div>
+
+                                                <!-- System Admin Setup -->
+                                                <div class="margin-top-30">
+                                                    <h3 class="font-bold col-md-6">
+                                                        Is System Admin:&nbsp;&nbsp;
+                                                        <button class="btn btn-primary" ng-class="{ 'btn-default': systemAdmin != true }" ng-model="systemAdmin" btn-radio="true">Yes</button>
+                                                        <button class="btn btn-default" ng-class="{ 'btn-danger': systemAdmin == false }" ng-model="systemAdmin" btn-radio="false">No</button>
+                                                    </h3>
+                                                    <div class="col-xs-12">
+                                                        <button ng-click="updateUserSysAdminStatus()" class="btn btn-sm btn-primary" type="button">
+                                                            Save Changes&nbsp;<i class="fa fa-check"></i>
+                                                        </button>
                                                     </div>
                                                 </div>
 

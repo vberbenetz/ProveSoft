@@ -141,6 +141,35 @@ public class AdminController {
         throw new ForbiddenException();
     }
 
+    /**
+     * Method checks if a user is of type Super Admin
+     * @param email Email of user to check
+     * @param auth Authentication object
+     * @return Map Boolean of result
+     */
+    @RequestMapping(
+            value = "/admin/user/admin",
+            method = RequestMethod.GET
+    )
+    public Map<String, Boolean> isUserSuperAdmin(@RequestParam(value = "email") String email,
+                                                 Authentication auth) {
+
+        if (UserHelpers.isSuperAdmin(auth)) {
+
+            String companyName = UserHelpers.getCompany(auth);
+
+            // Check if email belongs to this company
+            if (userDetailsService.findByCompanyNameAndEmail(companyName, email) != null) {
+                Users user = usersService.getUser(email);
+                Map<String, Boolean> retMap = new HashMap<>();
+                retMap.put("isSystemAdmin", usersService.isUserSuperAdmin(user));
+                return retMap;
+            }
+        }
+
+        throw new ForbiddenException();
+    }
+
     // -------------------------------------------------- POST ------------------------------------------------------ //
 
     /**
@@ -378,6 +407,51 @@ public class AdminController {
             }
 
             return new ResponseEntity<>("{}", HttpStatus.OK);
+        }
+
+        throw new ForbiddenException();
+    }
+
+    @RequestMapping(value = "/admin/user/admin",
+            method = RequestMethod.PUT
+    )
+    public ResponseEntity updateUserSystemAdminStatus (@RequestParam("email") String email,
+                                                       @RequestParam("updatedValue") Boolean updatedValue,
+                                                       Authentication auth) {
+
+        if (UserHelpers.isSuperAdmin(auth)) {
+
+            // Cannot modify self
+            if (auth.getName().equals(email) ) {
+                throw new BadRequestException();
+            }
+
+            String companyName = UserHelpers.getCompany(auth);
+
+            // Check if user belongs to company
+            if (userDetailsService.findByCompanyNameAndEmail(companyName, email) != null) {
+
+                Users user = usersService.getUser(email);
+
+                // Making user super admin
+                if ( updatedValue && !usersService.isUserSuperAdmin(user) ) {
+                    Authorities authority = new Authorities("ROLE_SUPER_ADMIN", user);
+                    usersService.saveAuthority(authority);
+                    return new ResponseEntity<>("{}", HttpStatus.OK);
+                }
+
+                // Revoking super admin status
+                else if ( !updatedValue && usersService.isUserSuperAdmin(user) ) {
+
+                    usersService.revokeSuperAdmin(email);
+                    return new ResponseEntity<>("{}", HttpStatus.OK);
+                }
+
+                // Error passing in parameters (enabling an enabled user or disabling a disabled user)
+                else {
+                    throw new BadRequestException();
+                }
+            }
         }
 
         throw new ForbiddenException();
