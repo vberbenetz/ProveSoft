@@ -1245,7 +1245,12 @@ function treeViewCtrl($scope, documentCreationService, documentLookupService, us
         documentTypes[0].setOfDocs = [];
         documentTypes[0].setOfDocs.push(documents[0]);
 
+        // Skip obsolete
         for (var i = 1, j = 0; i < documents.length; i++) {
+            if (documents[i].state === 'Obsolete') {
+                continue;
+            }
+
             if (documents[i].documentType.id === prevDocTypeId) {
                 documentTypes[j].setOfDocs.push(documents[i]);
             }
