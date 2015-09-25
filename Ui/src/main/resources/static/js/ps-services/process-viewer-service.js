@@ -78,6 +78,13 @@ function documentLookupService($resource) {
                     },
                     isArray: true
                 },
+                queryByCompany: {
+                    method: 'GET',
+                    params: {
+                        all: true
+                    },
+                    isArray: true
+                },
                 queryFirst10: {
                     method: 'GET',
                     params: {},
@@ -107,6 +114,29 @@ function documentLookupService($resource) {
                     method: 'GET',
                     params: {},
                     isArray: true
+                }
+            }
+        ),
+
+        favourite: $resource('/resource/document/favourite',
+            {},
+            {
+                query: {
+                    method: 'GET',
+                    params: {},
+                    isArray: true
+                },
+                add: {
+                    method: 'POST',
+                    params: {},
+                    isArray: false
+                },
+                remove: {
+                    method: 'DELETE',
+                    params: {
+                        documentId: '@documentId'
+                    },
+                    isArray: false
                 }
             }
         ),

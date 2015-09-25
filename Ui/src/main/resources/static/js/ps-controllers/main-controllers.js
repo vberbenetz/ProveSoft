@@ -128,8 +128,15 @@ function NewsFeedCtrl ($scope, $rootScope, navBarService, documentLookupService,
 
     $scope.isRedlineUsed = false;
 
+    $scope.documents = [];
+
     $scope.approvals = [];
     $scope.dailyFeed = [];
+    $scope.favouriteDocuments = [];
+
+    $scope.newFavouriteSelect = {
+        selected: ''
+    };
 
     // Get setting regarding whether redlines are being used
     generalSettingsService.setting.get({setting: 'redline'}, function (data) {
@@ -143,6 +150,19 @@ function NewsFeedCtrl ($scope, $rootScope, navBarService, documentLookupService,
         $scope.err = error;
     });
 
+    // Get all documents for this company
+    documentLookupService.document.queryByCompany(function(documents) {
+        $scope.documents = documents;
+    }, function(error) {
+        $scope.error = error;
+    });
+
+    // Get all favourite documents for this user
+    documentLookupService.favourite.query(function(favouriteDocuments) {
+        $scope.favouriteDocuments = favouriteDocuments;
+    }, function(error) {
+        $scope.error = error;
+    });
 
     // Get all notifications for this user
     navBarService.approvals.query(function(data) {
@@ -277,6 +297,50 @@ function NewsFeedCtrl ($scope, $rootScope, navBarService, documentLookupService,
     }, function(error) {
         $scope.error = error;
     });
+
+    // Add document to favourites
+    $scope.addToFavourites = function() {
+        var favToAdd = $scope.newFavouriteSelect.selected;
+        if ( (typeof favToAdd !== 'undefined') || (favToAdd !== '') ) {
+            documentLookupService.favourite.add($scope.newFavouriteSelect.selected, function (data, status, headers, config) {
+                if (!$scope.checkIfFavouriteExists(data)) {
+                    $scope.favouriteDocuments.push(data);
+                    $scope.newFavouriteSelect = {};
+                }
+            }, function (data, status, headers, config) {
+                $scope.newFavouriteSelect = {};
+                $scope.error = status;
+            });
+        }
+    };
+
+    // Remove document from favourites
+    $scope.removeFromFavourites = function(documentId) {
+        documentLookupService.favourite.remove({documentId: documentId}, function(data) {
+            var favouriteDocuments = $scope.favouriteDocuments;
+            for (var i = 0; i < favouriteDocuments.length; i++) {
+                if (favouriteDocuments[i].document.id === documentId) {
+                    $scope.favouriteDocuments.splice(i, 1);
+                    break;
+                }
+            }
+        }, function(error) {
+            $scope.error = error;
+        });
+    };
+
+
+    // Helper function to check if new favourite needs to be added to frontend list
+    $scope.checkIfFavouriteExists = function(newFav) {
+        var favouriteDocuments = $scope.favouriteDocuments;
+        for (var i = 0; i < favouriteDocuments.length; i++) {
+            if (favouriteDocuments[i].document.id === newFav.document.id) {
+                return true;
+            }
+        }
+
+        return false;
+    };
 
     // Helper function to line up document with approval
     $scope.matchDocumentToApproval = function(documents) {

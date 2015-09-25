@@ -45,6 +45,9 @@ public class DocumentService {
     @Autowired
     DocumentCommentLikeRepository documentCommentLikeRepository;
 
+    @Autowired
+    FavouriteDocumentsRepository favouriteDocumentsRepository;
+
 
     /* ------------------------ Document -------------------------- */
 
@@ -56,6 +59,15 @@ public class DocumentService {
      */
     public Document findDocumentById(String companyName, String id) {
         return documentRepository.findByCompanyNameAndId(companyName, id);
+    }
+
+    /**
+     * Find all documents for this company
+     * @param companyName
+     * @return
+     */
+    public List<Document> findNonObsoleteDocumentByCompanyName(String companyName) {
+        return documentRepository.findByCompanyNameAndStateNot(companyName, "Obsolete");
     }
 
     /**
@@ -452,6 +464,39 @@ public class DocumentService {
      */
     public DocumentCommentLike createCommentLike(DocumentCommentLike newLike) {
         return documentCommentLikeRepository.saveAndFlush(newLike);
+    }
+
+
+    /* ------------------------------ FavouriteDocuments ------------------------------- */
+
+    /**
+     * Method finds all FavouriteDocuments for a user
+     * @param companyName
+     * @param email
+     * @return
+     */
+    public List<FavouriteDocuments> findAllFavouriteDocumentsByUser(String companyName, String email) {
+        return favouriteDocumentsRepository.findByKeyCompanyNameAndKeyEmail(companyName, email);
+    }
+
+    /**
+     * Method adds a new FavouriteDocument for a user
+     * @param newFavouriteDocument
+     * @return
+     */
+    public FavouriteDocuments addFavouriteDocument(FavouriteDocuments newFavouriteDocument) {
+        return favouriteDocumentsRepository.saveAndFlush(newFavouriteDocument);
+    }
+
+    /**
+     * Method removes a FavouriteDocument from a user
+     * @param companyName
+     * @param email
+     * @param documentId
+     */
+    public void removeFavouriteDocument(String companyName, String email, String documentId) {
+        favouriteDocumentsRepository.removeFavouriteDocument(companyName, email, documentId);
+        favouriteDocumentsRepository.flush();
     }
 
 }

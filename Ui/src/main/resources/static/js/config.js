@@ -24,7 +24,21 @@ function config($stateProvider, $locationProvider, $urlRouterProvider, $ocLazyLo
             url: "news-feed",
             templateUrl: "views/news_feed.html",
             controller: NewsFeedCtrl,
-            data: { pageTitle: 'News Feed' }
+            data: { pageTitle: 'News Feed'},
+            resolve: {
+                loadPlugin: function ($ocLazyLoad) {
+                    return $ocLazyLoad.load([
+                        {
+                            name:'ui.select',
+                            files: [
+                                'css/plugins/ui-select/select.min.css',
+                                'css/plugins/ui-select/selectize.min.css',
+                                'js/plugins/ui-select/select.min.js'
+                            ]
+                        }
+                    ])
+                }
+            }
         })
 
         .state('process-viewer', {

@@ -327,8 +327,6 @@ function manageUsersCtrl($scope, $rootScope, $window, $timeout, $modal, userServ
 
     $scope.createNewUser = function() {
 
-        var a = $scope.validateNewUserForm();
-
         $scope.validateNewUserForm(function(result) {
 
             if (result) {

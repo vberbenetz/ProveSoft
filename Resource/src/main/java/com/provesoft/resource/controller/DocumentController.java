@@ -79,6 +79,7 @@ public class DocumentController {
                                           @RequestParam(value = "organizationId", required = false) Long organizationId,
                                           @RequestParam(value = "searchString", required = false) String searchString,
                                           @RequestParam(value = "includeObsolete", required = false) Boolean includeObsolete,
+                                          @RequestParam(value = "all", required = false) Boolean all,
                                           Authentication auth) {
 
         String companyName = UserHelpers.getCompany(auth);
@@ -107,6 +108,11 @@ public class DocumentController {
             // Add wildcard characters
             searchString = "%" + searchString + "%";
             List<Document> dList = documentService.findDocumentBySearchString(companyName, searchString, includeObsolete);
+            return new ResponseEntity<Object>(dList, HttpStatus.OK);
+        }
+
+        if (all != null) {
+            List<Document> dList = documentService.findNonObsoleteDocumentByCompanyName(companyName);
             return new ResponseEntity<Object>(dList, HttpStatus.OK);
         }
 
@@ -237,6 +243,22 @@ public class DocumentController {
         String companyName = UserHelpers.getCompany(auth);
 
         return documentService.findLikesByCommentList(companyName, documentCommentIds);
+    }
+
+    /* ------------------- FavouriteDocuments ------------------- */
+
+    /**
+     * Method retrieves all favourite documents for this user
+     * @param auth Authentication object
+     * @return List of FavouriteDocuments
+     */
+    @RequestMapping(
+            value = "/document/favourite",
+            method = RequestMethod.GET
+    )
+    public List<FavouriteDocuments> getFavouriteDocumentsForSelf (Authentication auth) {
+        String companyName = UserHelpers.getCompany(auth);
+        return documentService.findAllFavouriteDocumentsByUser(companyName, auth.getName());
     }
 
 
@@ -597,6 +619,49 @@ public class DocumentController {
     }
 
 
+    /* ------------------- FavouriteDocuments ------------------- */
+
+    /**
+     * Method adds a FavouriteDocument for this user
+     * @param json Payload containing a Document to add to favourites
+     * @param auth Authentication object
+     * @return FavouriteDocument
+     */
+    @RequestMapping(
+            value = "/document/favourite",
+            method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public FavouriteDocuments addNewFavouriteDocument(@RequestBody String json,
+                                                      Authentication auth) {
+
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            Document document = mapper.readValue(json, Document.class);
+
+            String companyName = UserHelpers.getCompany(auth);
+
+            // Check if document exists and belongs to this company
+            Document docCheck = documentService.findDocumentByCompanyNameAndDocumentId(companyName, document.getId());
+            if (docCheck != null) {
+                FavouriteDocuments newFav = new FavouriteDocuments(companyName, auth.getName(), docCheck);
+                return documentService.addFavouriteDocument(newFav);
+            }
+            else {
+                throw new BadRequestException();
+            }
+
+        }
+        catch (IOException | NullPointerException ex) {
+            throw new BadRequestException();
+        }
+        catch (Exception ex) {
+            throw new InternalServerErrorException();
+        }
+    }
+
+
     /* --------------------------------------------------------- */
     /* ------------------------ UPDATE ------------------------- */
     /* --------------------------------------------------------- */
@@ -714,40 +779,27 @@ public class DocumentController {
         throw new ForbiddenException();
     }
 
+
+    /* --------------------------------------------------------- */
+    /* ------------------------ DELETE ------------------------- */
+    /* --------------------------------------------------------- */
+
+    /* ------------------------- FavouriteDocument -------------------------- */
+
+    /**
+     * Method removes a favourite document from this user
+     * @param documentId DocumentId to remove from this user
+     * @param auth Authentication object
+     */
+    @RequestMapping(
+            value = "/document/favourite",
+            method = RequestMethod.DELETE
+    )
+    public ResponseEntity removeFavouriteDocument(@RequestParam("documentId") String documentId,
+                                                  Authentication auth) {
+
+        String companyName = UserHelpers.getCompany(auth);
+        documentService.removeFavouriteDocument(companyName, auth.getName(), documentId);
+        return new ResponseEntity(HttpStatus.OK);
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
