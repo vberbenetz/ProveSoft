@@ -1,1 +1,1 @@
-CREATE DATABASE provesoftauth CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+CREATE DATABASE provesoft CHARACTER SET utf8 COLLATE utf8_unicode_ci;

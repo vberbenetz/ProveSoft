@@ -208,7 +208,9 @@
 
             <!-- Timeline -->
             <div class="col-md-4" ng-hide="recentDocumentActivity.length==0">
-                <h2 class="margin-bottom-30">This Document Timeline</h2>
+                <div class="col-xs-12 margin-bottom-30">
+                    <h2><strong>Timeline</strong>&nbsp;&nbsp;{{ activeDocument.id }} - {{ activeDocument.title }}</h2>
+                </div>
                 <form class="margin-bottom-40">
                     <textarea class="margin-bottom-20" ng-model="newDocumentComment" rows="2" placeholder="Make A Suggestion" class="form-control"></textarea>
                     <button class="btn btn-primary pull-right" ng-click="addDocumentComment()">
