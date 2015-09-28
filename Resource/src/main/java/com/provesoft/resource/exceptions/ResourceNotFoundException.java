@@ -12,4 +12,8 @@ public class ResourceNotFoundException extends RuntimeException {
     public ResourceNotFoundException() {
         super("Path does not exist");
     }
+
+    public ResourceNotFoundException(String errorMessage) {
+        super(errorMessage);
+    }
 }

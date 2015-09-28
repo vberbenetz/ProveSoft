@@ -625,12 +625,21 @@ function manageUsersCtrl($scope, $rootScope, $window, $timeout, $modal, userServ
         // Reset form validation error messages
         $scope.newOrgValidationFail = {};
 
-        if ( (typeof name === 'undefined') || (name === '') || (name.length == 0) ) {
-            $scope.newOrgValidationFail.name = true;
+        if ( (typeof name === 'undefined') || (name === '') || (name.length == 0)) {
+            $scope.newOrgValidationFail.name = 'Please enter a name';
             validationFail = true;
         }
+        else if (name.length > 250) {
+            $scope.newOrgValidationFail.name = 'Please limit name to 250 characters';
+            validationFail = true;
+        }
+
         if ( (typeof description === 'undefined') || (description === '') || (description.length == 0) ) {
-            $scope.newOrgValidationFail.description = true;
+            $scope.newOrgValidationFail.description = 'Please enter a description';
+            validationFail = true;
+        }
+        else if (description.length > 1000) {
+            $scope.newOrgValidationFail.description = 'Please limit description to 1000 characters';
             validationFail = true;
         }
 

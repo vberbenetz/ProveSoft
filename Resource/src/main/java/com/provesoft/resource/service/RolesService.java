@@ -36,6 +36,15 @@ public class RolesService {
         return rolesRepository.findByCompanyNameAndRoleIdIn(companyName, roleIds);
     }
 
+    public Boolean doesRoleExist(String companyName, String roleName) {
+        if (rolesRepository.countByCompanyNameAndName(companyName, roleName) > 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
     /**
      * Method checks to see if this organization is referred elsewhere in the app
      * @param companyName

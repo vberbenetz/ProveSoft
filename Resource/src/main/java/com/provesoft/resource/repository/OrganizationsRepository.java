@@ -19,6 +19,8 @@ public interface OrganizationsRepository extends JpaRepository<Organizations, Lo
 
     Organizations findByCompanyNameAndOrganizationId(String companyName, Long organizationId);
 
+    Long countByCompanyNameAndOrganization(String companyName, String organizationName);
+
     // Update description
     @Query(
             "UPDATE Organizations o " +

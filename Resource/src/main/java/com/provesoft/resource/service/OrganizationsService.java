@@ -57,6 +57,21 @@ public class OrganizationsService {
     }
 
     /**
+     * Method determines if the organization exists
+     * @param companyName
+     * @param organizationName
+     * @return Boolean
+     */
+    public Boolean doesOrganizationExist(String companyName, String organizationName) {
+        if (organizationsRepository.countByCompanyNameAndOrganization(companyName, organizationName) > 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    /**
      * Method checks to see if this organization is referred elsewhere in the app
      * @param companyName
      * @param organization

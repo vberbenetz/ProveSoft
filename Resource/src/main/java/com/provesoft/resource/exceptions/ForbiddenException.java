@@ -12,4 +12,8 @@ public class ForbiddenException extends RuntimeException {
     public ForbiddenException() {
         super("Access Denied");
     }
+
+    public ForbiddenException(String errorMessage) {
+        super(errorMessage);
+    }
 }

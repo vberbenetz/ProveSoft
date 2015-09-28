@@ -6,6 +6,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @ControllerAdvice
 public class ExceptionHandlerController {
 
@@ -16,22 +19,25 @@ public class ExceptionHandlerController {
             }
     )
     public ResponseEntity handleExceptions(Exception e) {
+        Map<String, String> errorMessage = new HashMap<>();
+        errorMessage.put("error", e.getMessage());
+
         if (e instanceof ResourceNotFoundException) {
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(errorMessage, HttpStatus.NOT_FOUND);
         }
         if (e instanceof ForbiddenException) {
-            return new ResponseEntity(HttpStatus.FORBIDDEN);
+            return new ResponseEntity<>(errorMessage, HttpStatus.FORBIDDEN);
         }
         if (e instanceof ConflictException) {
-            return new ResponseEntity(HttpStatus.CONFLICT);
+            return new ResponseEntity<>(errorMessage, HttpStatus.CONFLICT);
         }
         if (e instanceof InternalServerErrorException) {
-            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
         }
         if (e instanceof BadRequestException) {
-            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 }

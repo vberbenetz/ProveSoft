@@ -17,6 +17,7 @@ import com.provesoft.resource.exceptions.ResourceNotFoundException;
 import com.provesoft.resource.service.*;
 import com.provesoft.resource.utils.MailerService;
 import com.provesoft.resource.utils.UserHelpers;
+import com.provesoft.resource.validators.AdminFormValidation;
 import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.CannotAcquireLockException;
@@ -193,6 +194,15 @@ public class AdminController {
             ObjectMapper mapper = new ObjectMapper();
             try {
                 newUser = mapper.readValue(json, UserDetails.class);
+
+                if (!AdminFormValidation.validateNewUser(newUser)) {
+                    throw new BadRequestException("User validation failed");
+                }
+
+                if (usersService.doesUserExist(newUser.getEmail())) {
+                    throw new BadRequestException("Email already exists");
+                }
+
                 String company = UserHelpers.getCompany(auth);
 
                 newUser.setCompanyName(company);
@@ -686,8 +696,14 @@ public class AdminController {
                 // Append company name
                 String company = UserHelpers.getCompany(auth);
 
+                if (!AdminFormValidation.validateNewOrganization(organization)) {
+                    throw new BadRequestException("Organization validation error");
+                }
+
                 // Check if organization exists
-// TODO: CHECK IF ORGANIZATION EXISTS
+                if (organizationsService.doesOrganizationExist(company, organization.getName())) {
+                    throw new BadRequestException("Organization with that name exists");
+                }
 
                 // Sanitize description to remove any newline characters
                 organization.setDescription( organization.getDescription().replaceAll("(?:\\n|\\r)", " ") );
@@ -820,6 +836,14 @@ public class AdminController {
 
                 // Append company name
                 String company = UserHelpers.getCompany(auth);
+
+                if (!AdminFormValidation.validateNewRole(role)) {
+                    throw new BadRequestException("Role validation failed");
+                }
+
+                if (rolesService.doesRoleExist(company, role.getName())) {
+                    throw new BadRequestException("Role with that name exists");
+                }
 
                 role.setCompanyName(company);
 

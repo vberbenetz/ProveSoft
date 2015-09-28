@@ -18,6 +18,8 @@ public interface RolesRepository extends JpaRepository<Roles, Long> {
 
     List<Roles> findByCompanyNameAndRoleIdIn(String company, List<Long> roleIds);
 
+    Long countByCompanyNameAndName(String companyName, String name);
+
     @Query(
             "DELETE FROM Roles r " +
             "WHERE r.companyName=:companyName " +

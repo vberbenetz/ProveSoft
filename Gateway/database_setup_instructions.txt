@@ -3,3 +3,9 @@ description - mediumtext
 
 DocumentRevisions:
 changeReason - mediumtext
+
+Organizations:
+description - varchar(1024)
+
+Roles:
+description - varchar(1024)
