@@ -153,15 +153,21 @@
                             <button class="btn btn-default" ng-class="{ 'btn-warning': newStep.action == 'OR' }" ng-model="newStep.action" btn-radio="'OR'">OR</button>
                         </td>
                         <td>
-                            <ui-select ng-model="newStep.user" theme="selectize" style="width: 300px;">
+                            <ui-select ng-model="newStep.user" theme="selectize" style="width: 300px;" >
                                 <ui-select-match placeholder="Choose User For Step">{{ $select.selected.firstName }} {{ $select.selected.lastName }}</ui-select-match>
                                 <ui-select-choices repeat="user in users | filter: $select.search">
                                     <div ng-bind-html="user.firstName + ' ' + user.lastName | highlight: $select.search"></div>
                                 </ui-select-choices>
                             </ui-select>
+                            <p class="text-danger" ng-show="newStepsValidation[$index].user">{{ newStepsValidation[$index].user }}</p>
                         </td>
                         <td>{{ newStep.user.primaryOrganization.name }}</td>
                         <td></td>
+                        <td>
+                            <button ng-click="removeTempNewStep($index)" class="btn btn-danger">
+                                <span class="fa fa-times"></span>
+                            </button>
+                        </td>
                     </tr>
                     </tbody>
                 </table>

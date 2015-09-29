@@ -4,9 +4,12 @@ import com.provesoft.resource.entity.Document.DocumentType;
 import com.provesoft.resource.entity.Organizations;
 import com.provesoft.resource.entity.Roles;
 import com.provesoft.resource.entity.SignoffPath.SignoffPath;
+import com.provesoft.resource.entity.SignoffPath.SignoffPathTemplateSteps;
 import com.provesoft.resource.entity.UserDetails;
 import com.provesoft.resource.service.UsersService;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
 
 public final class AdminFormValidation {
 
@@ -222,6 +225,25 @@ public final class AdminFormValidation {
 
         if ( (!signoffPath.getApplyToAll()) && (organization == null) ) {
             return false;
+        }
+
+        return true;
+    }
+
+    public static Boolean validateNewTemplateSteps(List<SignoffPathTemplateSteps> steps) {
+
+        for (SignoffPathTemplateSteps step : steps) {
+
+            if (step.getUser() == null) {
+                return false;
+            }
+
+            if (step.getAction() == null) {
+                return false;
+            }
+            else if ( !("START".equals(step.getAction()) || "THEN".equals(step.getAction()) || "OR".equals(step.getAction())) ) {
+                return false;
+            }
         }
 
         return true;

@@ -1240,6 +1240,8 @@ function signoffPathsSetupCtrl ($scope, $rootScope, $window, $modal, manageUsers
     };
     $scope.newPathValidationFail = {};
 
+    $scope.newStepsValidation = [];
+
     $scope.initialApprover = {};
 
     $scope.newSteps = [];
@@ -1361,33 +1363,84 @@ function signoffPathsSetupCtrl ($scope, $rootScope, $window, $modal, manageUsers
     };
 
     $scope.addStep = function() {
+
+        // Reset validation
+        $scope.newStepsValidation.length = 0;
+
         $scope.newSteps.push({
             pathId: $scope.rightPanel.path.key.pathId,
-            action: '',
+            action: 'THEN',
             user: {}
         });
     };
 
+    $scope.removeTempNewStep = function(i) {
+        $scope.newSteps.splice(i, 1);
+    };
+
     $scope.validateNewSteps = function() {
-        return true;
+        var newSteps = $scope.newSteps;
+        var existingSteps = $scope.rightPanel.steps;
+        var validationFailed = false;
+
+        // Reset validation
+        $scope.newStepsValidation.length = 0;
+
+        // Make sure each line has a user
+        for (var i = 0; i < newSteps.length; i++) {
+            if (Object.keys(newSteps[i].user).length === 0) {
+                $scope.newStepsValidation[i] = [];
+                $scope.newStepsValidation[i].user = 'Please select a user';
+                validationFailed = true;
+            }
+        }
+
+        // Make sure same user is not in path twice
+        for (var j = 0; j < newSteps.length; j++) {
+
+            // Compare against new steps
+            for (var k = 0; k < newSteps.length; k++) {
+                // Skip over same iteration of self
+                if (j === k) {
+                    continue;
+                }
+
+                if (newSteps[j].user.userId === newSteps[k].user.userId) {
+                    $scope.newStepsValidation[j] = [];
+                    $scope.newStepsValidation[j].user = 'Duplicate user in this chain';
+                    validationFailed = true;
+                }
+            }
+
+            // Compare against existing steps
+            for (var l = 0; l < existingSteps.length; l++) {
+                if (newSteps[j].user.userId === existingSteps[l].user.userId) {
+                    $scope.newStepsValidation[j] = [];
+                    $scope.newStepsValidation[j].user = 'Duplicate user in this chain';
+                    validationFailed = true;
+                }
+            }
+        }
+
+        return !validationFailed;
     };
 
     $scope.saveChanges = function() {
+
+        // Delete steps
+        // Extract stepId's from steps to delete
+        if ($scope.stepsToRemove.length > 0) {
+            var stepIds = $scope.extractStepIds($scope.stepsToRemove);
+
+            adminSignoffPathsService.templateSteps.remove({pathId: $scope.rightPanel.path.key.pathId, stepIds: stepIds}, function(data) {
+                $scope.stepsToRemove.length = 0;
+            }, function(error) {
+                $scope.error = error;
+            });
+        }
+
+        // Add steps if any were created
         if ($scope.validateNewSteps()) {
-
-            // Delete steps
-            // Extract stepId's from steps to delete
-            if ($scope.stepsToRemove.length > 0) {
-                var stepIds = $scope.extractStepIds($scope.stepsToRemove);
-
-                adminSignoffPathsService.templateSteps.remove({pathId: $scope.rightPanel.path.key.pathId, stepIds: stepIds}, function(data) {
-                    $scope.stepsToRemove.length = 0;
-                }, function(error) {
-                    $scope.error = error;
-                });
-            }
-
-            // Add steps if any were created
             if ($scope.newSteps.length > 0) {
                 adminSignoffPathsService.templateSteps.save($scope.newSteps, function(data, status, headers, config) {
                     $scope.rightPanel.steps = $scope.rightPanel.steps.concat(data);
@@ -1396,17 +1449,24 @@ function signoffPathsSetupCtrl ($scope, $rootScope, $window, $modal, manageUsers
                     $scope.error = status;
                 });
             }
+        }
 
-            // Update existing steps if new user was selected
-            for (var i = 0; i < $scope.rightPanel.steps.length; i++) {
+        // Update existing steps if new user was selected
+        var stepsUpdated = false;
+        var existingSteps = $scope.rightPanel.steps;
+        for (var i = 0; i < $scope.rightPanel.steps.length; i++) {
+            if ( (typeof existingSteps[i].edit !== 'undefined') && (existingSteps[i].edit) ) {
+                stepsUpdated = true;
                 delete $scope.rightPanel.steps[i].edit;
             }
+        }
+        if (stepsUpdated) {
             adminSignoffPathsService.templateSteps.update($scope.rightPanel.steps, function(data, status, headers, config) {
             }, function(data, status, headers, config) {
                 $scope.error = status;
             });
-
         }
+
     };
 
     $scope.deleteSignoffPath = function(signoffPath) {

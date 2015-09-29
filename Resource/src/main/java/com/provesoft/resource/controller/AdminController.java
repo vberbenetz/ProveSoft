@@ -1679,10 +1679,20 @@ public class AdminController {
                 List<SignoffPathTemplateSteps> signoffPathTemplateSteps = mapper.readValue(json, new TypeReference<List<SignoffPathTemplateSteps>>() {
                 });
 
+                if (!AdminFormValidation.validateNewTemplateSteps(signoffPathTemplateSteps)) {
+                    throw new BadRequestException("Error validating signoff path template steps");
+                }
+
                 String companyName = UserHelpers.getCompany(auth);
 
+                // Check if user belongs to this company and append company name
                 for (SignoffPathTemplateSteps s : signoffPathTemplateSteps) {
-                    s.setCompanyName(companyName);
+                    if (userDetailsService.findByCompanyNameAndEmail(companyName, s.getUser().getEmail()) != null) {
+                        s.setCompanyName(companyName);
+                    }
+                    else {
+                        throw new BadRequestException("User does not exist");
+                    }
                 }
 
                 signoffPathTemplateSteps = signoffPathService.createNewTemplateSteps(signoffPathTemplateSteps);
