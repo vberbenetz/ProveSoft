@@ -282,6 +282,25 @@ function documentTypeService ($resource) {
                     isArray: false
                 }
             }
+        ),
+        check: $resource('/resource/admin/document/type/exist',
+            {},
+            {
+                byName: {
+                    method: 'GET',
+                    params: {
+                        name: '@name'
+                    },
+                    isArray: false
+                },
+                byDocumentPrefix: {
+                    method: 'GET',
+                    params: {
+                        documentPrefix: '@documentPrefix'
+                    },
+                    isArray: false
+                }
+            }
         )
     }
 }

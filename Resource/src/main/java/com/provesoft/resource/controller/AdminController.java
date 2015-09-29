@@ -845,6 +845,9 @@ public class AdminController {
                     throw new BadRequestException("Role with that name exists");
                 }
 
+                // Sanitize description to remove any newline characters
+                role.setDescription( role.getDescription().replaceAll("(?:\\n|\\r)", " ") );
+
                 role.setCompanyName(company);
 
                 return rolesService.saveRole(role);
@@ -1286,6 +1289,35 @@ public class AdminController {
         throw new ForbiddenException();
     }
 
+    @RequestMapping(
+            value = "/admin/document/type/exist",
+            method = RequestMethod.GET
+    )
+    public Map<String, Boolean> doDocumentTypeParametersExist(@RequestParam(value = "name", required = false) String name,
+                                                              @RequestParam(value = "documentPrefix", required = false) String documentPrefix,
+                                                              Authentication auth) {
+        if (UserHelpers.isSuperAdmin(auth)) {
+
+            String companyName = UserHelpers.getCompany(auth);
+
+            Map<String, Boolean> result = new HashMap<>();
+
+            if (name != null) {
+                result.put("exists", documentService.doesDocumentTypeWithNameExist(companyName, name));
+            }
+            else if (documentPrefix != null) {
+                result.put("exists", documentService.doesDocumentTypeWithPrefixExist(companyName, documentPrefix));
+            }
+            else {
+                throw new BadRequestException("No valid parameters found");
+            }
+
+            return result;
+        }
+
+        throw new ForbiddenException();
+    }
+
     // -------------------------------------------------- POST ------------------------------------------------------ //
 
     /**
@@ -1308,8 +1340,23 @@ public class AdminController {
             try {
                 DocumentType documentType = mapper.readValue(json, DocumentType.class);
 
+                if (!AdminFormValidation.validateNewDocumentType(documentType)) {
+                    throw new BadRequestException("Document type validation failed");
+                }
+
                 // Append company name
                 String companyName = UserHelpers.getCompany(auth);
+
+                if (documentService.doesDocumentTypeWithNameExist(companyName, documentType.getName())) {
+                    throw new BadRequestException("Document type with that name exists");
+                }
+
+                if (documentService.doesDocumentTypeWithPrefixExist(companyName, documentType.getDocumentPrefix())) {
+                    throw new BadRequestException("Document type with that prefix exists");
+                }
+
+                // Sanitize description to remove any newline characters
+                documentType.setDescription(documentType.getDescription().replaceAll("(?:\\n|\\r)", " "));
 
                 // Append current suffix
                 documentType.setCurrentSuffix( documentType.getStartingNumber() );

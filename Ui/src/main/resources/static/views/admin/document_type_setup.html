@@ -23,7 +23,7 @@
                                 <label class="col-md-2 control-label">Name</label>
                                 <div class="col-md-10 margin-bottom-30">
                                     <input class="form-control" ng-model="newDocumentType.name" type="text" />
-                                    <p class="text-danger" ng-show="fieldValidationFail.name">Please enter a name</p>
+                                    <p class="text-danger" ng-show="fieldValidationFail.name">{{ fieldValidationFail.name }}</p>
                                 </div>
                             </div>
 
@@ -31,7 +31,7 @@
                                 <label class="col-md-2 control-label">Description</label>
                                 <div class="col-md-10 margin-bottom-30">
                                     <textarea rows="4" ng-model="newDocumentType.description"></textarea>
-                                    <p class="text-danger" ng-show="fieldValidationFail.description">Please enter a description</p>
+                                    <p class="text-danger" ng-show="fieldValidationFail.description">{{ fieldValidationFail.description }}</p>
                                 </div>
                             </div>
 
@@ -39,7 +39,7 @@
                                 <label class="col-md-2 control-label">Document Prefix</label>
                                 <div class="col-md-10 margin-bottom-30">
                                     <input class="form-control" ng-model="newDocumentType.documentPrefix" type="text" />
-                                    <p class="text-danger" ng-show="fieldValidationFail.documentPrefix">Please enter a document prefix</p>
+                                    <p class="text-danger" ng-show="fieldValidationFail.documentPrefix">{{ fieldValidationFail.documentPrefix }}</p>
                                 </div>
                             </div>
 

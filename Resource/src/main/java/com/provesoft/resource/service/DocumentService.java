@@ -291,6 +291,36 @@ public class DocumentService {
     }
 
     /**
+     * Check if DocumentType with name already exists for this company
+     * @param companyName
+     * @param name
+     * @return
+     */
+    public Boolean doesDocumentTypeWithNameExist(String companyName, String name) {
+        if (documentTypeRepository.countByCompanyNameAndName(companyName, name) > 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    /**
+     * Check if DocumentType with this prefix already exists for the company
+     * @param companyName
+     * @param documentPrefix
+     * @return
+     */
+    public Boolean doesDocumentTypeWithPrefixExist(String companyName, String documentPrefix) {
+        if (documentTypeRepository.countByCompanyNameAndDocumentPrefix(companyName, documentPrefix) > 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    /**
      * Add new DocumentType.
      * Insert new DocumentTypeId to maintain Id generation
      * @param documentType

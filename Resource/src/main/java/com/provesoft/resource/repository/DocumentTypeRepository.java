@@ -15,6 +15,10 @@ public interface DocumentTypeRepository extends JpaRepository<DocumentType, Long
 
     DocumentType findByCompanyNameAndId(String companyName, Long id);
 
+    Long countByCompanyNameAndDocumentPrefix(String companyName, String documentPrefix);
+
+    Long countByCompanyNameAndName(String companyName, String name);
+
     @Query(
             "UPDATE DocumentType d " +
             "SET d.currentSuffix=:newSuffix " +

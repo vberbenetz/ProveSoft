@@ -1,5 +1,6 @@
 package com.provesoft.resource.validators;
 
+import com.provesoft.resource.entity.Document.DocumentType;
 import com.provesoft.resource.entity.Organizations;
 import com.provesoft.resource.entity.Roles;
 import com.provesoft.resource.entity.UserDetails;
@@ -134,6 +135,68 @@ public final class AdminFormValidation {
                         (description.length() > 1023) ||
                         (description.equals(""))
                 ) {
+            return false;
+        }
+
+        return true;
+    }
+
+
+    public static Boolean validateNewDocumentType(DocumentType documentType) {
+
+        String name = documentType.getName();
+        String description = documentType.getDescription();
+        String docPrefix = documentType.getDocumentPrefix();
+        Integer maxDigits = documentType.getMaxNumberOfDigits();
+        Long startingNumber = documentType.getStartingNumber();
+
+        if (name == null) {
+            return false;
+        }
+        else if (
+                (name.length() == 0) ||
+                        (name.length() > 254) ||
+                        (name.equals(""))
+                ) {
+            return false;
+        }
+
+        if (description == null) {
+            return false;
+        }
+        else if (
+                (description.length() == 0) ||
+                        (description.length() > 1023) ||
+                        (description.equals(""))
+                ) {
+            return false;
+        }
+
+        if (docPrefix == null) {
+            return false;
+        }
+        else if (
+                    (docPrefix.length() == 0) ||
+                    (docPrefix.length() > 100) ||
+                    (docPrefix.equals(""))
+                ) {
+            return false;
+        }
+
+        if (maxDigits == null) {
+            return false;
+        }
+        else if ( (maxDigits < 1) || (maxDigits > 15) ) {
+            return false;
+        }
+
+        if (startingNumber == null) {
+            return false;
+        }
+        else if (startingNumber < 1) {
+            return false;
+        }
+        else if ( (int)(Math.log10(startingNumber)+1) > maxDigits) {    // Check if starting number exceeds maxDigits
             return false;
         }
 

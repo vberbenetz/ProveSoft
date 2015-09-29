@@ -1026,7 +1026,7 @@ function documentTypeSetupCtrl($scope, $rootScope, $window, $modal, documentType
 
             // Prevent overflowing of prefix string
             if (newVal.documentPrefix.length > 100) {
-                newVal.documentPrefix = newVal.documentPrefix.substring(0, 99);
+                newVal.documentPrefix = newVal.documentPrefix.substring(0, 100);
                 $scope.documentPrefix = newVal.documentPrefix;
             }
 
@@ -1035,9 +1035,17 @@ function documentTypeSetupCtrl($scope, $rootScope, $window, $modal, documentType
                 newVal.maxNumberOfDigits = 15;
                 $scope.maxNumberOfDigits = newVal.maxNumberOfDigits;
             }
+            else if (newVal.maxNumberOfDigits < 1) {
+                newVal.maxNumberOfDigits = 1;
+                $scope.maxNumberOfDigits = newVal.maxNumberOfDigits;
+            }
 
             // Prevent exceeding max digits
-            if (newVal.startingNumber.toString().length > newVal.maxNumberOfDigits) {
+            if (newVal.startingNumber < 1) {
+                newVal.startingNumber = 1;
+                $scope.startingNumber = newVal.startingNumber;
+            }
+            else if (newVal.startingNumber.toString().length > newVal.maxNumberOfDigits) {
                 if ( (newVal.maxNumberOfDigits == '') || (newVal.maxNumberOfDigits == 0) ) {
                     $scope.maxNumberOfDigits = 1;
                     $scope.startingNumber = 1;
@@ -1048,6 +1056,9 @@ function documentTypeSetupCtrl($scope, $rootScope, $window, $modal, documentType
                 }
             }
 
+            // Capitalize all characters
+            newVal.documentPrefix = newVal.documentPrefix.toUpperCase();
+
             $scope.newNextDocumentId = $scope.generateNextDocId(newVal.documentPrefix, newVal.startingNumber, newVal.maxNumberOfDigits);
 
         },
@@ -1056,7 +1067,7 @@ function documentTypeSetupCtrl($scope, $rootScope, $window, $modal, documentType
 
     // ------------------- Methods ------------------- //
 
-    $scope.validateNewDocumentTypeForm = function() {
+    $scope.validateNewDocumentTypeForm = function(callback) {
 
         var validationFail = false;
         var name = $scope.newDocumentType.name;
@@ -1067,43 +1078,85 @@ function documentTypeSetupCtrl($scope, $rootScope, $window, $modal, documentType
         $scope.fieldValidationFail = {};
 
         if ( (typeof name === 'undefined') || (name === '') || (name.length == 0) ) {
-            $scope.fieldValidationFail.name = true;
+            $scope.fieldValidationFail.name = 'Please enter a name';
             validationFail = true;
         }
-        if ( (typeof description === 'undefined') || (description === '') || (description.length == 0) ) {
-            $scope.fieldValidationFail.description = true;
-            validationFail = true;
-        }
-        if ( (typeof docPrefix === 'undefined') || (docPrefix === '') || (docPrefix.length == 0) ) {
-            $scope.fieldValidationFail.documentPrefix = true;
+        else if (name.length > 100) {
+            $scope.fieldValidationFail.name = 'Please limit name to 100 characters';
             validationFail = true;
         }
 
-        return !validationFail;
+        if ( (typeof description === 'undefined') || (description === '') || (description.length == 0) ) {
+            $scope.fieldValidationFail.description = 'Please enter a description';
+            validationFail = true;
+        }
+        else if (description.length > 1000) {
+            $scope.fieldValidationFail.description = 'Please limit description to 1000 characters';
+            validationFail = true;
+        }
+
+        if ( (typeof docPrefix === 'undefined') || (docPrefix === '') || (docPrefix.length == 0) ) {
+            $scope.fieldValidationFail.documentPrefix = 'Please enter a document prefix';
+            validationFail = true;
+        }
+        else if (docPrefix.length > 100) {
+            $scope.fieldValidationFail.documentPrefix = 'Please limit prefix to 100 characters';
+            validationFail = true;
+        }
+
+        if (!validationFail) {
+            documentTypeService.check.byName({name: name}, function(data) {
+                if (!data.exists) {
+                    documentTypeService.check.byDocumentPrefix({documentPrefix: docPrefix}, function(data) {
+                        if (!data.exists) {
+                            return callback(true);
+                        }
+                        else {
+                            $scope.fieldValidationFail.documentPrefix = 'Document prefix with that name exists';
+                            return callback(false);
+                        }
+                    }, function(error) {
+                        return callback(false);
+                    })
+                }
+                else {
+                    $scope.fieldValidationFail.name = 'Document type with that name already exists';
+                    return callback(false);
+                }
+            }, function(error) {
+                return callback(false);
+            });
+        }
+        else {
+            return callback(!validationFail);
+        }
+
     };
 
     $scope.createNewDocumentType = function() {
 
-        if ($scope.validateNewDocumentTypeForm()) {
+        $scope.validateNewDocumentTypeForm(function(result) {
+            if (result) {
+                documentTypeService.documentType.save($scope.newDocumentType, function(data, status, headers, config) {
 
-            documentTypeService.documentType.save($scope.newDocumentType, function(data, status, headers, config) {
+                    $scope.nextDocumentId[ data.id ] = $scope.generateNextDocId(data.documentPrefix, data.startingNumber, data.maxNumberOfDigits);
+                    $scope.documentTypes.push(data);
 
-                $scope.nextDocumentId[ data.id ] = $scope.generateNextDocId(data.documentPrefix, data.startingNumber, data.maxNumberOfDigits);
-                $scope.documentTypes.push(data);
+                    // Reset newDocumentType
+                    $scope.newDocumentType = {
+                        name: '',
+                        description: '',
+                        documentPrefix: '',
+                        maxNumberOfDigits: '',
+                        startingNumber: ''
+                    }
 
-                // Reset newDocumentType
-                $scope.newDocumentType = {
-                    name: '',
-                    description: '',
-                    documentPrefix: '',
-                    maxNumberOfDigits: '',
-                    startingNumber: ''
-                }
+                }, function(data, status, headers, config) {
+                    $scope.err = status;
+                });
+            }
+        });
 
-            }, function(data, status, headers, config) {
-                $scope.err = status;
-            });
-        }
     };
 
     $scope.removeDocumentType = function(documentType) {

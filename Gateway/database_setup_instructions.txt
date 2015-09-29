@@ -9,3 +9,6 @@ description - varchar(1024)
 
 Roles:
 description - varchar(1024)
+
+DocumentType:
+description - varchar(1024)

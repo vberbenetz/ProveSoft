@@ -63,7 +63,7 @@ public class OrganizationsService {
      * @return Boolean
      */
     public Boolean doesOrganizationExist(String companyName, String organizationName) {
-        if (organizationsRepository.countByCompanyNameAndOrganization(companyName, organizationName) > 0) {
+        if (organizationsRepository.countByCompanyNameAndName(companyName, organizationName) > 0) {
             return true;
         }
         else {
