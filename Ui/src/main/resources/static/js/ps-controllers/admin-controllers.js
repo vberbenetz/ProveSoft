@@ -208,7 +208,7 @@ function manageUsersCtrl($scope, $rootScope, $window, $timeout, $modal, userServ
             if ($scope.userSearchString !== $scope.prevUserSearchString) {
                 $scope.prevUserSearchString = $scope.userSearchString;
 
-                manageUsersService.user.queryBySearchString({name: $scope.userSearchString}, function(data, status, headers, config) {
+                manageUsersService.user.queryBySearchString({searchString: $scope.userSearchString}, function(data, status, headers, config) {
                     if (data.length > 0) {
                         $scope.noResultsFound = false;
                         $scope.users = data;
