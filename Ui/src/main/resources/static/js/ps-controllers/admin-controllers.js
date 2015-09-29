@@ -1116,6 +1116,7 @@ function documentTypeSetupCtrl($scope, $rootScope, $window, $modal, documentType
                             return callback(false);
                         }
                     }, function(error) {
+                        $scope.fieldValidationFail.documentPrefix = 'Error validating document prefix';
                         return callback(false);
                     })
                 }
@@ -1124,6 +1125,7 @@ function documentTypeSetupCtrl($scope, $rootScope, $window, $modal, documentType
                     return callback(false);
                 }
             }, function(error) {
+                $scope.fieldValidationFail.name = 'Error validating name';
                 return callback(false);
             });
         }
@@ -1230,9 +1232,6 @@ function signoffPathsSetupCtrl ($scope, $rootScope, $window, $modal, manageUsers
     $scope.rightPanel = {};
     $scope.showRightPanel = false;
 
-    // Flag in new path creation. True if user wants to allow path to be used by all organizations
-    $scope.toggleAllOrgs = false;
-
     $scope.newPath = {
         name: '',
         organization: {},
@@ -1283,53 +1282,82 @@ function signoffPathsSetupCtrl ($scope, $rootScope, $window, $modal, manageUsers
         });
     };
 
-    $scope.validateCreateNewPath = function() {
+    $scope.validateCreateNewPath = function(callback) {
 
         var validationFail = false;
         var name = $scope.newPath.name;
         var org = $scope.newPath.organization;
-        var initApp = $scope.initialApprover;
+        var initApp = $scope.newPath.initialApprover;
 
         // Reset form validation error messages
         $scope.newPathValidationFail = {};
 
         if ( (typeof name === 'undefined') || (name === '') || (name.length == 0) ) {
-            $scope.newPathValidationFail.name = true;
+            $scope.newPathValidationFail.name = 'Please enter a path name';
             validationFail = true;
         }
-        if ( (!$scope.toggleAllOrgs) && ((typeof org === 'undefined') || (Object.getOwnPropertyNames(org).length === 0)) ) {
-            $scope.newPathValidationFail.organization = true;
+        else if (name.length > 250) {
+            $scope.newPathValidationFail.name = 'Please limit path name to 250 characters';
             validationFail = true;
         }
+
+        if ( (!$scope.newPath.applyToAll) && ((typeof org === 'undefined') || (Object.getOwnPropertyNames(org).length === 0)) ) {
+            $scope.newPathValidationFail.organization = 'Select an organization or make available to all';
+            validationFail = true;
+        }
+
         if ( (typeof initApp === 'undefined') || (Object.getOwnPropertyNames(initApp).length === 0) ) {
-            $scope.newPathValidationFail.initialApprover = true;
+            $scope.newPathValidationFail.initialApprover = 'Select an initial approver';
             validationFail = true;
+        }
+
+        if (!validationFail) {
+            adminSignoffPathsService.check.byName({name: name}, function(data) {
+                if (!data.exists) {
+                    return callback(true);
+                }
+                else {
+                    $scope.newPathValidationFail.name = 'Path with that name already exists';
+                    return callback(false);
+                }
+            }, function(error) {
+                $scope.newPathValidationFail.name = 'Error validating path name';
+                return callback(false);
+            });
         }
 
         return !validationFail;
     };
 
     $scope.createNewPath = function() {
-        var initialApproverId = $scope.newPath.initialApprover.userId;
-        delete $scope.newPath.initialApprover;
 
-        // If applying to all, attach a placeholder organization
-        if ($scope.newPath.applyToAll) {
-            $scope.newPath.organization = $scope.organizations[0];
-        }
+        $scope.validateCreateNewPath(function(result) {
+            if (result) {
 
-        adminSignoffPathsService.path.save({userId: initialApproverId}, $scope.newPath, function(data, status, headers, config) {
-            $scope.paths.push(data);
+                var initialApproverId = $scope.newPath.initialApprover.userId;
+                delete $scope.newPath.initialApprover;
 
-            // Reset new path variable
-            $scope.newPath.name = '';
-            $scope.newPath.organization = {};
-            $scope.newPath.initialApprover = {};
+                // If applying to all, attach a placeholder organization
+                if ($scope.newPath.applyToAll) {
+                    $scope.newPath.organization = $scope.organizations[0];
+                }
 
-        }, function(data, status, headers, config) {
-            $scope.err = status;
-            $scope.newPath.initialApprover = {};
+                adminSignoffPathsService.path.save({userId: initialApproverId}, $scope.newPath, function(data, status, headers, config) {
+                    $scope.paths.push(data);
+
+                    // Reset new path variable
+                    $scope.newPath.name = '';
+                    $scope.newPath.organization = {};
+                    $scope.newPath.initialApprover = {};
+
+                }, function(data, status, headers, config) {
+                    $scope.err = status;
+                    $scope.newPath.initialApprover = {};
+                });
+
+            }
         });
+
     };
 
     $scope.addStep = function() {

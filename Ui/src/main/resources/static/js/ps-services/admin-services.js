@@ -368,6 +368,19 @@ function adminSignoffPathsService ($resource) {
             }
         ),
 
+        check: $resource('/resource/admin/signoffPath/exist',
+            {},
+            {
+                byName: {
+                    method: 'GET',
+                    params: {
+                        name: '@name'
+                    },
+                    isArray: false
+                }
+            }
+        ),
+
         first10: $resource('/resource/admin/signoffPath/first10'),
 
         steps: $resource('/resource/admin/signoffPath/steps',

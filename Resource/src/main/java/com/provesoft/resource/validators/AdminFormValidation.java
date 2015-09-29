@@ -3,6 +3,7 @@ package com.provesoft.resource.validators;
 import com.provesoft.resource.entity.Document.DocumentType;
 import com.provesoft.resource.entity.Organizations;
 import com.provesoft.resource.entity.Roles;
+import com.provesoft.resource.entity.SignoffPath.SignoffPath;
 import com.provesoft.resource.entity.UserDetails;
 import com.provesoft.resource.service.UsersService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -197,6 +198,29 @@ public final class AdminFormValidation {
             return false;
         }
         else if ( (int)(Math.log10(startingNumber)+1) > maxDigits) {    // Check if starting number exceeds maxDigits
+            return false;
+        }
+
+        return true;
+    }
+
+    public static Boolean validateNewSignoffPath(SignoffPath signoffPath) {
+
+        String name = signoffPath.getName();
+        Organizations organization = signoffPath.getOrganization();
+
+        if (name == null) {
+            return false;
+        }
+        else if (
+                (name.length() == 0) ||
+                        (name.length() > 254) ||
+                        (name.equals(""))
+                ) {
+            return false;
+        }
+
+        if ( (!signoffPath.getApplyToAll()) && (organization == null) ) {
             return false;
         }
 

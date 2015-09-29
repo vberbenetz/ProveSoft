@@ -18,6 +18,8 @@ public interface SignoffPathRepository extends JpaRepository<SignoffPath, Signof
 
     List<SignoffPath> findFirst10ByKeyCompanyNameOrderByKeyPathIdAsc(String companyName);
 
+    Long countByKeyCompanyNameAndName(String companyName, String name);
+
     @Query(
             "SELECT s " +
             "FROM SignoffPath s " +

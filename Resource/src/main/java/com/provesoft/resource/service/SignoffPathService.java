@@ -58,6 +58,15 @@ public class SignoffPathService {
         return signoffPathRepository.getPathsByCompanyNameAndOrganizationId(companyName, organizationId);
     }
 
+    public Boolean doesSignoffPathExist(String companyName, String name) {
+        if (signoffPathRepository.countByKeyCompanyNameAndName(companyName, name) > 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
     /**
      * Method gets a count of Documents using that SignoffPath
      * @param companyName

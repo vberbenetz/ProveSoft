@@ -1546,6 +1546,26 @@ public class AdminController {
         throw new ForbiddenException();
     }
 
+    @RequestMapping(
+            value = "/admin/signoffPath/exist",
+            method = RequestMethod.GET
+    )
+    public Map<String, Boolean> doesSignoffPathExist(@RequestParam("name") String name,
+                                                     Authentication auth) {
+
+        if (UserHelpers.isSuperAdmin(auth)) {
+
+            String companyName = UserHelpers.getCompany(auth);
+            Map<String, Boolean> retMap = new HashMap<>();
+
+            retMap.put("exists", signoffPathService.doesSignoffPathExist(companyName, name));
+
+            return retMap;
+        }
+
+        throw new ForbiddenException();
+    }
+
 
     // -------------------------------------------------- POST ------------------------------------------------------ //
 
@@ -1572,7 +1592,15 @@ public class AdminController {
             try {
                 SignoffPath signoffPath = mapper.readValue(json, SignoffPath.class);
 
+                if (!AdminFormValidation.validateNewSignoffPath(signoffPath)) {
+                    throw new BadRequestException("Error validating new signoff path");
+                }
+
                 String companyName = UserHelpers.getCompany(auth);
+
+                if (signoffPathService.doesSignoffPathExist(companyName, signoffPath.getName())) {
+                    throw new BadRequestException("Signoff path with name already exists");
+                }
 
                 // Get user for initial path step, and check if they belong to company
                 UserDetails user = userDetailsService.findByCompanyNameAndUserId(companyName, userId);
