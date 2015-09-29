@@ -1,16 +1,10 @@
-<div class="row wrapper border-bottom white-bg page-heading">
-    <div class="col-lg-10">
-        <h2>My Dashboard</h2>
-    </div>
-</div>
 <div class="wrapper wrapper-content">
     <div class="row animated fadeInRight">
-        <div class="panel panel-success margin-top-30">
+        <div class="panel panel-success">
             <div class="panel-heading">
-                <h2>My Favorites</h2>
+                <h1>My Favorites</h1>
             </div>
             <div class="panel-body">
-
                 <div class="col-xs-12 margin-bottom-30">
                     <ui-select ng-model="newFavouriteSelect.selected" theme="selectize" style="width: 400px;">
                         <ui-select-match placeholder="Add document to favourites">{{ $select.selected.id + '  ' + $select.selected.title }}</ui-select-match>
@@ -22,14 +16,14 @@
                 </div>
 
                 <div ng-repeat="d in favouriteDocuments" class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
-                    <div class="widget style1 yellow-bg" ng-class="{ 'blue-bg' : d.document.revision!=='Obsolete' }">
-                        <h5 ng-show="d.document.revision==='Obsolete'">
+                    <div class="widget style1 yellow-bg" ng-class="{ 'light-blue-bg' : d.document.revision!=='Obsolete' }">
+                        <h4 ng-show="d.document.revision==='Obsolete'">
                             {{ d.document.id }} - {{ d.document.title }}&nbsp;&nbsp;&nbsp;(Obsolete)
                             <a class="text-danger text-right pull-right" ng-click="removeFromFavourites(d.document.id)" href="">
                                 <span class="fa fa-times"></span>
                             </a>
-                        </h5>
-                        <h5 ng-show="d.document.revision!=='Obsolete'">
+                        </h4>
+                        <h4 ng-show="d.document.revision!=='Obsolete'">
                             <a class="text-white" href="" ng-href="{{ '/resource/download?documentId=' + d.document.id + '&revisionId=' + d.document.revision }}">
                                 <span class="fa fa-download"></span>&nbsp;&nbsp;&nbsp;
                                 {{ d.document.id }} - {{ d.document.title }}
@@ -37,22 +31,19 @@
                             <a class="text-danger text-right pull-right" ng-click="removeFromFavourites(d.document.id)" href="">
                                 <span class="fa fa-times"></span>
                             </a>
-                        </h5>
+                        </h4>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-7">
-            <div class="full-height-scroll" full-scroll>
-                <div class="ibox float-e-margins">
-                    <div class="ibox-title">
-                        <h3>
-                            Your Task List
-                            <span class="label label-warning-light pull-right">{{ approvals.length }} Tasks</span>
-                        </h3>
-                    </div>
-                    <div class="ibox-content">
+        <div class="col-md-7" style="margin-left:-10px;">
+            <div class="panel panel-success margin-top-30">
+                <div class="panel-heading">
+                    <h1>Your Task List</h1>
+                </div>
+                <div class="panel-body">
+                    <div class="full-height-scroll" full-scroll>
                         <h4 class="text-success" ng-show="approvals.length==0">No Pending Tasks</h4>
                         <div ng-show="approvals.length > 0">
                             <div class="table-responsive">
@@ -126,73 +117,73 @@
         </div>
 
         <div class="col-md-5">
-            <div class="ibox float-e-margins">
-                <div class="ibox-title">
-                    <h3>
-                        Your Daily Feed
-                    </h3>
+            <div class="panel panel-success margin-top-30">
+                <div class="panel-heading">
+                    <h1>Your Daily Feed</h1>
                 </div>
-                <div class="ibox-content">
-                    <div class="feed-activity-list">
-                        <div class="feed-element" ng-repeat="n in dailyFeed">
+                <div class="panel-body">
+                    <div class="full-height-scroll" full-scroll>
+                        <div class="feed-activity-list">
+                            <div class="feed-element" ng-repeat="n in dailyFeed">
 
-                            <!-- Is Comment -->
-                            <div ng-if="n.hasOwnProperty('message')">
-                                <div class="pull-left">
-                                    <img alt="" src="img/default_profile.png" class="img-circle" ng-src="{{ n.profilePicture }}"><br/><br/>
-                                    <div class="label label-primary">
-                                        Suggestion
-                                    </div>
-                                </div>
-                                <div class="media-body col-md-offset-2">
-                                    <small ng-show="n.date.substring(0,4)=='Today'" class="pull-right text-navy">{{ n.date }}</small>
-                                    <small ng-hide="n.date.substring(0,4)=='Today'" class="pull-right text-navy">{{ n.date | date: "yyyy-MM-dd" }}</small>
-                                    <h5><strong class="text-primary">{{ n.user.firstName }} {{n.user.lastName}}</strong>&nbsp;made a suggestion</h5><br>
-                                    <h5>on&nbsp;<strong>{{ n.documentId }} - {{ n.document.title }}</strong></h5>
-                                    <div class="well">{{ n.message }}</div>
-                                    <div class="actions">
-                                        <span ng-show="n.iLikedIt" class="label label-primary"><span class="fa fa-thumbs-up"></span> I Liked This </span>
-                                        <a ng-show="!n.iLikedIt" class="btn btn-xs btn-white"><i class="fa fa-thumbs-up"></i> Like This </a>
-                                        &nbsp;<span class="label label-success">{{ n.numberOfLikes }}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Is Document Revision -->
-                            <div ng-if="!n.hasOwnProperty('message')">
-                                <div class="pull-left">
-                                    <img alt="" src="img/default_profile.png" class="img-circle" ng-src="{{ n.profilePicture }}"><br/><br/>
-                                    <div ng-show="n.key.revisionId=='A'" class="label label-success">
-                                        New
-                                    </div>
-                                    <div ng-hide="n.key.revisionId=='A'" class="label label-warning">
-                                        Change
-                                    </div>
-                                </div>
-                                <div class="media-body col-md-offset-2">
-                                    <small ng-show="n.date.substring(0,4)=='Today'" class="pull-right text-navy">{{ n.date }}</small>
-                                    <small ng-hide="n.date.substring(0,4)=='Today'" class="pull-right text-navy">{{ n.date | date: "yyyy-MM-dd" }}</small>
-                                    <div ng-hide="n.key.revisionId=='A'">
-                                        <h5><strong class="text-primary">{{ n.changeUser.firstName }} {{n.changeUser.lastName}}</strong>&nbsp;changed&nbsp;<strong>{{ n.key.documentId }} - {{ n.document.title }}</strong></h5><br>
-                                        <h5>to <strong>Revision {{ n.key.revisionId }}</strong></h5>
-                                        <div class="well">{{ n.changeReason }}</div>
-                                        <!--
-                                        <div class="actions">
-                                            <a class="btn btn-xs btn-white"><i class="fa fa-thumbs-up"></i> Like This </a>
+                                <!-- Is Comment -->
+                                <div ng-if="n.hasOwnProperty('message')">
+                                    <div class="pull-left">
+                                        <img alt="" src="img/default_profile.png" class="img-circle" ng-src="{{ n.profilePicture }}"><br/><br/>
+                                        <div class="label label-primary">
+                                            Suggestion
                                         </div>
-                                        -->
                                     </div>
-                                    <div ng-show="n.key.revisionId=='A'">
-                                        <h5><strong class="text-primary">{{ n.changeUser.firstName }} {{n.changeUser.lastName}}</strong>&nbsp;added&nbsp;<strong>{{ n.key.documentId }} - {{ n.document.title }}</strong></h5><br>
-                                        <!--
+                                    <div class="media-body col-md-offset-2">
+                                        <small ng-show="n.date.substring(0,4)=='Today'" class="pull-right text-navy">{{ n.date }}</small>
+                                        <small ng-hide="n.date.substring(0,4)=='Today'" class="pull-right text-navy">{{ n.date | date: "yyyy-MM-dd" }}</small>
+                                        <h5><strong class="text-primary">{{ n.user.firstName }} {{n.user.lastName}}</strong>&nbsp;made a suggestion</h5><br>
+                                        <h5>on&nbsp;<strong>{{ n.documentId }} - {{ n.document.title }}</strong></h5>
+                                        <div class="well">{{ n.message }}</div>
                                         <div class="actions">
-                                            <a class="btn btn-xs btn-white"><i class="fa fa-thumbs-up"></i> Like This </a>
+                                            <span ng-show="n.iLikedIt" class="label label-primary"><span class="fa fa-thumbs-up"></span> I Liked This </span>
+                                            <a ng-show="!n.iLikedIt" class="btn btn-xs btn-white"><i class="fa fa-thumbs-up"></i> Like This </a>
+                                            &nbsp;<span class="label label-success">{{ n.numberOfLikes }}</span>
                                         </div>
-                                        -->
                                     </div>
                                 </div>
-                            </div>
 
+                                <!-- Is Document Revision -->
+                                <div ng-if="!n.hasOwnProperty('message')">
+                                    <div class="pull-left">
+                                        <img alt="" src="img/default_profile.png" class="img-circle" ng-src="{{ n.profilePicture }}"><br/><br/>
+                                        <div ng-show="n.key.revisionId=='A'" class="label label-success">
+                                            New
+                                        </div>
+                                        <div ng-hide="n.key.revisionId=='A'" class="label label-warning">
+                                            Change
+                                        </div>
+                                    </div>
+                                    <div class="media-body col-md-offset-2">
+                                        <small ng-show="n.date.substring(0,4)=='Today'" class="pull-right text-navy">{{ n.date }}</small>
+                                        <small ng-hide="n.date.substring(0,4)=='Today'" class="pull-right text-navy">{{ n.date | date: "yyyy-MM-dd" }}</small>
+                                        <div ng-hide="n.key.revisionId=='A'">
+                                            <h5><strong class="text-primary">{{ n.changeUser.firstName }} {{n.changeUser.lastName}}</strong>&nbsp;changed&nbsp;<strong>{{ n.key.documentId }} - {{ n.document.title }}</strong></h5><br>
+                                            <h5>to <strong>Revision {{ n.key.revisionId }}</strong></h5>
+                                            <div class="well">{{ n.changeReason }}</div>
+                                            <!--
+                                            <div class="actions">
+                                                <a class="btn btn-xs btn-white"><i class="fa fa-thumbs-up"></i> Like This </a>
+                                            </div>
+                                            -->
+                                        </div>
+                                        <div ng-show="n.key.revisionId=='A'">
+                                            <h5><strong class="text-primary">{{ n.changeUser.firstName }} {{n.changeUser.lastName}}</strong>&nbsp;added&nbsp;<strong>{{ n.key.documentId }} - {{ n.document.title }}</strong></h5><br>
+                                            <!--
+                                            <div class="actions">
+                                                <a class="btn btn-xs btn-white"><i class="fa fa-thumbs-up"></i> Like This </a>
+                                            </div>
+                                            -->
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
                         </div>
                     </div>
                 </div>

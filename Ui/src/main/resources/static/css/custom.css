@@ -100,6 +100,10 @@ textarea {
     background-color: #1C84C6;
 }
 
+.light-blue-bg {
+    background-color: #56A5EC;
+}
+
 /* Resize profile pics */
 .sidebar-avatar {
     display: block;

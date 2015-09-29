@@ -84,6 +84,7 @@ function manageUsersCtrl($scope, $rootScope, $window, $timeout, $modal, userServ
         // Load preview of users
         manageUsersService.user.queryAll(function(users) {
             $scope.users = users;
+            $scope.changeRightPanel('user', users[0]);
 
         }, function(error) {
             $scope.err = error;
@@ -212,6 +213,7 @@ function manageUsersCtrl($scope, $rootScope, $window, $timeout, $modal, userServ
                     if (data.length > 0) {
                         $scope.noResultsFound = false;
                         $scope.users = data;
+                        $scope.changeRightPanel('user', data[0]);
                     }
                     else {
                         $scope.users.length = 0;    // Clear previous search results
