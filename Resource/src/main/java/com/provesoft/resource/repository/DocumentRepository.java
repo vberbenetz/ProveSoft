@@ -58,6 +58,8 @@ public interface DocumentRepository extends JpaRepository<Document, String> {
     List<Document> wildCardSearchNoObsolete (@Param("companyName") String companyName,
                                              @Param("searchString") String searchString);
 
+    Long countByCompanyNameAndTitle (String companyName, String title);
+
     Long countByCompanyNameAndDocumentType (@Param("companyName") String companyName,
                                             @Param("documentType") DocumentType documentType);
 

@@ -1015,7 +1015,7 @@ function documentTypeSetupCtrl($scope, $rootScope, $window, $modal, documentType
     // Get initial list of Document Types
     documentTypeService.documentType.query({}, function(data) {
         for (var i = 0; i < data.length; i++) {
-            $scope.nextDocumentId[ data[i].id ] = $scope.generateNextDocId(data[i].documentPrefix, data[i].startingNumber, data[i].maxNumberOfDigits);
+            $scope.nextDocumentId[ data[i].id ] = $scope.generateNextDocId(data[i].documentPrefix, data[i].currentSuffix, data[i].maxNumberOfDigits);
         }
         $scope.documentTypes = data;
     }, function(error) {
@@ -1143,7 +1143,7 @@ function documentTypeSetupCtrl($scope, $rootScope, $window, $modal, documentType
             if (result) {
                 documentTypeService.documentType.save($scope.newDocumentType, function(data, status, headers, config) {
 
-                    $scope.nextDocumentId[ data.id ] = $scope.generateNextDocId(data.documentPrefix, data.startingNumber, data.maxNumberOfDigits);
+                    $scope.nextDocumentId[ data.id ] = $scope.generateNewNextDocId(data.documentPrefix, data.startingNumber, data.maxNumberOfDigits);
                     $scope.documentTypes.push(data);
 
                     // Reset newDocumentType
@@ -1199,11 +1199,21 @@ function documentTypeSetupCtrl($scope, $rootScope, $window, $modal, documentType
 
     // --------------- Helpers ---------------- //
 
-    $scope.generateNextDocId = function(documentPrefix, startingNumber, maxNumberOfDigits) {
+    $scope.generateNewNextDocId = function(documentPrefix, startingNumber, maxNumberOfDigits) {
         var prefix = documentPrefix;
         var suffix = startingNumber;
 
         for (var z = startingNumber.toString().length; z < maxNumberOfDigits; z++) {
+            suffix = '0' + suffix;
+        }
+        return prefix + suffix;
+    };
+
+    $scope.generateNextDocId = function(documentPrefix, currentSuffix, maxNumberOfDigits) {
+        var prefix = documentPrefix;
+        var suffix = currentSuffix + 1;
+
+        for (var z = currentSuffix.toString().length; z < maxNumberOfDigits; z++) {
             suffix = '0' + suffix;
         }
         return prefix + suffix;

@@ -137,6 +137,21 @@ public class DocumentService {
     }
 
     /**
+     * Check if document with this title exists
+     * @param companyName
+     * @param title
+     * @return
+     */
+    public Boolean isDocumentTitleTaken(String companyName, String title) {
+        if (documentRepository.countByCompanyNameAndTitle(companyName, title) > 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    /**
      * Add a document and perform a lazy id update for the DocumentType associated.
      * Does not have to be entirely accurate (concurrently modified) because the DocumentTypeId keeps track of this.
      *
@@ -331,6 +346,15 @@ public class DocumentService {
         DocumentTypeId newDocumentTypeId = new DocumentTypeId( newDocumentType.getCompanyName(), newDocumentType.getId(), newDocumentType.getCurrentSuffix() );
         documentTypeIdRepository.saveAndFlush(newDocumentTypeId);
         return newDocumentType;
+    }
+
+    /**
+     * Update a DocumentType. Will be used for increasing the maxNumberOfDigits for Id to prevent overflow
+     * @param documentType
+     * @return
+     */
+    public DocumentType updateDocumentType(DocumentType documentType) {
+        return documentTypeRepository.saveAndFlush(documentType);
     }
 
     /**

@@ -37,7 +37,7 @@
                                     <label class="col-md-2 control-label">Title</label>
                                     <div class="col-lg-4 margin-bottom-30">
                                         <input ng-model="newDocument.title" type="text" placeholder="Document Name" class="form-control">
-                                        <p class="text-danger" ng-show="fieldValidationFail.title">Please input a title</p>
+                                        <p class="text-danger" ng-show="fieldValidationFail.title">{{ fieldValidationFail.title }}</p>
                                     </div>
                                 </div>
 
@@ -50,7 +50,7 @@
                                                 <div ng-bind-html="documentType.name | highlight: $select.search"></div>
                                             </ui-select-choices>
                                         </ui-select>
-                                        <p class="text-danger" ng-show="fieldValidationFail.documentType">Please select a document type</p>
+                                        <p class="text-danger" ng-show="fieldValidationFail.documentType">{{ fieldValidationFail.documentType }}</p>
                                     </div>
                                 </div>
 
@@ -63,7 +63,7 @@
                                                 <div ng-bind-html="organization.name | highlight: $select.search"></div>
                                             </ui-select-choices>
                                         </ui-select>
-                                        <p class="text-danger" ng-show="fieldValidationFail.organization">Please select an organization</p>
+                                        <p class="text-danger" ng-show="fieldValidationFail.organization">{{ fieldValidationFail.organization }}</p>
                                     </div>
                                 </div>
 
@@ -83,7 +83,7 @@
                                         <div class="row">
                                             <h5>Document Upload Area</h5>
                                         </div>
-                                        <p class="text-danger" ng-show="fieldValidationFail.file">Please add a file</p>
+                                        <p class="text-danger" ng-show="fieldValidationFail.file">{{ fieldValidationFail.file }}</p>
                                     </div>
                                     <div class="ibox-content">
                                         <form action="" class="dropzone" dropzone="" id="dropzone">
@@ -114,7 +114,7 @@
                                         <div ng-bind-html="signoffPath.name | highlight: $select.search"></div>
                                     </ui-select-choices>
                                 </ui-select>
-                                <p class="text-danger" ng-show="">Please select a signoff path</p>
+                                <p class="text-danger" ng-show="fieldValidationFail.signoffPath">{{ fieldValidationFail.signoffPath }}</p>
                             </div>
                         </div>
                         <div class="form-group">
@@ -122,7 +122,7 @@
                                 <button ui-sref="process-viewer.document-lookup" class="btn btn-danger margin-right-20">Cancel</button>
                             </div>
                             <div class="pull-right">
-                                <button ng-click="newDocumentForm=3" class="btn btn-primary margin-right-20">Next</button>
+                                <button ng-click="goToStage(3)" class="btn btn-primary margin-right-20">Next</button>
                             </div>
                             <div class="pull-right">
                                 <button ng-click="newDocumentForm=1" class="btn btn-warning margin-right-20">Previous</button>

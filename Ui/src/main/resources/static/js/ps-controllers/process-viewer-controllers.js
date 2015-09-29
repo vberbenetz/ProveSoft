@@ -625,15 +625,23 @@ function documentCreationCtrl($scope, $rootScope, $window, $state, documentCreat
 
     $scope.goToStage = function (nextStage) {
         if (nextStage == 2) {
-            if ($scope.validateForm()) {
-
-                if ($scope.signoffRequired) {
-                    $scope.loadSignoffPaths();
-                    $scope.newDocumentForm = 2;
+            $scope.validateStage1Form(function(result) {
+                if (result) {
+                    if ($scope.signoffRequired) {
+                        $scope.loadSignoffPaths();
+                        $scope.newDocumentForm = 2;
+                    }
                 }
-                else {
+            });
+        }
+        else {
+            if ($scope.signoffRequired) {
+                if ($scope.validateStage2Form()) {
                     $scope.newDocumentForm = 3;
                 }
+            }
+            else {
+                $scope.newDocumentForm = 3;
             }
         }
     };
@@ -678,7 +686,7 @@ function documentCreationCtrl($scope, $rootScope, $window, $state, documentCreat
         }
     });
 
-    $scope.validateForm = function () {
+    $scope.validateStage1Form = function (callback) {
         var validationFail = false;
         var title = $scope.newDocument.title;
         var documentType = $scope.newDocument.documentType;
@@ -688,23 +696,53 @@ function documentCreationCtrl($scope, $rootScope, $window, $state, documentCreat
         $scope.fieldValidationFail = {};
 
         if ((typeof title === 'undefined') || (title === '') || (title.length == 0)) {
-            $scope.fieldValidationFail.title = true;
+            $scope.fieldValidationFail.title = 'Please enter a title';
             validationFail = true;
         }
-        if ((typeof documentType === 'undefined') || (documentType === '')) {
-            $scope.fieldValidationFail.documentType = true;
-            validationFail = true;
-        }
-        if ((typeof organization === 'undefined') || (organization === '')) {
-            $scope.fieldValidationFail.organization = true;
-            validationFail = true;
-        }
-        if (!$scope.fileAdded) {
-            $scope.fieldValidationFail.file = true;
+        else if (title.length > 250) {
+            $scope.fieldValidationFail.title = 'Please limit title to 250 characters';
             validationFail = true;
         }
 
-        return !validationFail;
+        if ((typeof documentType === 'undefined') || (documentType === '')) {
+            $scope.fieldValidationFail.documentType = 'Please select a document type';
+            validationFail = true;
+        }
+        if ((typeof organization === 'undefined') || (organization === '')) {
+            $scope.fieldValidationFail.organization = 'Please select an organization';
+            validationFail = true;
+        }
+
+        if (!$scope.fileAdded) {
+            $scope.fieldValidationFail.file = 'Please upload a file';
+            validationFail = true;
+        }
+
+        if (!validationFail) {
+            documentCreationService.check.byTitle({title: title}, function(data) {
+                if (!data.exists) {
+                    return callback(true);
+                }
+                else {
+                    $scope.fieldValidationFail.title = 'Document with this title already exists';
+                    return callback(false);
+                }
+            }, function(error) {
+                $scope.fieldValidationFail.title = 'Error validating new document';
+                return callback(false);
+            });
+        }
+    };
+
+    $scope.validateStage2Form = function() {
+        var path = $scope.signoffPath.selected;
+        if ((typeof path === 'undefined') || (path === '') || (path === null)) {
+            $scope.fieldValidationFail.signoffPath = 'Please select a signoff path';
+            return false;
+        }
+        else {
+            return true;
+        }
     };
 
     $scope.redirectToLookup = function () {

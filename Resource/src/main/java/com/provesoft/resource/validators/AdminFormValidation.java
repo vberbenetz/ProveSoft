@@ -15,9 +15,6 @@ public final class AdminFormValidation {
 
     private AdminFormValidation() {}
 
-    @Autowired
-    UsersService usersService;
-
     public static Boolean validateNewUser(UserDetails userDetails) {
 
         // Upper and lower case letters

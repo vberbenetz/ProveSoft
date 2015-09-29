@@ -12,6 +12,7 @@ import com.provesoft.resource.exceptions.*;
 import com.provesoft.resource.service.*;
 import com.provesoft.resource.utils.SignoffPathHelpers;
 import com.provesoft.resource.utils.UserHelpers;
+import com.provesoft.resource.validators.DocumentFormValidation;
 import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.CannotAcquireLockException;
@@ -23,9 +24,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.TransactionRolledbackException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -121,6 +120,25 @@ public class DocumentController {
         return new ResponseEntity<Object>(dList, HttpStatus.OK);
     }
 
+    /**
+     * Method checks if document with this title exists for company
+     * @param title Title of document to be created
+     * @param auth Authentication object
+     * @return Map
+     */
+    @RequestMapping(
+            value = "/document/exist",
+            method = RequestMethod.GET
+    )
+    public Map<String, Boolean> doesDocumentWithTitleExist(@RequestParam("title") String title,
+                                                           Authentication auth) {
+
+        String companyName = UserHelpers.getCompany(auth);
+
+        Map<String, Boolean> retMap = new HashMap<>();
+        retMap.put("exists", documentService.isDocumentTitleTaken(companyName, title));
+        return retMap;
+    }
 
     /* ------ DocumentType ------ */
 
@@ -298,8 +316,15 @@ public class DocumentController {
 
             if (companyName != null) {
 
-// TODO: Verify if document and organizations belong to user
-// TODO: Verify if user has permissions to add document of this type to this organization
+                // Verify Document
+                if (!DocumentFormValidation.validateNewDocument(newDocument)) {
+                    throw new BadRequestException("Document validation failed");
+                }
+
+                // Verify if document with this title already exists
+                if (documentService.isDocumentTitleTaken(companyName, newDocument.getTitle())) {
+                    throw new BadRequestException("Document title already taken");
+                }
 
                 newDocument.setCompanyName(companyName);
 
@@ -310,63 +335,63 @@ public class DocumentController {
                         Long suffix = documentService.getAndGenerateDocumentId(companyName, newDocument.getDocumentType().getId()).getCurrentSuffixId();
                         Integer maxNumberOfDigits = newDocument.getDocumentType().getMaxNumberOfDigits();
 
-                        if (String.valueOf(suffix).length() <= maxNumberOfDigits) {
-                            String documentId = newDocument.getDocumentType().getDocumentPrefix();
-
-                            for (int i = String.valueOf(suffix).length(); i < maxNumberOfDigits; i++) {
-                                documentId = documentId + "0";
-                            }
-
-                            // Get user for revision details
-                            UserDetails user = userDetailsService.findByCompanyNameAndEmail(companyName, auth.getName());
-
-                            Date currentDate = new Date();
-
-                            documentId = documentId + suffix;
-                            newDocument.setId(documentId);
-                            newDocument.setRevision("A");
-                            newDocument.setState("Released");
-                            newDocument.setDate(currentDate);
-
-                            // Get system setting to see if signoffs are required
-                            SystemSettings signoffSetting = systemSettingsService.getSettingByCompanyNameAndSetting(companyName, "signoff");
-
-                            // Signoffs required. Make new document signoff compliant
-                            if (signoffSetting.getValue().equals("on")) {
-                                newDocument.setState("Changing");
-
-                                // Get template path steps
-                                Long pathId = newDocument.getSignoffPathId();
-                                List<SignoffPathTemplateSteps> templateSteps = signoffPathService.getTemplateStepsForPath(companyName, pathId);
-
-                                // Create path steps from template and apply to this document
-                                List<SignoffPathSteps> newSteps = new ArrayList<>();
-                                for (SignoffPathTemplateSteps s : templateSteps) {
-                                    SignoffPathSteps newStep = new SignoffPathSteps(companyName, documentId, pathId, s.getId(), s.getAction(), s.getUser());
-                                    newSteps.add(newStep);
-                                }
-                                newSteps = signoffPathService.createNewStepsForDocRev(newSteps);
-
-                                // Create notifications
-                                // Extract initial sequence Ids
-                                List<SignoffPathSteps> firstSetOfSteps = SignoffPathHelpers.extractNextSetOfSteps(newSteps);
-                                List<ApprovalNotification> notifications = new ArrayList<>();
-
-                                for (SignoffPathSteps s : firstSetOfSteps) {
-                                    ApprovalNotification notification = new ApprovalNotification(companyName, s.getUser().getUserId(), s.getId(), documentId, "Released");
-                                    notifications.add(notification);
-                                }
-                                approvalService.addApprovalNotifications(notifications);
-
-                            }
-
-                            return documentService.addDocument(newDocument, suffix, user);
+                        // Automatically increment digit length to prevent overflow
+                        if (String.valueOf(suffix).length() > maxNumberOfDigits) {
+                            DocumentType dt = newDocument.getDocumentType();
+                            dt.setMaxNumberOfDigits(dt.getMaxNumberOfDigits()+1);
+                            newDocument.setDocumentType(documentService.updateDocumentType(dt));
                         }
 
-                        else {
-// TODO: HANDLE ID OVERFLOW PAST MAX NUMBER OF DIGITS
-                            throw new ResourceNotFoundException();
+                        String documentId = newDocument.getDocumentType().getDocumentPrefix();
+
+                        for (int i = String.valueOf(suffix).length(); i < maxNumberOfDigits; i++) {
+                            documentId = documentId + "0";
                         }
+
+                        // Get user for revision details
+                        UserDetails user = userDetailsService.findByCompanyNameAndEmail(companyName, auth.getName());
+
+                        Date currentDate = new Date();
+
+                        documentId = documentId + suffix;
+                        newDocument.setId(documentId);
+                        newDocument.setRevision("A");
+                        newDocument.setState("Released");
+                        newDocument.setDate(currentDate);
+
+                        // Get system setting to see if signoffs are required
+                        SystemSettings signoffSetting = systemSettingsService.getSettingByCompanyNameAndSetting(companyName, "signoff");
+
+                        // Signoffs required. Make new document signoff compliant
+                        if (signoffSetting.getValue().equals("on")) {
+                            newDocument.setState("Changing");
+
+                            // Get template path steps
+                            Long pathId = newDocument.getSignoffPathId();
+                            List<SignoffPathTemplateSteps> templateSteps = signoffPathService.getTemplateStepsForPath(companyName, pathId);
+
+                            // Create path steps from template and apply to this document
+                            List<SignoffPathSteps> newSteps = new ArrayList<>();
+                            for (SignoffPathTemplateSteps s : templateSteps) {
+                                SignoffPathSteps newStep = new SignoffPathSteps(companyName, documentId, pathId, s.getId(), s.getAction(), s.getUser());
+                                newSteps.add(newStep);
+                            }
+                            newSteps = signoffPathService.createNewStepsForDocRev(newSteps);
+
+                            // Create notifications
+                            // Extract initial sequence Ids
+                            List<SignoffPathSteps> firstSetOfSteps = SignoffPathHelpers.extractNextSetOfSteps(newSteps);
+                            List<ApprovalNotification> notifications = new ArrayList<>();
+
+                            for (SignoffPathSteps s : firstSetOfSteps) {
+                                ApprovalNotification notification = new ApprovalNotification(companyName, s.getUser().getUserId(), s.getId(), documentId, "Released");
+                                notifications.add(notification);
+                            }
+                            approvalService.addApprovalNotifications(notifications);
+
+                        }
+
+                        return documentService.addDocument(newDocument, suffix, user);
 
                     }
                     catch (CannotAcquireLockException | LockAcquisitionException | TransactionRolledbackException ex) {

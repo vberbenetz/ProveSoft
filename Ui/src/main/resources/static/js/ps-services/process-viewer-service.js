@@ -23,6 +23,19 @@ function documentCreationService($resource) {
             }
         ),
 
+        check: $resource('/resource/document/exist',
+            {},
+            {
+                byTitle: {
+                    method: 'GET',
+                    params: {
+                        title: '@title'
+                    },
+                    isArray: false
+                }
+            }
+        ),
+
         documentType: $resource('/resource/document/type'),
 
         organization: $resource('/resource/organization',
