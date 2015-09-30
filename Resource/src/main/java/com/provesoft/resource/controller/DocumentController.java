@@ -490,6 +490,9 @@ public class DocumentController {
                 throw new BadRequestException("Revision validation error");
             }
 
+            // Strip newlines from changeReason
+            changeReason = changeReason.replaceAll("(?:\\n|\\r)", " ");
+
             // Get system setting to see if signoffs are required
             SystemSettings signoffSetting = systemSettingsService.getSettingByCompanyNameAndSetting(companyName, "signoff");
 
