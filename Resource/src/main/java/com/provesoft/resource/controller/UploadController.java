@@ -119,7 +119,8 @@ public class UploadController {
             value = "/upload",
             method = RequestMethod.POST
     )
-    public ResponseEntity uploadFile(@RequestParam("documentId") String documentId,
+    public ResponseEntity uploadFile(@RequestParam("filename") String filename,
+                                     @RequestParam("documentId") String documentId,
                                      @RequestParam("isRedline") Boolean isRedline,
                                      @RequestParam("tempUpload") Boolean tempUpload,
                                      @RequestParam(value = "tempRevId", required = false) String tempRevId,
@@ -145,9 +146,11 @@ public class UploadController {
                 String uploadedFile = itr.next();
                 MultipartFile file = request.getFile(uploadedFile);
                 String mimeType = file.getContentType();
-                String filename = file.getOriginalFilename();
                 String fileId = UUID.randomUUID().toString();
                 byte[] bytes = file.getBytes();
+
+                // Sanitize filename
+                filename = filename.replaceAll("(?:\\n|\\r|\"|\')", " ");
 
                 DocumentUpload newUploadedFile;
 

@@ -186,6 +186,7 @@ function dropzone($cookies) {
 
             'sending': function (file, xhr, formData) {
                 if (scope.isDocumentUpload) {
+                    formData.append('filename', file.name.replace(/["']/g, ""));
                     formData.append('documentId', scope.documentId);
                     formData.append('isRedline', scope.isRedline);
                     formData.append('tempUpload', scope.tempUpload);
