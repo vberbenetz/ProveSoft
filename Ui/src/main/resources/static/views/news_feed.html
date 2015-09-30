@@ -19,7 +19,7 @@
                     <div class="widget style1 yellow-bg" ng-class="{ 'light-blue-bg' : d.document.revision!=='Obsolete' }">
                         <h4 ng-show="d.document.revision==='Obsolete'">
                             {{ d.document.id }} - {{ d.document.title }}&nbsp;&nbsp;&nbsp;(Obsolete)
-                            <a class="text-danger text-right pull-right" ng-click="removeFromFavourites(d.document.id)" href="">
+                            <a class="text-right pull-right" ng-click="removeFromFavourites(d.document.id)" href="">
                                 <span class="fa fa-times"></span>
                             </a>
                         </h4>
@@ -28,7 +28,7 @@
                                 <span class="fa fa-download"></span>&nbsp;&nbsp;&nbsp;
                                 {{ d.document.id }} - {{ d.document.title }}
                             </a>
-                            <a class="text-danger text-right pull-right" ng-click="removeFromFavourites(d.document.id)" href="">
+                            <a class="text-white text-right pull-right" ng-click="removeFromFavourites(d.document.id)" href="">
                                 <span class="fa fa-times"></span>
                             </a>
                         </h4>
