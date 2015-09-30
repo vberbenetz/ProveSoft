@@ -45,7 +45,7 @@
                                     <label ng-if="revision.makeObsolete" class="col-md-2 control-label">Obsolescence Reason</label>
                                     <div class="col-md-10 margin-bottom-30">
                                         <textarea rows="4" ng-model="revision.changeReason"></textarea>
-                                        <p class="text-danger" ng-show="fieldValidationFail.changeReason">Please input a change reason</p>
+                                        <p class="text-danger" ng-show="fieldValidationFail.changeReason">{{ fieldValidationFail.changeReason }}</p>
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -59,7 +59,7 @@
                                     <div class="col-md-6 margin-bottom-30 margin-left-15 form-control-static text-center" ng-class="{ 'alert alert-success' : uploadedDocument, 'alert alert-danger' : fieldValidationFail.uploadedDocument }">
                                         <h4>{{ uploadedDocument }}</h4>
                                         <h4 ng-if="fieldValidationFail.uploadedDocument">
-                                            Please upload a document
+                                            {{ fieldValidationFail.uploadedDocument }}
                                         </h4>
                                     </div>
                                 </div>
@@ -68,7 +68,7 @@
                                     <div class="col-md-6 margin-bottom-30 margin-left-15 form-control-static text-center" ng-class="{ 'alert alert-success' : uploadedRedline, 'alert alert-danger' : fieldValidationFail.uploadedRedline }">
                                         <h4>{{ uploadedRedline }}</h4>
                                         <h4 ng-if="fieldValidationFail.uploadedRedline">
-                                            Please upload a Redlined document
+                                            {{ fieldValidationFail.uploadedRedline }}
                                         </h4>
                                     </div>
                                 </div>

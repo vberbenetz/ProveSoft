@@ -952,17 +952,22 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
         $scope.fieldValidationFail = {};
 
         if ( (typeof changeReason === 'undefined') || (changeReason === '') || (changeReason.length == 0) ) {
-            $scope.fieldValidationFail.changeReason = true;
+            $scope.fieldValidationFail.changeReason = 'Please enter a change reason';
             validationFail = true;
         }
+        else if (changeReason.length > 1000) {
+            $scope.fieldValidationFail.changeReason = 'Please limit reason to 1000 characters';
+            validationFail = true;
+        }
+
         if (!$scope.revision.makeObsolete) {
             if (typeof doc === 'undefined') {
-                $scope.fieldValidationFail.uploadedDocument = true;
+                $scope.fieldValidationFail.uploadedDocument = 'Please upload a revised document';
                 validationFail = true;
             }
             if ($scope.redlineRequired) {
                 if (typeof redline === 'undefined') {
-                    $scope.fieldValidationFail.uploadedRedline = true;
+                    $scope.fieldValidationFail.uploadedRedline = 'Please upload the corresponding redlined document';
                     validationFail = true;
                 }
             }

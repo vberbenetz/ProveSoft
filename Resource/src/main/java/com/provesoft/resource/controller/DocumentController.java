@@ -485,6 +485,11 @@ public class DocumentController {
                 throw new ConflictException();
             }
 
+            // Validate changeReason
+            if ( (changeReason == null) || (changeReason.length() < 1) || (changeReason.length() > 1000) ) {
+                throw new BadRequestException("Revision validation error");
+            }
+
             // Get system setting to see if signoffs are required
             SystemSettings signoffSetting = systemSettingsService.getSettingByCompanyNameAndSetting(companyName, "signoff");
 
