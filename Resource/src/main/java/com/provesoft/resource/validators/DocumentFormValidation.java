@@ -8,7 +8,7 @@ public final class DocumentFormValidation {
 
     private DocumentFormValidation() {}
 
-    public static Boolean validateNewDocument(Document document) {
+    public static Boolean validateNewDocument(Document document, String signoffPathRequired) {
 
         String title = document.getTitle();
         DocumentType type = document.getDocumentType();
@@ -30,7 +30,7 @@ public final class DocumentFormValidation {
             return false;
         }
 
-        if (signoffPathId == null) {
+        if ( "on".equals(signoffPathRequired) && (signoffPathId == null) ) {
             return false;
         }
 

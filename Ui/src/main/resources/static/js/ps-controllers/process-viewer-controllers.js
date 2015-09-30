@@ -631,6 +631,9 @@ function documentCreationCtrl($scope, $rootScope, $window, $state, documentCreat
                         $scope.loadSignoffPaths();
                         $scope.newDocumentForm = 2;
                     }
+                    else {
+                        $scope.newDocumentForm = 3;
+                    }
                 }
             });
         }

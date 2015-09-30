@@ -314,10 +314,13 @@ public class DocumentController {
             // Retrieve their company
             String companyName = UserHelpers.getCompany(auth);
 
+            // Get system setting to see if signoffs are required
+            SystemSettings signoffSetting = systemSettingsService.getSettingByCompanyNameAndSetting(companyName, "signoff");
+
             if (companyName != null) {
 
                 // Verify Document
-                if (!DocumentFormValidation.validateNewDocument(newDocument)) {
+                if (!DocumentFormValidation.validateNewDocument(newDocument, signoffSetting.getValue())) {
                     throw new BadRequestException("Document validation failed");
                 }
 
@@ -358,9 +361,6 @@ public class DocumentController {
                         newDocument.setRevision("A");
                         newDocument.setState("Released");
                         newDocument.setDate(currentDate);
-
-                        // Get system setting to see if signoffs are required
-                        SystemSettings signoffSetting = systemSettingsService.getSettingByCompanyNameAndSetting(companyName, "signoff");
 
                         // Signoffs required. Make new document signoff compliant
                         if (signoffSetting.getValue().equals("on")) {
