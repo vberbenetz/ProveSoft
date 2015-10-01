@@ -33,7 +33,7 @@ import java.io.IOException;
 
 @ComponentScan
 @EnableAutoConfiguration
-@EnableRedisHttpSession
+@EnableRedisHttpSession(maxInactiveIntervalInSeconds = 36000)
 @EnableZuulProxy
 public class GatewayApplication {
 
@@ -71,8 +71,7 @@ public class GatewayApplication {
                                 "/robots.txt").permitAll()
                         .anyRequest().authenticated()
                         .and()
-                    .formLogin()
-                        .loginPage("/")
+                    .httpBasic()
                         .and()
                         .logout().logoutSuccessUrl("/").permitAll()
                         .and()

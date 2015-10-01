@@ -40,6 +40,8 @@ dependencies {
     compile("org.springframework.boot:spring-boot-starter-security")
     compile("org.springframework.boot:spring-boot-starter-redis")
     compile("org.springframework.session:spring-session:1.0.1.RELEASE")
+    compile("org.springframework.cloud:spring-cloud-starter-zuul:1.0.1.RELEASE")
+    compile("org.springframework.cloud:spring-cloud-starter-security:1.0.1.RELEASE")
     compile("commons-codec:commons-codec:1.9")
     compile("javax.mail:mail:1.4")
     compile("javax.activation:activation:1.0.2")

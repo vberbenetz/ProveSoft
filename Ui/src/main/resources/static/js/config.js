@@ -1,6 +1,6 @@
 'use strict';
 
-function config($stateProvider, $locationProvider, $urlRouterProvider, $ocLazyLoadProvider) {
+function config($stateProvider, $locationProvider, $urlRouterProvider, $httpProvider, $ocLazyLoadProvider) {
     $urlRouterProvider.otherwise("/news-feed");
 
     $ocLazyLoadProvider.config({
@@ -254,6 +254,34 @@ function config($stateProvider, $locationProvider, $urlRouterProvider, $ocLazyLo
 
 
     $locationProvider.html5Mode(true);
+
+    $httpProvider.interceptors.push(function ($q, $rootScope, $window) {
+        return {
+            request: function (config) {
+                return config || $q.when(config);
+            },
+            requestError: function(request) {
+                console.log(request);
+                return $q.reject(request);
+            },
+            response: function(response) {
+                if (typeof response.data === 'string') {
+                    var a = response.data.indexOf('<!-- GLanding -->');
+                    if (response.data.indexOf('<!-- GLanding -->') > -1) {
+                        $window.location.href = '/';
+                    }
+                }
+
+                return response || $q.when(response);
+            },
+            responseError: function(response) {
+                if (response && response.status === 401) {
+                    $window.location.href = '/';
+                }
+                return $q.reject(response);
+            }
+        }
+    });
 
 }
 angular

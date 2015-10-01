@@ -69,7 +69,7 @@ function($scope, $http, $window, $location, $timeout, $cookies) {
         $window.location.href = '/ui/';
     };
 
-    // Perform check if password recovery or token registration
+    // Perform check on query parameters
     $scope.passResetForm = false;
     $scope.tokenRegistration = false;
     var checkForParams = $location.absUrl().split('?');
@@ -77,10 +77,13 @@ function($scope, $http, $window, $location, $timeout, $cookies) {
         var type = checkForParams[1].split('=')[0];
         if (typeof type !== 'undefined') {
 
+            // Password recovery
             if (type === 'r') {
                 $scope.passResetVerificationInput.token = checkForParams[1].split('=')[1];
                 $scope.passResetForm = true;
             }
+
+            // New registration via token
             else if (type === 'n') {
                 $scope.passResetVerificationInput.token = checkForParams[1].split('=')[1];
                 $scope.tokenRegistration = true;
@@ -88,37 +91,42 @@ function($scope, $http, $window, $location, $timeout, $cookies) {
         }
     }
 
-	$scope.login = function() {
-        var xsrfToken = $cookies['XSRF-TOKEN'];
+    var authenticate = function(credentials, callback) {
 
-        $http({
-            method: 'POST',
-            url: '/',
-            headers: {
-                'X-XSRF-TOKEN': xsrfToken,
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            transformRequest: function(obj) {
-                var str = [];
-                for(var p in obj)
-                str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
-                return str.join("&");
-            },
-            data: {username: $scope.credentials.username, password: $scope.credentials.password}
-        })
-        .success(function(data) {
-                $scope.checkIfUserLoggedIn(function(result) {
-                    if (result) {
-                        $window.location.href = '/ui/';
-                    }
-                    else {
-                        $scope.loginFailed = true;
-                    }
-                });
-        })
-        .error(function() {
+        var headers = credentials ? {
+            authorization : "Basic "
+            + btoa(credentials.username + ":"
+                + credentials.password)
+        } : {};
+
+        $scope.user = '';
+        $http.get('user', {
+            headers : headers
+        }).success(function(data) {
+            if (data.name) {
+                return callback(true);
+            }
+            else {
+                return callback(false);
+            }
+        }).error(function() {
+            return callback(false);
+        });
+
+    };
+
+	$scope.login = function() {
+
+        authenticate($scope.credentials, function(authenticated) {
+            if (authenticated) {
+                $window.location.href = '/ui/'
+            }
+            else {
                 $scope.loginFailed = true;
-            });
+            }
+        }, function(error) {
+            $scope.loginFailed = true;
+        });
 	};
 
 	$scope.logout = function() {

@@ -4,6 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
+import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -15,7 +16,8 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
 @ComponentScan
 @EnableAutoConfiguration
 @SpringBootApplication
-@EnableRedisHttpSession
+@EnableRedisHttpSession(maxInactiveIntervalInSeconds = 36000)
+@EnableZuulProxy
 public class UiApplication {
 
 	public static void main(String[] args) {
@@ -30,7 +32,7 @@ public class UiApplication {
 			http
 				.httpBasic().and()
 				.authorizeRequests()
-					.antMatchers("/index.html", "/").permitAll()
+					.antMatchers("/").permitAll()
 					.anyRequest().hasRole("USER");
 		}
 	}
