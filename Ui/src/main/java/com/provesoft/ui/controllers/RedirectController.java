@@ -19,8 +19,9 @@ public class RedirectController implements ErrorController {
         String serverUrl = request.getRequestURL().toString().split("/")[2].split(":")[0];
         return new ModelAndView("redirect:" + "http://" + serverUrl + ":8080" + "/ui/");
 
-        // Remote server deployment
+        // Deployed server
         // return new ModelAndView("redirect:" + "http://" + serverUrl + "/ui/");
+
     }
 
     @Override
