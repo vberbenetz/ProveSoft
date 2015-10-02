@@ -6,55 +6,6 @@
             </li>
             <li class="dropdown" dropdown="">
                 <a href="" class="dropdown-toggle count-info" dropdown-toggle="" aria-haspopup="true" aria-expanded="false">
-                    <i class="fa fa-envelope"></i> Messages
-                    <!-- <span class="label label-warning">2</span> -->
-                </a>
-                <ul class="dropdown-menu dropdown-messages">
-                    <li>
-                        <div class="dropdown-message-box">
-                            <a class="pull-left">
-                                <img class="img-circle messages-avatar" src="img/default_profile.png">
-                            </a>
-                            <div>
-                                <strong>Peter Taller</strong>
-                                commented on your
-                                <strong> S00-P1 </strong>
-                                document.
-                                <br/>
-                                <small class="text-muted">
-                                    2 days ago
-                                </small>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="divider"></li>
-                    <li>
-                        <div class="dropdown-message-box">
-                            <a class="pull-left">
-                                <img class="img-circle messages-avatar" src="img/default_profile.png">
-                            </a>
-                            <div>
-                                <strong>Anthony Jackson</strong>
-                                sent you a private message.
-                                <br/>
-                                <small class="text-muted">
-                                    3 days ago
-                                </small>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="divider"></li>
-                    <li>
-                        <div class="text-center link-block">
-                            <a href="">
-                                <i class="fa fa-envelope"></i> <strong>Read All Messages</strong>
-                            </a>
-                        </div>
-                    </li>
-                </ul>
-            </li>
-            <li class="dropdown" dropdown="">
-                <a href="" class="dropdown-toggle count-info" dropdown-toggle="" aria-haspopup="true" aria-expanded="false">
                     <i class="fa fa-bell"></i> Notifications
                     <span ng-hide="approvals.length==0" class="label label-warning">{{ approvals.length }}</span>
                 </a>
@@ -66,7 +17,7 @@
                         <div class="col-xs-6">
                             <div class="text-right" ng-class="{'margin-right-minus-15' : $last}">
                                 <button ng-click="approve(n, $index)" class="btn btn-xs btn-primary">Approve</button>
-                                <button ng-click="deny(n)" class="btn btn-xs btn-danger">Reject</button>
+                                <button ng-click="reject(n, $index)" class="btn btn-xs btn-danger">Reject</button>
                             </div>
                         </div>
                     </li>

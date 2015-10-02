@@ -121,8 +121,12 @@ function NavBarCtrl($scope, navBarService, documentLookupService) {
         })
     };
 
-    $scope.deny = function(notification) {
-// TODO
+    $scope.reject = function(notification, i) {
+        navBarService.approvals.reject({notificationId: notification.id}, function(data) {
+            $scope.approvals.splice(i, 1);
+        }, function(error) {
+            $scope.error = error;
+        })
     };
 }
 
@@ -471,9 +475,12 @@ function NewsFeedCtrl ($scope, $rootScope, navBarService, documentLookupService,
         })
     };
 
-    $scope.reject = function(notification) {
-        var a = 23;
-// TODO
+    $scope.reject = function(notificationId, i) {
+        navBarService.approvals.reject({notificationId: notificationId}, function(data) {
+            $scope.approvals.splice(i, 1);
+        }, function(error) {
+            $scope.error = error;
+        })
     };
 
     $scope.formatDate = function(docActivity) {

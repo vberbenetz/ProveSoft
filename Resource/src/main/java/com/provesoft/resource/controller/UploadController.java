@@ -312,7 +312,7 @@ public class UploadController {
                 f.delete();
             }
 
-            documentService.deleteTempUploads(companyName, documentId, tempRevId);
+            documentService.deleteUploads(companyName, documentId, tempRevId);
         }
         catch (Exception e) {
             throw new InternalServerErrorException();

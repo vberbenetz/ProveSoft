@@ -23,4 +23,14 @@ public interface DocumentRevisionIdsRepository extends JpaRepository<DocumentRev
     void incrementRevId(@Param("companyName") String companyName,
                         @Param("documentId") String documentId,
                         @Param("nextRevId") String nextRevId);
+
+    @Query(
+            "DELETE FROM DocumentRevisionIds dri " +
+            "WHERE dri.key.companyName=:companyName " +
+            "AND dri.key.documentId=:documentId"
+    )
+    @Transactional
+    @Modifying
+    void deleteByCompanyAndDocumentId(@Param("companyName") String companyName,
+                                      @Param("documentId") String documentId);
 }

@@ -36,8 +36,8 @@ public interface DocumentUploadRepository extends JpaRepository<DocumentUpload, 
     )
     @Modifying
     @Transactional
-    void deleteTempUpload(@Param("companyName") String companyName,
-                          @Param("documentId") String documentId,
-                          @Param("revision") String revision);
+    void deleteUploads(@Param("companyName") String companyName,
+                       @Param("documentId") String documentId,
+                       @Param("revision") String revision);
 
 }

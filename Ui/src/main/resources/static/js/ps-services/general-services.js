@@ -6,6 +6,15 @@ function navBarService($resource) {
                 approve: {
                     method: 'PUT',
                     params: {
+                        action: 'approve',
+                        notificationId: '@notificationId'
+                    },
+                    isArray: false
+                },
+                reject: {
+                    method: 'PUT',
+                    params: {
+                        action: 'reject',
                         notificationId: '@notificationId'
                     },
                     isArray: false

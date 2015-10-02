@@ -330,6 +330,7 @@ function adminApprovalService($resource) {
                 override: {
                     method: 'PUT',
                     params: {
+                        action: 'approve',
                         documentId: '@documentId',
                         stepId: '@stepId'
                     },

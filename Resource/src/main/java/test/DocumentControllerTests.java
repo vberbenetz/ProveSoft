@@ -157,6 +157,29 @@ public class DocumentControllerTests {
         Assert.assertEquals("AAAAA", nextId3);
     }
 
+    @Test
+    public void documentRevisionRollBackTest() {
+        String i1 = "A";
+        String i2 = "AAA";
+        String i3 = "ABC";
+        String i4 = "ABA";
+
+        String prevId1 = DocumentHelpers.rollBackRevId(i1);
+        String prevId2 = DocumentHelpers.rollBackRevId(i2);
+        String prevId3 = DocumentHelpers.rollBackRevId(i3);
+        String prevId4 = DocumentHelpers.rollBackRevId(i4);
+
+        System.out.println(prevId1);
+        System.out.println(prevId2);
+        System.out.println(prevId3);
+        System.out.println(prevId4);
+
+        Assert.assertEquals("A", prevId1);
+        Assert.assertEquals("ZZ", prevId2);
+        Assert.assertEquals("ABB", prevId3);
+        Assert.assertEquals("AAZ", prevId4);
+    }
+
     //@Test
     public void getNextSetOfApproversTest() {}
 

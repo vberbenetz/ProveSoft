@@ -204,6 +204,15 @@ public class DocumentService {
         }
     }
 
+    /**
+     * Delete a document. Done for when rejection is performed on newly released document
+     * @param document
+     */
+    public void deleteDocument(Document document) {
+        documentRepository.delete(document);
+        documentRepository.flush();
+    }
+
     /* ------------------------ DocumentUpload -------------------------- */
 
     /**
@@ -252,11 +261,11 @@ public class DocumentService {
      * Delete temporary document uploads
      * @param companyName
      * @param documentId
-     * @param tempRevId
+     * @param revisionId
      */
-    public void deleteTempUploads(String companyName, String documentId, String tempRevId) {
-        //documentUploadRepository.deleteByKeyCompanyNameAndKeyDocumentIdAndKeyRevision(companyName, documentId, tempRevId);
-        documentUploadRepository.deleteTempUpload(companyName, documentId, tempRevId);
+    public void deleteUploads(String companyName, String documentId, String revisionId) {
+        documentUploadRepository.deleteUploads(companyName, documentId, revisionId);
+        documentUploadRepository.flush();
     }
 
     /**
@@ -267,7 +276,6 @@ public class DocumentService {
         documentUploadRepository.delete(du);
         documentUploadRepository.flush();
     }
-
 
     /* ------------------------ DocumentType -------------------------- */
 
@@ -444,6 +452,17 @@ public class DocumentService {
         return documentRevisionsRepository.findFirst5ByKeyCompanyNameOrderByChangeDateDesc(companyName);
     }
 
+    /**
+     * Method deletes revision. Used for rejection
+     * @param companyName
+     * @param documentId
+     * @param revisionId
+     */
+    public void deleteRevision(String companyName, String documentId, String revisionId) {
+        documentRevisionsRepository.deleteByCompanyAndDocumentIdAndRevisionId(companyName, documentId, revisionId);
+        documentRevisionsRepository.flush();
+    }
+
 
     /* ------------------------ DocumentRevisionIds -------------------------- */
 
@@ -461,6 +480,30 @@ public class DocumentService {
         documentRevisionIdsRepository.incrementRevId(companyName, documentId, nextRevId);
         documentRevisionIdsRepository.flush();
         return nextRevId;
+    }
+
+    /**
+     * Method rolls back a document revision Id in the case of a rejection
+     * @param companyName
+     * @param documentId
+     * @return
+     */
+    public String rollBackAndGetDocumentRevisionId(String companyName, String documentId) {
+        DocumentRevisionIds docRevId = documentRevisionIdsRepository.findByKeyCompanyNameAndKeyDocumentId(companyName, documentId);
+        String prevRevId = DocumentHelpers.rollBackRevId(docRevId.getRevisionId());
+        documentRevisionIdsRepository.incrementRevId(companyName, documentId, prevRevId);
+        documentRevisionIdsRepository.flush();
+        return prevRevId;
+    }
+
+    /**
+     * Method deletes a DocumentRevisionId when a rejection is done on a newly released document
+     * @param companyName
+     * @param documentId
+     */
+    public void deleteDocumentRevisionId(String companyName, String documentId) {
+        documentRevisionIdsRepository.deleteByCompanyAndDocumentId(companyName, documentId);
+        documentRevisionIdsRepository.flush();
     }
 
 
