@@ -1,5 +1,23 @@
+# =========================================
+# DEV SERVER
+# ----------
 server:
   port: 8081
+
 logging:
-  level:
-    org.springframework: INFO
+  level: INFO
+
+# =========================================
+# PRODUCTION SERVER
+# ----------
+#server:
+#  port: 8081
+#  ssl:
+#      key-store: /path/to/keystore/keystore.p12
+#      key-store-password: mypassword
+#      keyStoreType: PKCS12
+#      keyAlias: myalias
+#
+#logging:
+#  level: WARN
+

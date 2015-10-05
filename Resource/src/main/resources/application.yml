@@ -1,0 +1,60 @@
+# ===========================================
+# ALL ENVIRONMENTS
+# ----------------
+security:
+  sessions: NEVER
+
+multipart:
+  max-file-size: 100MB
+  max-request-size: 100MB
+
+
+# ==========================================
+# DEV SERVER
+# ----------
+logging:
+  level: INFO
+
+server:
+  port: 9000
+  address: 127.0.0.1
+
+url:
+  abs: provesoft.cantango.ca
+
+fileupload:
+  directory: /www/user_uploads
+
+mail:
+  host: smtp.gmail.com
+  port: 587
+  user: info@provesoft.com
+  password: Pr0v3$0ftP@55w0rd;
+
+
+# ===========================================
+# PRODUCTION SERVER
+# -----------------
+#server:
+#  port: 9000
+#  address: 127.0.0.1
+#  ssl:
+#    key-store: /path/to/keystore/keystore.p12
+#    key-store-password: mypassword
+#    keyStoreType: PKCS12
+#    keyAlias: myalias
+#
+#logging:
+#  level: WARN
+#
+#
+#url:
+#  abs: provesoft.com
+#
+#fileupload:
+#  directory: /path/to/user/uploads/
+#mail:
+#  host: url.com
+#  port: 1234
+#  user: me@email.com
+#  password: P@55W0rd

@@ -1,23 +1,12 @@
-logging:
-  level:
-    org.springframework: INFO
+# ================================================
+# ALL ENVIRONMENTS
+# ----------------
 security:
   sessions: ALWAYS
-zuul:
-  routes:
-    ui:
-      url: http://localhost:8081
-      # Remote server deployment
-      # url: http://provesoft.cantango.ca:8081
-    resource:
-      url: http://localhost:9000
+
 multipart:
   max-file-size: 100MB
   max-request-size: 100MB
-
-# Custom
-url:
-  abs: provesoft.cantango.ca
 
 mail:
   host: smtp.gmail.com
@@ -29,3 +18,53 @@ token:
   expiry:
     recovery: 12
     registration: 24
+
+# =================================================
+# DEV SERVER
+#-----------
+server:
+  port: 8080
+
+logging:
+  level: INFO
+
+zuul:
+  routes:
+    ui:
+      url: http://localhost:8081
+      # Remote server deployment
+      # url: http://provesoft.cantango.ca:8081
+    resource:
+      url: http://localhost:9000
+
+url:
+  abs: provesoft.cantango.ca
+
+# ==================================================
+# PRODUCTION SERVER
+#------------------
+#server:
+#  port: 443
+#    ssl:
+#      key-store: /path/to/keystore/keystore.p12
+#      key-store-password: mypassword
+#      keyStoreType: PKCS12
+#      keyAlias: myalias
+#
+#logging:
+# level: WARN
+#
+#zuul:
+#  routes:
+#    ui:
+#      url: https://localhost:8081
+#      # Remote server deployment
+#      # url: https://provesoft.com
+#    resource:
+#      url: https://localhost:9000
+# Custom
+#url:
+#  abs: provesoft.com
+
+
+
