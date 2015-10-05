@@ -201,6 +201,19 @@
                             <button ng-disabled="creatingDocument" ng-if="!signoffRequired" ng-click="$parent.newDocumentForm=1" class="btn btn-warning margin-right-20">Previous</button>
                         </div>
                     </div>
+                    <div ng-if="creatingDocument" class="row">
+                        <div class="sk-chasing-dots pull-right">
+                            <div class="sk-child spinner sk-dot1"></div>
+                            <div class="sk-child spinner sk-dot2"></div>
+                        </div>
+                    </div>
+                    <div ng-if="creatingDocument" class="row">
+                        <div class="progress pull-right">
+                            <div class="progress-bar progress-bar-striped active" role="progressbar" ng-style="{'width': progress}">
+                                {{ progress }}%
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
             </div>

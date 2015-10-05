@@ -208,7 +208,14 @@ function dropzone($cookies) {
                     scope.fileAdded = false;
                     scope.tempRevId = message.tempRevId;
                 })
+            },
+
+            'totaluploadprogress': function(progress) {
+                scope.$apply(function(){
+                    scope.progress = Math.floor(progress);
+                });
             }
+
         };
 
         dropzone = new Dropzone(element[0], config);

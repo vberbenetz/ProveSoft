@@ -76,7 +76,9 @@ function config($stateProvider, $locationProvider, $urlRouterProvider, $httpProv
                             files: [
                                 'css/plugins/dropzone/basic.css',
                                 'css/plugins/dropzone/dropzone.css',
-                                'js/plugins/dropzone/dropzone.js'
+                                'js/plugins/dropzone/dropzone.js',
+                                'css/plugins/spinners/spinkit.css',
+                                'css/plugins/spinners/6-chasing-dots.css'
                             ]
                         },
                         {

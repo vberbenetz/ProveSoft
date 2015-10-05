@@ -217,3 +217,7 @@ textarea {
     max-width: 192px;
     max-height: 192px;
 }
+
+.spinner {
+    background-color: #3480ba !important;
+}

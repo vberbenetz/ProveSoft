@@ -545,7 +545,8 @@ function documentCreationCtrl($scope, $rootScope, $window, $state, documentCreat
     $scope.fileAdded = false;
     $scope.submitClicked = false;
     $scope.uploadSuccessful = false;
-    $scope.creatingDocument = false;
+    $scope.creatingDocument = false
+    $scope.progress = 0;
     $scope.isRedline = false;   // Only true for revisions
     $scope.signoffRequired = false;
 
