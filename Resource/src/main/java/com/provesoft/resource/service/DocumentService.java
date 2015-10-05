@@ -37,6 +37,9 @@ public class DocumentService {
     DocumentRevisionIdsRepository documentRevisionIdsRepository;
 
     @Autowired
+    DocumentRevisionLikeRepository documentRevisionLikeRepository;
+
+    @Autowired
     SignoffPathTemplateStepsRepository signoffPathTemplateStepsRepository;
 
     @Autowired
@@ -504,6 +507,29 @@ public class DocumentService {
     public void deleteDocumentRevisionId(String companyName, String documentId) {
         documentRevisionIdsRepository.deleteByCompanyAndDocumentId(companyName, documentId);
         documentRevisionIdsRepository.flush();
+    }
+
+
+    /* ------------------------------ DocumentRevisionLike ------------------------------- */
+
+    /**
+     * Retrieve document revision likes for specific revision
+     * @param companyName
+     * @param documentId
+     * @param revisionId
+     * @return
+     */
+    public List<DocumentRevisionLike> findRevisionLikes(String companyName, String documentId, String revisionId) {
+        return documentRevisionLikeRepository.findByKeyCompanyNameAndKeyDocumentIdAndKeyRevisionId(companyName, documentId, revisionId);
+    }
+
+    /**
+     * Add a like to this revision
+     * @param documentRevisionLike
+     * @return
+     */
+    public DocumentRevisionLike createRevisionLike(DocumentRevisionLike documentRevisionLike) {
+        return documentRevisionLikeRepository.saveAndFlush(documentRevisionLike);
     }
 
 

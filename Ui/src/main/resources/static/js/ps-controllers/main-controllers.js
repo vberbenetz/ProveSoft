@@ -130,7 +130,7 @@ function NavBarCtrl($scope, navBarService, documentLookupService) {
     };
 }
 
-function NewsFeedCtrl ($scope, $rootScope, navBarService, documentLookupService, userService, generalSettingsService, commentLikeService) {
+function NewsFeedCtrl ($scope, $rootScope, navBarService, documentLookupService, userService, generalSettingsService, likeService) {
 
     $scope.isRedlineUsed = false;
 
@@ -262,6 +262,21 @@ function NewsFeedCtrl ($scope, $rootScope, navBarService, documentLookupService,
             // Format date
             $scope.dailyFeed = $scope.formatDate(dailyFeed);
 
+            // Create list of revision query codes to retrieve likes
+            var revisionQueryCodes = [];
+            for (var l = 0; l < latestRevs.length; l++) {
+                revisionQueryCodes.push(latestRevs[l].key.documentId + '|||' + latestRevs[l].key.revisionId);
+            }
+
+            // Append revision likes
+            if (revisionQueryCodes.length > 0) {
+                likeService.revisionLike.query({queryParamCodes: revisionQueryCodes}, function(likes) {
+                    $scope.matchLikesToRevisions(likes);
+                }, function(error) {
+                    $scope.error = error;
+                })
+            }
+
             // Get list of commentIds for comment like lookup
             var documentCommentIds = [];
             for (var k = 0; k < latestComments.length; k++) {
@@ -270,7 +285,7 @@ function NewsFeedCtrl ($scope, $rootScope, navBarService, documentLookupService,
 
             // Append comment likes
             if (documentCommentIds.length > 0) {
-                commentLikeService.documentCommentLike.query({documentCommentIds: documentCommentIds}, function(likes) {
+                likeService.documentCommentLike.query({documentCommentIds: documentCommentIds}, function(likes) {
                     $scope.matchLikesToComment(likes);
                 }, function(error) {
                     $scope.error = error;
@@ -348,6 +363,53 @@ function NewsFeedCtrl ($scope, $rootScope, navBarService, documentLookupService,
         return false;
     };
 
+    // Like this comment
+    $scope.addLikeForComment = function(commentId) {
+
+        likeService.documentCommentLike.save({documentCommentId: commentId}, function(data, status, headers, config) {
+            // Mark comment as me liking it
+            var dailyFeed = $scope.dailyFeed;
+            for (var i = 0; i < dailyFeed.length; i++) {
+                if (dailyFeed[i].hasOwnProperty('message')) {
+                    if (dailyFeed[i].id === commentId) {
+                        $scope.dailyFeed[i].iLikedIt = true;
+                        $scope.dailyFeed[i].numberOfLikes++;
+                    }
+                }
+            }
+        }, function(data, status, headers, config) {
+            $scope.error = status;
+        })
+    };
+
+    // Like this revision
+    $scope.addLikeForRevision = function(documentId, revisionId) {
+
+        var payload = {
+            key: {
+                documentId: documentId,
+                revisionId: revisionId
+            }
+        };
+
+        likeService.revisionLike.save(payload, function(data, status, headers, config) {
+            // Mark comment as me liking it
+            var dailyFeed = $scope.dailyFeed;
+            for (var i = 0; i < dailyFeed.length; i++) {
+                if (!dailyFeed[i].hasOwnProperty('message')) {
+                    if ( (dailyFeed[i].key.documentId === documentId) &&
+                         (dailyFeed[i].key.revisionId === revisionId) ) {
+
+                        $scope.dailyFeed[i].iLikedIt = true;
+                        $scope.dailyFeed[i].numberOfLikes++;
+                    }
+                }
+            }
+        }, function(data, status, headers, config) {
+            $scope.error = status;
+        })
+    };
+
     // Helper function to line up document with approval
     $scope.matchDocumentToApproval = function(documents) {
         var approvals = $scope.approvals;
@@ -407,6 +469,33 @@ function NewsFeedCtrl ($scope, $rootScope, navBarService, documentLookupService,
             }
         }
         $scope.approvals = approvals;
+    };
+
+    // Helper function to line up likes with document revision
+    $scope.matchLikesToRevisions = function(likes) {
+        var myUserId = $rootScope.userDetails.userId;
+
+        var dailyFeed = $scope.dailyFeed;
+        for (var l = 0; l < dailyFeed.length; l++) {
+
+            // Only add likes for revisions
+            if (!dailyFeed[l].hasOwnProperty('message')) {
+                $scope.dailyFeed[l].numberOfLikes = 0;
+
+                for (var m = 0; m < likes.length; m++) {
+                    if ( (dailyFeed[l].key.documentId === likes[m].key.documentId) &&
+                        (dailyFeed[l].key.revisionId === likes[m].key.revisionId) ) {
+
+                        $scope.dailyFeed[l].numberOfLikes++;
+
+                        // Check if I liked it
+                        if (likes[m].key.userId === myUserId) {
+                            $scope.dailyFeed[l].iLikedIt = true;
+                        }
+                    }
+                }
+            }
+        }
     };
 
     // Helper function to line up likes with document comment

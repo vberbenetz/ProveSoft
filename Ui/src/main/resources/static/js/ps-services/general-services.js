@@ -72,7 +72,7 @@ function userService($resource) {
     }
 }
 
-function commentLikeService($resource) {
+function likeService($resource) {
     return {
         documentCommentLike: $resource('/resource/document/comment/like',
             {},
@@ -92,6 +92,18 @@ function commentLikeService($resource) {
                     isArray: false
                 }
             }
+        ),
+        revisionLike: $resource('/resource/document/revision/like',
+            {},
+            {
+                query: {
+                    method: 'GET',
+                    params: {
+                        queryParamCodes: '@queryParamCodes'
+                    },
+                    isArray: true
+                }
+            }
         )
     }
 }
@@ -99,5 +111,5 @@ function commentLikeService($resource) {
 angular
     .module('provesoft')
     .factory('navBarService', navBarService)
-    .factory('commentLikeService', commentLikeService)
+    .factory('likeService', likeService)
     .factory('userService', userService);

@@ -142,7 +142,7 @@
                                         <div class="well">{{ n.message }}</div>
                                         <div class="actions">
                                             <span ng-show="n.iLikedIt" class="label label-primary"><span class="fa fa-thumbs-up"></span> I Liked This </span>
-                                            <a ng-show="!n.iLikedIt" class="btn btn-xs btn-white"><i class="fa fa-thumbs-up"></i> Like This </a>
+                                            <a ng-show="!n.iLikedIt" ng-click="addLikeForComment(n.id)" class="btn btn-xs btn-white"><i class="fa fa-thumbs-up"></i> Like This </a>
                                             &nbsp;<span class="label label-success">{{ n.numberOfLikes }}</span>
                                         </div>
                                     </div>
@@ -166,19 +166,14 @@
                                             <h5><strong class="text-primary">{{ n.changeUser.firstName }} {{n.changeUser.lastName}}</strong>&nbsp;changed&nbsp;<strong>{{ n.key.documentId }} - {{ n.document.title }}</strong></h5><br>
                                             <h5>to <strong>Revision {{ n.key.revisionId }}</strong></h5>
                                             <div class="well">{{ n.changeReason }}</div>
-                                            <!--
-                                            <div class="actions">
-                                                <a class="btn btn-xs btn-white"><i class="fa fa-thumbs-up"></i> Like This </a>
-                                            </div>
-                                            -->
                                         </div>
                                         <div ng-show="n.key.revisionId=='A'">
                                             <h5><strong class="text-primary">{{ n.changeUser.firstName }} {{n.changeUser.lastName}}</strong>&nbsp;added&nbsp;<strong>{{ n.key.documentId }} - {{ n.document.title }}</strong></h5><br>
-                                            <!--
-                                            <div class="actions">
-                                                <a class="btn btn-xs btn-white"><i class="fa fa-thumbs-up"></i> Like This </a>
-                                            </div>
-                                            -->
+                                        </div>
+                                        <div class="actions">
+                                            <span ng-show="n.iLikedIt" class="label label-primary"><span class="fa fa-thumbs-up"></span> I Liked This </span>
+                                            <a ng-show="!n.iLikedIt" ng-click="addLikeForRevision(n.key.documentId, n.key.revisionId)" class="btn btn-xs btn-white"><i class="fa fa-thumbs-up"></i> Like This </a>
+                                            &nbsp;<span class="label label-success">{{ n.numberOfLikes }}</span>
                                         </div>
                                     </div>
                                 </div>

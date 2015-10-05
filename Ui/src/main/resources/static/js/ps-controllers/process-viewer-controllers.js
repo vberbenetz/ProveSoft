@@ -1,6 +1,6 @@
 'use strict';
 
-function documentLookupCtrl($scope, $rootScope, $window, $q, $timeout, $modal, userService, generalSettingsService, documentLookupService, signoffPathsService, commentLikeService) {
+function documentLookupCtrl($scope, $rootScope, $window, $q, $timeout, $modal, userService, generalSettingsService, documentLookupService, signoffPathsService, likeService) {
 
     if (!$rootScope.authenticated) {
         $window.location.href = '/';
@@ -259,7 +259,7 @@ function documentLookupCtrl($scope, $rootScope, $window, $q, $timeout, $modal, u
                             $scope.error = error;
                         });
 
-                        commentLikeService.documentCommentLike.query({documentCommentIds: documentCommentIds}, function(likes) {
+                        likeService.documentCommentLike.query({documentCommentIds: documentCommentIds}, function(likes) {
                             $scope.matchLikesToComment(likes);
                         }, function(error) {
                             $scope.error = error;
@@ -345,13 +345,14 @@ function documentLookupCtrl($scope, $rootScope, $window, $q, $timeout, $modal, u
 
     $scope.addLikeForComment = function(commentId) {
 
-        commentLikeService.documentCommentLike.save({documentCommentId: commentId}, function(data, status, headers, config) {
+        likeService.documentCommentLike.save({documentCommentId: commentId}, function(data, status, headers, config) {
             // Mark comment as me liking it
             var recentDocActivity = $scope.recentDocumentActivity;
             for (var i = 0; i < recentDocActivity.length; i++) {
                 if (recentDocActivity[i].hasOwnProperty('message')) {
                     if (recentDocActivity[i].id === commentId) {
                         $scope.recentDocumentActivity[i].iLikedIt = true;
+                        $scope.recentDocumentActivity[i].numberOfLikes++;
                     }
                 }
             }
@@ -1068,7 +1069,7 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
 
 }
 
-function treeViewCtrl($scope, documentCreationService, documentLookupService, userService, commentLikeService) {
+function treeViewCtrl($scope, documentCreationService, documentLookupService, userService, likeService) {
 
     $scope.organizations = [];
     $scope.documentTypes = [];
@@ -1159,7 +1160,7 @@ function treeViewCtrl($scope, documentCreationService, documentLookupService, us
                             $scope.error = error;
                         });
 
-                        commentLikeService.documentCommentLike.query({documentCommentIds: documentCommentIds}, function(likes) {
+                        likeService.documentCommentLike.query({documentCommentIds: documentCommentIds}, function(likes) {
                             $scope.matchLikesToComment(likes);
                         }, function(error) {
                             $scope.error = error;

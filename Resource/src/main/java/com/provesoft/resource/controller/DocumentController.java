@@ -194,6 +194,42 @@ public class DocumentController {
     }
 
 
+    /* ------ DocumentRevisionLike ------ */
+
+    /**
+     * Method retrieves DocumentRevisionLikes based on revision query of RevisionLikeQueryPkgs
+     * @param queryParamCodes Triple pipe separated documentId/revisionId params
+     * @param auth Authentication Object
+     * @return List of DocumentRevisionLikes
+     */
+    @RequestMapping(
+            value = "/document/revision/like",
+            method = RequestMethod.GET
+    )
+    public List<DocumentRevisionLike> getDocumentRevisionLikes (@RequestParam("queryParamCodes") String[] queryParamCodes,
+                                                                Authentication auth) {
+
+        String companyName = UserHelpers.getCompany(auth);
+
+        List<DocumentRevisionLike> retList = new ArrayList<>();
+
+        try {
+            for (String qpc : queryParamCodes) {
+
+                String documentId = qpc.split("\\|\\|\\|")[0];
+                String revisionId = qpc.split("\\|\\|\\|")[1];
+
+                retList.addAll( documentService.findRevisionLikes(companyName, documentId, revisionId) );
+            }
+        }
+        catch (Exception ex) {
+            throw new BadRequestException();
+        }
+
+        return retList;
+    }
+
+
     /* ---------- DocumentComment ---------- */
 
     /**
@@ -582,6 +618,46 @@ public class DocumentController {
         }
 
         throw new ResourceNotFoundException();
+    }
+
+    /* -------------------------- DocumentRevisionLike ----------------------------- */
+
+    @RequestMapping(
+            value = "/document/revision/like",
+            method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public DocumentRevisionLike addDocumentRevisionLike (@RequestBody String json,
+                                                         Authentication auth) {
+
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            DocumentRevisionLike documentRevisionLike = mapper.readValue(json, DocumentRevisionLike.class);
+
+            String companyName = UserHelpers.getCompany(auth);
+
+            Long myUserId = userDetailsService.findUserIdByCompanyNameAndEmail(companyName, auth.getName());
+
+            // Check if user has access to document
+            if (documentService.findDocRevByCompanyNameAndDocumentIdAndRevisionId(
+                    companyName,
+                    documentRevisionLike.getKey().getDocumentId(),
+                    documentRevisionLike.getKey().getRevisionId() ) == null) {
+
+                throw new BadRequestException();
+            }
+
+            DocumentRevisionLikeKey dKey = documentRevisionLike.getKey();
+            dKey.setCompanyName(companyName);
+            dKey.setUserId(myUserId);
+            documentRevisionLike.setKey(dKey);
+
+            return documentService.createRevisionLike(documentRevisionLike);
+        }
+        catch (IOException | NullPointerException ex) {
+            throw new BadRequestException();
+        }
     }
 
     /* -------------------------- DocumentComment ----------------------------- */
