@@ -23,6 +23,11 @@ angular.module('auth', ['ngRoute', 'ngCookies']).config(function($httpProvider) 
                 else if (type === 'n') {
                     $location.url('/tReg?t=' + token);
                 }
+
+                // Redirect to registration
+                else if (type === 's') {
+                    $location.url('/register');
+                }
             }
         }
 
