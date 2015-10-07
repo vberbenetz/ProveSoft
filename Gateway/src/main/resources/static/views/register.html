@@ -1,0 +1,91 @@
+<div class="content greenseaback">
+    <div class="container container-fluid">
+        <div class="row" style="margin-top: 10%">
+
+            <div class="col-sm-12 col-md-6 col-md-offset-3">
+                <h1 class="header-1a">Register Your Company</h1>
+            </div>
+
+            <div class="col-sm-12 col-md-6 col-md-offset-3 signinBox">
+                <div class="col-sm-10 col-sm-offset-1 padding-top-25 padding-bottom-30">
+                    <ul class="nav nav-tabs">
+                        <li ng-class="{'active' : tab == 1}"><a ng-click=""><i class="fa fa-user"></i> Your info</a></li>
+                        <li ng-class="{'active' : tab == 2}"><a ng-click=""><i class="fa fa-tasks"></i> Choose a plan</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div id="tab1" class="tab-pane active" ng-show="tab == 1">
+                            <form class="margin-top-20" name="registrationForm" novalidate>
+                                <div class="form-group" ng-class="{ 'has-error': reg.validationErrors.firstName }">
+                                    <label class="text-white">First Name</label>
+                                    <input type="text" id="regFirstName" placeholder="First Name" class="form-control" ng-model="reg.firstName">
+                                    <span class="help-block">{{ reg.validationErrors.firstName }}</span>
+                                </div>
+                                <div class="form-group" ng-class="{ 'has-error': reg.validationErrors.lastName }">
+                                    <label class="text-white">Last Name</label>
+                                    <input type="text" id="regLastName" placeholder="Last Name" class="form-control" ng-model="reg.lastName">
+                                    <span class="help-block">{{ reg.validationErrors.lastName }}</span>
+                                </div>
+                                <div class="form-group" ng-class="{ 'has-error': reg.validationErrors.email }">
+                                    <label class="text-white">Email</label>
+                                    <input type="text" id="regEmail" placeholder="Email" class="form-control" ng-model="reg.email">
+                                    <span class="help-block">{{ reg.validationErrors.email }}</span>
+                                </div>
+                                <div class="form-group" ng-class="{ 'has-error': reg.validationErrors.emailVerify }">
+                                    <label class="text-white">Confirm Email</label>
+                                    <input type="text" id="regEmailVerify" placeholder="Email" class="form-control" ng-model="reg.emailVerify">
+                                    <span class="help-block">{{ reg.validationErrors.emailVerify }}</span>
+                                </div>
+                                <div class="form-group" ng-class="{ 'has-error': reg.validationErrors.companyName }">
+                                    <label class="text-white">Company Name</label>
+                                    <input type="text" id="regCompanyName" placeholder="Company Name" class="form-control" ng-model="reg.companyName">
+                                    <span class="help-block">{{ reg.validationErrors.companyName }}</span>
+                                </div>
+                                <div class="form-group" ng-class="{ 'has-error': reg.validationErrors.title }">
+                                    <label class="text-white">Title</label>
+                                    <input type="text" id="title" placeholder="Title" class="form-control" ng-model="reg.title">
+                                    <span class="help-block">{{ reg.validationErrors.title }}</span>
+                                </div>
+                                <div class="form-group" ng-class="{ 'has-error': reg.validationErrors.password }">
+                                    <label class="text-white">Password</label>
+                                    <input type="password" id="regPassword" placeholder="Password" class="form-control" ng-model="reg.password">
+                                    <span class="help-block">{{ reg.validationErrors.password }}</span>
+                                </div>
+                                <div class="form-group" ng-class="{ 'has-error': reg.validationErrors.passwordVerify }">
+                                    <label class="text-white">Confirm Password</label>
+                                    <input type="password" id="regPasswordVerify" placeholder="Password" class="form-control" ng-model="reg.passwordVerify">
+                                    <span class="help-block">{{ reg.validationErrors.passwordVerify }}</span>
+                                </div>
+                                <div>
+                                    <button ng-click="validateUserInfo()" class="btn bg-color-white rounded pull-right"><strong>Choose a plan <span class="fa fa-angle-right"></span></strong></button>
+                                </div>
+                            </form>
+                        </div>
+                        <div id="tab2" class="tab-pane active" ng-show="tab == 2">
+                            <div class="btn-group">
+                                <div class="form-group">
+                                    <div>
+                                        <div class="radio">
+                                            <label class="text-white">
+                                                <input type="radio" name="subscriptionSelect" value="free" ng-model="reg.planSelection"> Free Trial Plan (3 licenses / 1 GB storage)
+                                            </label>
+                                        </div>
+                                        <div class="radio">
+                                            <label class="text-white">
+                                                <input type="radio" name="subscriptionSelect" value="paid" ng-model="reg.planSelection"> Paid Subscription (20 licenses / 1 TB storage)
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <button ng-click="register()" style="margin-left: 10px;" class="btn btn bg-color-white rounded pull-right"><strong>Register</strong></button>
+                                <button ng-click="tab = 1" class="btn btn bg-color-white rounded pull-right"><span class="fa fa-angle-left"></span><strong>&nbsp;Back</strong></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

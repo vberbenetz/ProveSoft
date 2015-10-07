@@ -1,0 +1,36 @@
+<div class="content purpleback">
+    <div class="container container-fluid">
+        <div class="row" style="margin-top: 25%">
+
+            <div class="col-sm-12 col-md-6 col-md-offset-3">
+                <h1 class="header-1a">Password Reset</h1>
+            </div>
+
+            <div class="col-sm-12 col-md-6 col-md-offset-3 margin-bottom-60 signinBox">
+                <div class="col-sm-10 col-sm-offset-1 padding-top-50 padding-bottom-30">
+                    <form role="form" ng-submit="recover()">
+                        <div class="form-group" ng-class="{ 'has-error': passResetVerificationInput.validationErrors.email }">
+                            <label class="subHeader-1" for="email">Email</label>
+                            <input type="text" id="email" name="Email" placeholder="Enter email for verification" class="form-control" ng-model="passResetVerificationInput.email">
+                            <span class="help-block">{{ passResetVerificationInput.validationErrors.email }}</span>
+                        </div>
+                        <div class="form-group" ng-class="{ 'has-error': passResetVerificationInput.validationErrors.password }">
+                            <label class="subHeader-1" for="newPassword">New Password</label>
+                            <input type="password" id="newPassword" name="password" placeholder="New Password" class="form-control rounded-4x trans50" ng-model="passResetVerificationInput.newPassword">
+                            <span class="help-block">{{ passResetVerificationInput.validationErrors.password }}</span>
+                        </div>
+                        <div class="form-group" ng-class="{ 'has-error': passResetVerificationInput.validationErrors.verifyPassword }">
+                            <label class="subHeader-1" for="passwordVerify">New Password</label>
+                            <input type="password" id="passwordVerify" name="passwordVerify" placeholder="Verify New Password" class="form-control rounded-4x trans50" ng-model="passResetVerificationInput.verifyNewPassword">
+                            <span class="help-block">{{ passResetVerificationInput.validationErrors.verifyPassword }}</span>
+                        </div>
+                        <div>
+                            <button class="btn btn-lg bg-color-white rounded pull-right" type="submit">Reset Password</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

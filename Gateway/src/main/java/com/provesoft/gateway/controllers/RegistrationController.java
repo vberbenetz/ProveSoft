@@ -191,6 +191,9 @@ public class RegistrationController {
         // Upper and lower case letters
         String alphaRegex = "^[a-zA-Z]+$";
 
+        // Upper and lower case letters, numbers and spaces
+        String alphaNumSpaceRegex = "^[a-zA-Z0-9 ]+$";
+
         // Email format
         String emailRegex = "^([\\w-]+(?:\\.[\\w-]+)*)@((?:[\\w-]+\\.)*\\w[\\w-]{0,66})\\.([a-z]{2,6}(?:\\.[a-z]{2})?)$";
 
@@ -200,6 +203,9 @@ public class RegistrationController {
         // 1 Number
         // 1 Special Character
         String passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{8,}$";
+
+        // Trim whitespace from companyName
+        companyName = companyName.trim();
 
         // First name validation
         if (firstName == null) {
@@ -244,7 +250,8 @@ public class RegistrationController {
         if (
                 (companyName.length() == 0) ||
                         (companyName.length() > 254) ||
-                        (companyName.equals("")) ) {
+                        (companyName.equals("")) ||
+                        (!companyName.matches(alphaNumSpaceRegex)) ) {
             return false;
         }
 
