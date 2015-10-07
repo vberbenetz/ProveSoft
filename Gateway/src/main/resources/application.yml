@@ -33,7 +33,7 @@ zuul:
     ui:
       url: http://localhost:8081
       # Remote server deployment
-      # url: http://provesoft.cantango.ca:8081
+      # url: http://app.provesoft.com:8081
     resource:
       url: http://localhost:9000
 
@@ -57,9 +57,8 @@ url:
 #zuul:
 #  routes:
 #    ui:
-#      url: https://localhost:8081
 #      # Remote server deployment
-#      # url: https://provesoft.com
+#      # url: https://app.provesoft.com:8081
 #    resource:
 #      url: https://localhost:9000
 # Custom
