@@ -24,7 +24,7 @@ function documentLookupCtrl($scope, $rootScope, $window, $q, $timeout, $modal, u
     $scope.newDocumentComment = '';
     $scope.newChildComment = '';
 
-    $scope.activeDocument = {};                 // Keep track of current active document (right panel timeline)
+    $scope.activeDocument = null;               // Keep track of current active document (right panel timeline)
     $scope.lastFetchedRevisions = '';           // Keep track of which document revisions were last fetched for (documentId)
     $scope.lastFetchedActivity = '';            // Keep track of which document activities were last fetched (documentId)
 
@@ -545,7 +545,7 @@ function documentCreationCtrl($scope, $rootScope, $window, $state, documentCreat
     $scope.fileAdded = false;
     $scope.submitClicked = false;
     $scope.uploadSuccessful = false;
-    $scope.creatingDocument = false
+    $scope.creatingDocument = false;
     $scope.progress = 0;
     $scope.isRedline = false;   // Only true for revisions
     $scope.signoffRequired = false;
