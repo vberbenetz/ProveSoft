@@ -1,0 +1,17 @@
+<div class="inmodal">
+    <div class="modal-header">
+        <i class="fa fa-tasks modal-icon"></i>
+        <h4 class="modal-title">Reject Change</h4>
+    </div>
+    <div class="modal-body">
+        <h2>Are you sure you want to reject this change?</h2>
+        <form class="margin-top-30">
+            <label>Rejection Reason</label>
+            <textarea rows="4" ng-model="reason"></textarea>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-danger" ng-click="ok()">Reject</button>
+        <button type="button" class="btn btn-white" ng-click="cancel()">Cancel</button>
+    </div>
+</div>

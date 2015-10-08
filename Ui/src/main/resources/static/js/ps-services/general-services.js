@@ -15,7 +15,8 @@ function navBarService($resource) {
                     method: 'PUT',
                     params: {
                         action: 'reject',
-                        notificationId: '@notificationId'
+                        notificationId: '@notificationId',
+                        reason: '@reason'
                     },
                     isArray: false
                 }

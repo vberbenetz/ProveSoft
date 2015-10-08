@@ -106,6 +106,7 @@ public class ApprovalController {
                                                    @RequestParam(value = "notificationId", required = false) Long notificationId,
                                                    @RequestParam(value = "documentId", required = false) String documentId,
                                                    @RequestParam(value = "stepId", required = false) Long stepId,
+                                                   @RequestParam(value = "reason", required = false) String reason,
                                                    Authentication auth) {
 
         String companyName = UserHelpers.getCompany(auth);
@@ -189,6 +190,10 @@ public class ApprovalController {
         }
         else if ("reject".equals(action)) {
 
+            if (reason == null) {
+                throw new BadRequestException("Missing rejection reason");
+            }
+
             // Delete all notifications associated with this revision
             approvalService.removeApprovalNotifications(companyName, documentId);
 
@@ -233,8 +238,10 @@ public class ApprovalController {
                 documentService.updateDocument(doc);
             }
 
-            // Send rejection email
-            mailerService.sendRevisionRejection(docRev.getChangeUser(), userDetailsService.findByCompanyNameAndEmail(companyName, auth.getName()), doc);
+            // Send rejection email (trim reason to 1000 chars
+            int maxReasonLength = (reason.length() < 1000)?reason.length():1000;
+            reason = reason.substring(0, maxReasonLength);
+            mailerService.sendRevisionRejection(docRev.getChangeUser(), userDetailsService.findByCompanyNameAndEmail(companyName, auth.getName()), doc, reason);
 
         }
         else {

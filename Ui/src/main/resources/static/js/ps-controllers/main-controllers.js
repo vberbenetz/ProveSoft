@@ -72,7 +72,7 @@ function MainCtrl($scope, $rootScope, $http, $window, authService, userService) 
     });
 }
 
-function NavBarCtrl($scope, navBarService, documentLookupService) {
+function NavBarCtrl($scope, $modal, navBarService, documentLookupService) {
 
     $scope.approvals = [];
 
@@ -122,15 +122,25 @@ function NavBarCtrl($scope, navBarService, documentLookupService) {
     };
 
     $scope.reject = function(notification, i) {
-        navBarService.approvals.reject({notificationId: notification.id}, function(data) {
-            $scope.approvals.splice(i, 1);
-        }, function(error) {
-            $scope.error = error;
-        })
+        var modalInstance = $modal.open({
+            templateUrl:'views/reject_modal.html',
+            controller: RejectionModalCtrl,
+            resolve: {
+                notification: function() {
+                    return notification;
+                }
+            }
+        });
+
+        modalInstance.result.then(function (result) {
+            if (result) {
+                $scope.approvals.splice(i, 1);
+            }
+        });
     };
 }
 
-function NewsFeedCtrl ($scope, $rootScope, navBarService, documentLookupService, userService, generalSettingsService, likeService) {
+function NewsFeedCtrl ($scope, $rootScope, $modal, navBarService, documentLookupService, userService, generalSettingsService, likeService) {
 
     $scope.isRedlineUsed = false;
 
@@ -564,11 +574,21 @@ function NewsFeedCtrl ($scope, $rootScope, navBarService, documentLookupService,
         })
     };
 
-    $scope.reject = function(notificationId, i) {
-        navBarService.approvals.reject({notificationId: notificationId}, function(data) {
-            $scope.approvals.splice(i, 1);
-        }, function(error) {
-            $scope.error = error;
+    $scope.reject = function(notification, i) {
+        var modalInstance = $modal.open({
+            templateUrl:'views/reject_modal.html',
+            controller: RejectionModalCtrl,
+            resolve: {
+                notification: function() {
+                    return notification;
+                }
+            }
+        });
+
+        modalInstance.result.then(function (result) {
+            if (result) {
+                $scope.approvals.splice(i, 1);
+            }
         })
     };
 
@@ -590,8 +610,33 @@ function NewsFeedCtrl ($scope, $rootScope, navBarService, documentLookupService,
     }
 }
 
+function RejectionModalCtrl($scope, $modalInstance, navBarService, notification) {
+
+    $scope.notification = notification;
+    $scope.reason = '';
+
+    $scope.ok = function() {
+
+        // Trim reason to 1000 chars
+        var reason = $scope.reason;
+        var maxReasonLength = (reason.length < 1000)?reason.length:1000;
+        reason = reason.substring(0, maxReasonLength);
+
+        navBarService.approvals.reject({notificationId: notification.id, reason: reason}, function(data) {
+            $modalInstance.close(true);
+        }, function(error) {
+            $scope.error = error;
+        });
+    };
+
+    $scope.cancel = function() {
+        $modalInstance.close(false);
+    };
+}
+
 angular
     .module('provesoft')
     .controller('MainCtrl', MainCtrl)
     .controller('NavBarCtrl', NavBarCtrl)
-    .controller('NewsFeedCtrl', NewsFeedCtrl);
+    .controller('NewsFeedCtrl', NewsFeedCtrl)
+    .controller('RejectionModalCtrl', RejectionModalCtrl);

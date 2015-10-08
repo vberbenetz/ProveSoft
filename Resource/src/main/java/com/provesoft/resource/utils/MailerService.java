@@ -30,7 +30,7 @@ public class MailerService {
     }
 
     @Async
-    public void sendRevisionRejection(UserDetails changeUser, UserDetails rejectingUser, Document document) {
+    public void sendRevisionRejection(UserDetails changeUser, UserDetails rejectingUser, Document document, String reason) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("info@provesoft.com");
         message.setTo(changeUser.getEmail());
@@ -40,7 +40,8 @@ public class MailerService {
                 "Document Id: " + document.getId() + "\n" +
                 "Document Title: " + document.getTitle() + "\n" +
                 "Organization: " + document.getOrganization().getName() + "\n" +
-                "Rejecting User: " + rejectingUser.getFirstName() + " " + rejectingUser.getLastName() + "\n"
+                "Rejecting User: " + rejectingUser.getFirstName() + " " + rejectingUser.getLastName() + "\n" +
+                "Reason: " + reason + "\n"
         );
         mailSender.send(message);
     }
