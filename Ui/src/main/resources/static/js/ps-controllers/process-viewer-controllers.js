@@ -994,7 +994,7 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
         }
 
         // Update signoff path
-        if ($scope.document.signoffPathId === null) {
+        if ( ($scope.document.signoffPathId === null) && ($scope.revision.newSignoffPath !== null) ) {
             documentCreationService.document.addSignoffPath({documentId: $scope.documentId, signoffPathId: $scope.revision.newSignoffPath.key.pathId}, function(data) {
 
                 // Update revision
