@@ -165,7 +165,7 @@
                     </div>
                 </div>
 
-                <div ng-show="newDocumentForm==3">
+                <div ng-show="newDocumentForm==3 && !creatingDocument">
                     <form class="form-horizontal margin-top-40">
                         <div class="form-group">
                             <div class="col-xs-12">
@@ -189,7 +189,7 @@
                         </div>
                     </form>
 
-                    <div class="row">
+                    <div class="row" ng-show="!creatingDocument">
                         <div class="pull-right">
                             <button ng-disabled="creatingDocument" ui-sref="process-viewer.document-lookup" class="btn btn-danger margin-right-20">Cancel</button>
                         </div>
@@ -201,22 +201,29 @@
                             <button ng-disabled="creatingDocument" ng-if="!signoffRequired" ng-click="$parent.newDocumentForm=1" class="btn btn-warning margin-right-20">Previous</button>
                         </div>
                     </div>
-                    <div ng-if="creatingDocument" class="row">
-                        <div class="sk-chasing-dots pull-right">
-                            <div class="sk-child spinner sk-dot1"></div>
-                            <div class="sk-child spinner sk-dot2"></div>
-                        </div>
-                    </div>
-                    <div ng-if="creatingDocument" class="row">
-                        <div class="progress pull-right">
-                            <div class="progress-bar progress-bar-striped active" role="progressbar" ng-style="{'width': progress}">
-                                {{ progress }}%
+                </div>
+
+                <div class="col-lg-2 col-xs-6 col-lg-offset-5 col-xs-offset-3" ng-show="creatingDocument">
+                    <div class="widget style1 navy-bg">
+                        <div class="row vertical-align">
+                            <div class="col-xs-3">
+                                <span class="fa fa-upload fa-3x"></span>
+                            </div>
+                            <div class="col-xs-9 text-right">
+                                <h2 class="font-bold">{{ progress }}%</h2>
                             </div>
                         </div>
+                    </div>
+                </div>
+                <div class="col-xs-10 col-xs-offset-1" ng-show="creatingDocument">
+                    <div class="sk-chasing-dots" ng-show="creatingDocument">
+                        <div class="sk-child spinner sk-dot1"></div>
+                        <div class="sk-child spinner sk-dot2"></div>
                     </div>
                 </div>
 
             </div>
         </div>
     </div>
+
 </div>
