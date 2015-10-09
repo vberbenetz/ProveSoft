@@ -45,8 +45,17 @@ Login as root and create a blank provesoft database. Follow up by creating two d
 To segregate the user authentication and application components, the two users will have separate access rights to the databases. Provesoftauth will retain access to the provesoftauth database for authenticating users in Gateway, and provesoft will only access the provesoft database for the business login in Resource.
 In order to allow read only external access, grant select permissions on the same tables as provesoft@localhost to provesoft@%
 ```
-  GRANT ALL PRIVILEGES ON provesoft.Users TO 'psgateway'@'localhost';
   GRANT ALL PRIVILEGES ON provesoft.Authorities TO 'psgateway'@'localhost';
+  GRANT ALL PRIVILEGES ON provesoft.CompanyDetails TO 'psgateway'@'localhost';
+  GRANT ALL PRIVILEGES ON provesoft.DocumentType TO 'psgateway'@'localhost';
+  GRANT ALL PRIVILEGES ON provesoft.DocumentTypeId TO 'psgateway'@'localhost';
+  GRANT ALL PRIVILEGES ON provesoft.NewUserTokens TO 'psgateway'@'localhost';
+  GRANT ALL PRIVILEGES ON provesoft.Organizations TO 'psgateway'@'localhost';
+  GRANT ALL PRIVILEGES ON provesoft.RecoveryTokens TO 'psgateway'@'localhost';
+  GRANT ALL PRIVILEGES ON provesoft.SignoffPathId TO 'psgateway'@'localhost';
+  GRANT ALL PRIVILEGES ON provesoft.SystemSettings TO 'psgateway'@'localhost';
+  GRANT ALL PRIVILEGES ON provesoft.UserDetails TO 'psgateway'@'localhost';
+  GRANT ALL PRIVILEGES ON provesoft.Users TO 'psgateway'@'localhost';
   GRANT ALL PRIVILEGES ON provesoft.* TO 'provesoft'@'localhost';
   GRANT SELECT ON provesoft.* TO 'provesoft'@'%';
   FLUSH PRIVILEGES;
@@ -77,8 +86,10 @@ Configure the Datasource Beans in the Gateway and Resource applications so that 
 #### Install Redis (Needed for gateway authentication)
 Get the latest version of Redis and extract it in the home directory
 ```
+  sudo apt-get build-essential
+  cd ~
   wget http://download.redis.io/redis-stable.tar.gz
-  tar xvzf redis-stable.tar.gz
+  tar -xvzf redis-stable.tar.gz
   cd redis-stable
   make
   make install
@@ -119,11 +130,11 @@ Create a directory to house the application and claim ownership.
 ```
 Create another subdirectory to hold the apps
 ```
-	mkdir /www/provesoft && chmod -R 770 /www/provesoft
+	mkdir /www/Provesoft && chmod -R 770 /www/Provesoft
 ```
 Finally create a log directory.
 ```
-	mkdir /www/provesoft/logs && chmod -R 770 /www/provesoft/logs
+	mkdir /www/Provesoft/logs && chmod -R 770 /www/Provesoft/logs
 ```
 Move the compiled jars for each of the applications into the folder.
 
@@ -136,7 +147,7 @@ Create a Supervisor configuration file for each application.
 Add the following configuration (using Gateway as an example):
 ```
 	[program:gateway]
-	command=/usr/bin/java -jar /www/aerosource/Provesoft_Gateway.jar
+	command=/usr/bin/java -jar /www/Provesoft/Provesoft_Gateway.jar
 	user=provesoft
 	autostart=true
 	autorestart=true
