@@ -38,7 +38,7 @@ zuul:
       url: http://localhost:9000
 
 url:
-  abs: provesoft.cantango.ca
+  abs: app.provesoft.com
 
 # ==================================================
 # PRODUCTION SERVER
@@ -63,7 +63,7 @@ url:
 #      url: https://localhost:9000
 # Custom
 #url:
-#  abs: provesoft.com
+#  abs: app.provesoft.com
 
 
 

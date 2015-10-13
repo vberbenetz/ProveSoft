@@ -11,23 +11,35 @@
                     <form role="form" ng-submit="recover()">
                         <div class="form-group" ng-class="{ 'has-error': passResetVerificationInput.validationErrors.email }">
                             <label class="subHeader-1" for="email">Email</label>
-                            <input type="text" id="email" name="Email" placeholder="Enter email for verification" class="form-control" ng-model="passResetVerificationInput.email">
-                            <span class="help-block">{{ passResetVerificationInput.validationErrors.email }}</span>
+                            <input type="text" id="email" name="Email" placeholder="Enter email for verification" class="form-control rounded-4x trans50" ng-model="passResetVerificationInput.email">
+                            <span>{{ passResetVerificationInput.validationErrors.email }}</span>
                         </div>
                         <div class="form-group" ng-class="{ 'has-error': passResetVerificationInput.validationErrors.password }">
                             <label class="subHeader-1" for="newPassword">New Password</label>
                             <input type="password" id="newPassword" name="password" placeholder="New Password" class="form-control rounded-4x trans50" ng-model="passResetVerificationInput.newPassword">
-                            <span class="help-block">{{ passResetVerificationInput.validationErrors.password }}</span>
+                            <span>{{ passResetVerificationInput.validationErrors.password }}</span>
                         </div>
                         <div class="form-group" ng-class="{ 'has-error': passResetVerificationInput.validationErrors.verifyPassword }">
                             <label class="subHeader-1" for="passwordVerify">New Password</label>
                             <input type="password" id="passwordVerify" name="passwordVerify" placeholder="Verify New Password" class="form-control rounded-4x trans50" ng-model="passResetVerificationInput.verifyNewPassword">
-                            <span class="help-block">{{ passResetVerificationInput.validationErrors.verifyPassword }}</span>
+                            <span>{{ passResetVerificationInput.validationErrors.verifyPassword }}</span>
                         </div>
                         <div>
-                            <button class="btn btn-lg bg-color-white rounded pull-right" type="submit">Reset Password</button>
+                            <button ng-disabled="successfullyReset" class="btn btn-lg bg-color-white rounded pull-right" type="submit">Reset Password</button>
                         </div>
                     </form>
+                </div>
+            </div>
+
+            <div ng-show="successfullyReset" class="col-sm-12 col-md-6 col-md-offset-3 margin-bottom-60" style="margin-top:-20px;">
+                <div class="alert alert-success">
+                    Successfully reset password. Please <a class="alert-link" href="/">login</a> with your new credentials.
+                </div>
+            </div>
+
+            <div ng-show="resetError" class="col-sm-12 col-md-6 col-md-offset-3 margin-bottom-60" style="margin-top:-20px;">
+                <div class="alert alert-warning">
+                    Password reset link may have expired. Please try <a class="alert-link" href="/passReq">resetting</a> your password again.
                 </div>
             </div>
 

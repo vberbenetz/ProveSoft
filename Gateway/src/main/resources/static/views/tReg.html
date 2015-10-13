@@ -2,43 +2,45 @@
     <div class="container container-fluid">
         <div class="row" style="margin-top: 25%">
 
-            <!-- User registration form with token -->
-            <div class="wrapper wrapper-content animated fadeInRight">
-                <div class="row">
-                    <div class="col-lg-12" style="margin-top:50px;">
-                        <div class="ibox float-e-margins">
-                            <div class="ibox-content">
-                                <div class="row">
-                                    <div class="col-sm-6 b-r"><h3 class="m-t-none m-b">Sign in</h3>
-                                        <p>Sign in today for more experience.</p>
-                                        <form role="form" ng-submit="registerByToken()">
-                                            <div class="form-group" ng-class="{ 'has-error': passResetVerificationInput.validationErrors.email }">
-                                                <label>Email</label>
-                                                <input type="text" id="email" name="Email" placeholder="Enter email for verification" class="form-control" ng-model="passResetVerificationInput.email">
-                                                <span class="help-block">{{ passResetVerificationInput.validationErrors.email }}</span>
-                                            </div>
-                                            <div class="form-group" ng-class="{ 'has-error': passResetVerificationInput.validationErrors.password }">
-                                                <label>New Password</label>
-                                                <input type="password" id="newPassword" name="password" placeholder="New Password" class="form-control" ng-model="passResetVerificationInput.newPassword">
-                                                <span class="help-block">{{ passResetVerificationInput.validationErrors.password }}</span>
-                                            </div>
-                                            <div class="form-group" ng-class="{ 'has-error': passResetVerificationInput.validationErrors.verifyPassword }">
-                                                <label>New Password</label>
-                                                <input type="password" id="passwordVerify" name="passwordVerify" placeholder="Verify New Password" class="form-control" ng-model="passResetVerificationInput.verifyNewPassword">
-                                                <span class="help-block">{{ passResetVerificationInput.validationErrors.verifyPassword }}</span>
-                                            </div>
-                                            <div>
-                                                <button class="btn btn-sm btn-primary pull-right m-t-n-xs" type="submit"><strong>Reset Password</strong></button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
+            <div class="col-sm-12 col-md-6 col-md-offset-3">
+                <h1 class="header-1a">Registration</h1>
+            </div>
+
+            <!-- Login form -->
+            <div class="col-sm-12 col-md-6 col-md-offset-3 margin-bottom-60 signinBox" ng-if="!userLoggedin">
+                <div class="col-sm-10 col-sm-offset-1 padding-top-50 padding-bottom-30">
+                    <form role="form" ng-submit="registerByToken()" novalidate>
+                        <div class="form-group" ng-class="{ 'has-error': regVerificationInput.validationErrors.email }">
+                            <label class="subHeader-1">Email</label>
+                            <input type="text" id="email" name="Email" placeholder="Enter email for verification" class="form-control rounded-4x trans50" ng-model="regVerificationInput.email">
+                            <span class="help-block">{{ regVerificationInput.validationErrors.email }}</span>
                         </div>
-                    </div>
+                        <div class="form-group" ng-class="{ 'has-error': regVerificationInput.validationErrors.password }">
+                            <label class="subHeader-1">New Password</label>
+                            <input type="password" id="newPassword" name="password" placeholder="New Password" class="form-control rounded-4x trans50" ng-model="regVerificationInput.newPassword">
+                            <span class="help-block">{{ regVerificationInput.validationErrors.password }}</span>
+                        </div>
+                        <div class="form-group" ng-class="{ 'has-error': regVerificationInput.validationErrors.verifyPassword }">
+                            <label class="subHeader-1">New Password</label>
+                            <input type="password" id="passwordVerify" name="passwordVerify" placeholder="Verify New Password" class="form-control rounded-4x trans50" ng-model="regVerificationInput.verifyNewPassword">
+                            <span class="help-block">{{ regVerificationInput.validationErrors.verifyPassword }}</span>
+                        </div>
+                        <div>
+                            <button ng-disabled="successfullyRegistered" class="btn btn-lg bg-color-white rounded pull-right" type="submit"><strong>Create Account</strong></button>
+                        </div>
+                    </form>
                 </div>
-                <div ng-show="successfullyRegistered" class="show-hide-notifications alert alert-success col-sm-3 margin-top-20">
-                    Successfully registered. Please login with your email and new password.
+            </div>
+
+            <div ng-show="successfullyRegistered" class="col-sm-12 col-md-6 col-md-offset-3 margin-bottom-60" style="margin-top:-20px;">
+                <div class="alert alert-success">
+                    Successfully created account. Please <a class="alert-link" href="/">login</a> with your new credentials.
+                </div>
+            </div>
+
+            <div ng-show="regError" class="col-sm-12 col-md-6 col-md-offset-3 margin-bottom-60" style="margin-top:-20px;">
+                <div class="alert alert-warning">
+                    Email or creation link maybe incorrect. Please check that your email address is correct or reload the link found in your email.
                 </div>
             </div>
 

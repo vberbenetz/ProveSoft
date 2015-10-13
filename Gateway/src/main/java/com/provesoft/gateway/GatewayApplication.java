@@ -9,6 +9,7 @@ import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -35,6 +36,7 @@ import java.io.IOException;
 @EnableAutoConfiguration
 @EnableRedisHttpSession(maxInactiveIntervalInSeconds = 36000)
 @EnableZuulProxy
+@EnableAsync
 public class GatewayApplication {
 
 	public static void main(String[] args) {
@@ -67,7 +69,7 @@ public class GatewayApplication {
             http
                     .authorizeRequests()
                         .antMatchers("/index.html", "/views/**", "/assets/**",
-                                "/", "/pr", "/ps", "/check", "/register").permitAll()
+                                "/", "/pr", "/ps", "/check", "/tokenReg", "/register").permitAll()
                         .anyRequest().authenticated()
                         .and()
                     .httpBasic()

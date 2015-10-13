@@ -393,7 +393,7 @@ angular.module('auth', ['ngRoute', 'ngCookies']).config(function($httpProvider) 
     })
 
 
-.controller('passResetCtrl', function($scope, $http, $location) {
+.controller('passResetCtrl', function($scope, $http, $location, $timeout) {
 
         $scope.passResetVerificationInput = {
             email: '',
@@ -403,6 +403,8 @@ angular.module('auth', ['ngRoute', 'ngCookies']).config(function($httpProvider) 
             validationErrors: {}
         };
         $scope.successfullyReset = false;
+
+        $scope.resetError = false;
 
         // Extract reset token from query parameter
         var param = $location.absUrl().split('?');
@@ -473,11 +475,15 @@ angular.module('auth', ['ngRoute', 'ngCookies']).config(function($httpProvider) 
                     password: $scope.passResetVerificationInput.newPassword,
                     token: $scope.passResetVerificationInput.token
                 }).success(function(data) {
+                    $scope.passResetVerificationInput = {};
                     $scope.successfullyReset = true;
+                    $scope.resetError = false;
                 }).error(function(error) {
+                    $scope.resetError = true;
                 });
             }
         };
+
     })
 
 
@@ -490,13 +496,14 @@ angular.module('auth', ['ngRoute', 'ngCookies']).config(function($httpProvider) 
             token: '',
             validationErrors: {}
         };
-
         $scope.successfullyRegistered = false;
+
+        $scope.regError = false;
 
         // Extract registration token from query parameter
         var param = $location.absUrl().split('?');
         if (param.length > 1) {
-            $scope.passResetVerificationInput.token = param[1].split('=')[1];
+            $scope.regVerificationInput.token = param[1].split('=')[1];
         }
         else {
             $location.url('/');
@@ -509,11 +516,66 @@ angular.module('auth', ['ngRoute', 'ngCookies']).config(function($httpProvider) 
                     password: $scope.regVerificationInput.newPassword,
                     token: $scope.regVerificationInput.token
                 }).success(function(data) {
+                    $scope.regVerificationInput = {};
                     $scope.successfullyRegistered = true;
-                    $location.url('/');
+                    $scope.regError = false;
                 }).error(function(error) {
+                    $scope.regError = true;
                 });
             }
+        };
+
+        $scope.validatePassword = function() {
+
+            $scope.regVerificationInput.validationErrors = {};
+
+            var validationFailed = false;
+
+            // Email format
+            var emailRegex = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
+
+            // Min 8 characters
+            // 1 Uppercase
+            // 1 Lowercase
+            // 1 Number
+            var passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+
+            var email = $scope.regVerificationInput.email;
+            var password = $scope.regVerificationInput.newPassword;
+            var verifyPassword = $scope.regVerificationInput.verifyNewPassword;
+
+            if (email.length > 254) {
+                $scope.regVerificationInput.validationErrors.email = 'Please enter a valid email of less than 250 characters';
+                validationFailed = true;
+            }
+            else if (email === '') {
+                $scope.regVerificationInput.validationErrors.email = 'Please enter an email';
+                validationFailed = true;
+            }
+            else if (!emailRegex.test(email)) {
+                $scope.regVerificationInput.validationErrors.email = 'Please enter a valid email';
+                validationFailed = true;
+            }
+
+            if (password.length > 254) {
+                $scope.regVerificationInput.validationErrors.password = 'Please limit password to 255 characters';
+                validationFailed = true;
+            }
+            else if (password === '') {
+                $scope.regVerificationInput.validationErrors.password = 'Please enter a password';
+                validationFailed = true;
+            }
+            else if ( !passwordRegex.test(password) ) {
+                $scope.regVerificationInput.validationErrors.password = 'Password must contain at least 8 characters long, 1 uppercase letter, 1 lowercase letter and 1 number';
+                validationFailed = true;
+            }
+            else if (password !== verifyPassword) {
+                $scope.regVerificationInput.validationErrors.password = 'Passwords do not match';
+                $scope.regVerificationInput.validationErrors.verifyPassword = ' ';
+                validationFailed = true;
+            }
+
+            return !validationFailed;
         };
     })
 

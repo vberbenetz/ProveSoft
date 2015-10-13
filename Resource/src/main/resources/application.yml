@@ -20,10 +20,10 @@ server:
   address: 127.0.0.1
 
 url:
-  abs: provesoft.cantango.ca
+  abs: app.provesoft.com
 
 fileupload:
-  directory: /www/user_uploads
+  directory: /www/user_uploads/
 
 mail:
   host: smtp.gmail.com

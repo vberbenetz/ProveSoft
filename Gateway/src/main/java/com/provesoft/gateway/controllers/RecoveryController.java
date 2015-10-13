@@ -94,6 +94,10 @@ public class RecoveryController {
 
             RecoveryTokens recoveryTokens = usersService.findTokenByTokenId(token);
 
+            if (recoveryTokens == null) {
+                throw new BadRequestException();
+            }
+
             // Verify token date
             LocalDateTime tokenGenDate = recoveryTokens.getGenDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
             Long tokenAge = ChronoUnit.HOURS.between(tokenGenDate, LocalDateTime.now());

@@ -25,7 +25,6 @@ public class RedirectController implements ErrorController {
             return new ModelAndView("redirect:" + "http://" + serverUrl + ":8080" + "/ui/");
         }
 
-
         /*
         // Remote server deployment
         if ("401".equals(errorCode)) {

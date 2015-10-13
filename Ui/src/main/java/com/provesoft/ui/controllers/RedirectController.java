@@ -20,7 +20,7 @@ public class RedirectController implements ErrorController {
         return new ModelAndView("redirect:" + "http://" + serverUrl + ":8080" + "/ui/");
 
         // Deployed server
-        // return new ModelAndView("redirect:" + "http://" + serverUrl + "/ui/");
+        //return new ModelAndView("redirect:" + "http://" + serverUrl + "/ui/");
 
     }
 
