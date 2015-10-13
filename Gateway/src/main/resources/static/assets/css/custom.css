@@ -2,19 +2,10 @@
 
 html {
     overflow-x: hidden;
-    height: 100%;
-}
-body {
-    height: 100%;
+
 }
 
-.wrapper {
-    height: 100%;
-}
-
-.content {
-    min-height: 100%;
-}
+.content {}
 
 .headline {
     border-bottom: 0;
