@@ -423,6 +423,28 @@ function adminSignoffPathsService ($resource) {
     }
 }
 
+function adminBetaService ($resource) {
+    return {
+        keys: $resource('/resource/system/admin/bk',
+            {},
+            {
+                generate: {
+                    method: 'POST',
+                    params: {},
+                    isArray: false
+                },
+                revoke: {
+                    method: 'DELETE',
+                    params: {
+                        email: '@email'
+                    },
+                    isArray: false
+                }
+            }
+        )
+    }
+}
+
 angular
     .module('provesoft')
     .factory('manageUsersService', manageUsersService)
@@ -430,4 +452,5 @@ angular
     .factory('adminDocumentService', adminDocumentService)
     .factory('adminApprovalService', adminApprovalService)
     .factory('adminSignoffPathsService', adminSignoffPathsService)
-    .factory('adminModuleSettingsService', adminModuleSettingsService);
+    .factory('adminModuleSettingsService', adminModuleSettingsService)
+    .factory('adminBetaService', adminBetaService);

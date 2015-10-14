@@ -40,7 +40,7 @@
                 </a>
             </li>
             <li ng-show="user.isSuperAdmin" ng-class="{active: $state.includes('admin')}">
-                <a><i class="fa fa-key"></i> <span class="nav-label">Administration</span></a>
+                <a><i class="fa fa-user-secret"></i> <span class="nav-label">Administration</span></a>
                 <ul class="nav nav-second-level" ng-class="{in: $state.includes('admin')}">
                     <li ui-sref-active="active"><a ui-sref="admin.manageUsers"><i class="fa fa-users"></i>Manage Users</a></li>
                     <li ui-sref-active="active"><a ui-sref="admin.documentTypeSetup"><i class="fa fa-file-text"></i>Document Type Setup</a></li>
@@ -51,6 +51,9 @@
             </li>
             <li ui-sref-active="active">
                 <a ui-sref="home.profile"><i class="fa fa-user"></i> <span class="nav-label">Profile</span> </a>
+            </li>
+            <li ng-show="user.isSystemAdmin" ui-sref-active="active">
+                <a ui-sref="home.beta"><span class="fa fa-key"></span> <span class="nav-label">Beta Keygen</span></a>
             </li>
             <li ui-sref-active="active">
                 <a href="" ng-click="logout()"><i class="fa fa-sign-out"></i> <span class="nav-label">Logout</span> </a>

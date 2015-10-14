@@ -28,6 +28,11 @@ angular.module('auth', ['ngRoute', 'ngCookies']).config(function($httpProvider) 
                 else if (type === 's') {
                     $location.url('/register');
                 }
+
+                // Redirect to beta registration
+                else if (type === 'btk') {
+                    $location.url('/btk');
+                }
             }
         }
 
@@ -140,6 +145,7 @@ angular.module('auth', ['ngRoute', 'ngCookies']).config(function($httpProvider) 
             title: '',
             password: '',
             passwordVerify: '',
+            betaKey: '',
 
             validationErrors: {},
 
@@ -148,31 +154,42 @@ angular.module('auth', ['ngRoute', 'ngCookies']).config(function($httpProvider) 
 
         $scope.successfullyRegistered = false;
 
+        $scope.processingReg = false;
+
         $scope.tab = 1;
 
 
         $scope.register = function() {
 
-            $http.post('register', {
-                firstName: $scope.reg.firstName,
-                lastName: $scope.reg.lastName,
-                email: $scope.reg.email,
-                companyName: $scope.reg.companyName,
-                title: $scope.reg.title,
-                password: $scope.reg.password,
-                plan: $scope.reg.planSelection
-            }).success(function(newUser) {
-                $scope.credentials = {
-                    username: $scope.reg.email,
-                    password: $scope.reg.password
-                };
-                $scope.login();
-            }).error(function(error) {
-            });
+            $scope.processingReg = true;
+
+            $scope.validateUserInfo(function(result) {
+                if (result) {
+
+                    $http.post('register', {
+                        firstName: $scope.reg.firstName,
+                        lastName: $scope.reg.lastName,
+                        email: $scope.reg.email,
+                        companyName: $scope.reg.companyName,
+                        title: $scope.reg.title,
+                        password: $scope.reg.password,
+                        betaKey: $scope.reg.betaKey,
+                        plan: $scope.reg.planSelection
+                    }).success(function(newUser) {
+                        $scope.credentials = {
+                            username: $scope.reg.email,
+                            password: $scope.reg.password
+                        };
+                        $scope.login();
+                    }).error(function(error) {
+                        $scope.processingReg = false;
+                    });
+                }
+            })
 
         };
 
-        $scope.validateUserInfo = function() {
+        $scope.validateUserInfo = function(callback) {
 
             // Reset validation objects
             var validationFailed = false;
@@ -318,6 +335,20 @@ angular.module('auth', ['ngRoute', 'ngCookies']).config(function($httpProvider) 
                 validationFailed = true;
             }
 
+            // Beta key validation
+            if (typeof $scope.reg.betaKey === 'undefined') {
+                $scope.reg.validationErrors.betaKey = 'Please enter your beta key';
+                validationFailed = true;
+            }
+            else if ( ($scope.reg.betaKey.length == 0) || ($scope.reg.betaKey === '') ) {
+                $scope.reg.validationErrors.betaKey = 'Please enter your beta key';
+                validationFailed = true;
+            }
+            else if ( $scope.reg.betaKey.length > 256 ) {
+                $scope.reg.validationErrors.betaKey = 'Please enter a valid beta key';
+                validationFailed = true;
+            }
+
             // Check if email and/or company exist
             if (!validateEmailOrCompanyFailed) {
                 $http({
@@ -341,14 +372,47 @@ angular.module('auth', ['ngRoute', 'ngCookies']).config(function($httpProvider) 
                         validationFailed = true;
                     }
 
+                    /*
                     // Advance to next tab if validated
                     if (!validationFailed) {
                         $scope.tab = 2;
                     }
+                    */
+
+                    // Verify beta key
+                    if (!validationFailed) {
+                        $http({
+                            url: '/checkBK',
+                            method: 'GET',
+                            params: {
+                                email: $scope.reg.email,
+                                betaKey: $scope.reg.betaKey
+                            }
+                        }).success(function(result) {
+                            if (result.valid) {
+                                return callback(true);
+                            }
+                            else {
+                                $scope.reg.validationErrors.betaKey = 'Beta Key is invalid';
+                                return callback(false);
+                            }
+
+                        }).error(function(error) {
+                            return callback(false);
+                        })
+                    }
+                    else {
+                        return callback(false);
+                    }
 
                 }).error(function(error) {
                     $scope.error = error;
+                    return callback(false);
                 });
+            }
+
+            else {
+                callback(false);
             }
 
         };
@@ -591,8 +655,7 @@ angular.module('auth', ['ngRoute', 'ngCookies']).config(function($httpProvider) 
                 })
 
                 .when('/register', {
-                    templateUrl: 'views/register.html',
-                    controller: 'registerCtrl'
+                    templateUrl: 'views/beta_register.html'
                 })
 
                 .when('/passReq', {
@@ -608,6 +671,11 @@ angular.module('auth', ['ngRoute', 'ngCookies']).config(function($httpProvider) 
                 .when('/tReg', {
                     templateUrl: 'views/tReg.html',
                     controller: 'tRegCtrl'
+                })
+
+                .when('/btk', {
+                    templateUrl: 'views/registration.html',
+                    controller: 'registerCtrl'
                 })
 
                 .otherwise({redirectTo: '/'});

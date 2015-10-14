@@ -69,7 +69,7 @@ public class GatewayApplication {
             http
                     .authorizeRequests()
                         .antMatchers("/index.html", "/views/**", "/assets/**",
-                                "/", "/pr", "/ps", "/check", "/tokenReg", "/register").permitAll()
+                                "/", "/pr", "/ps", "/check", "/checkBK", "/tokenReg", "/register").permitAll()
                         .anyRequest().authenticated()
                         .and()
                     .httpBasic()

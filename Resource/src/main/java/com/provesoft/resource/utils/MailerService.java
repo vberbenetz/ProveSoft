@@ -45,4 +45,18 @@ public class MailerService {
         );
         mailSender.send(message);
     }
+
+    @Async
+    public void sendBetaKey (String url, String email, String key) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("info@provesoft.com");
+        message.setTo(email);
+        message.setSubject("Welcome to ProveSoft Beta!");
+        message.setText(
+                "You have been accepted into the ProveSoft closed beta!\n\n" +
+                "Please go to the following location register you and your company: " + url + "\n" +
+                "Beta key: " + key + "\n"
+        );
+        mailSender.send(message);
+    }
 }

@@ -1816,6 +1816,35 @@ function adminErrorModalCtrl ($scope, $modalInstance, errorTitle, errorMsg) {
 }
 
 
+function betaCtrl ($scope, adminBetaService) {
+
+    $scope.betaUserEmail = '';
+
+    // Retrieve all open keys
+    adminBetaService.keys.query(function(keys) {
+        $scope.betaKeys = keys;
+    }, function(error) {
+        $scope.error = error;
+    });
+
+    $scope.addBetaUser = function() {
+        adminBetaService.keys.generate({email: $scope.betaUserEmail}, function(data, status, headers, config) {
+            $scope.betaKeys.push(data);
+        }, function(data, status, headers, config) {
+            $scope.error = status;
+        })
+    };
+
+    $scope.revokeBetaKey = function(email, i) {
+        adminBetaService.keys.revoke({email: email}, function(data) {
+            $scope.betaKeys.splice(i, 1);
+        }, function(error) {
+            $scope.error = error;
+        })
+    }
+}
+
+
 angular
     .module('provesoft')
     .controller('manageUsersCtrl', manageUsersCtrl)
@@ -1823,4 +1852,5 @@ angular
     .controller('adminErrorModalCtrl', adminErrorModalCtrl)
     .controller('signoffPathsSetupCtrl', signoffPathsSetupCtrl)
     .controller('pendingApprovalsCtrl', pendingApprovalsCtrl)
-    .controller('moduleSettingsCtrl', moduleSettingsCtrl);
+    .controller('moduleSettingsCtrl', moduleSettingsCtrl)
+    .controller('betaCtrl', betaCtrl);

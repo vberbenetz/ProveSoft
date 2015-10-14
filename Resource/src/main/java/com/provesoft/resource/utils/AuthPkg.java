@@ -16,17 +16,20 @@ public class AuthPkg {
             this.companyName = UserHelpers.getCompany(auth);
             this.userName = auth.getName();
             this.isSuperAdmin = UserHelpers.isSuperAdmin(auth);
+            this.isSystemAdmin = UserHelpers.isSystemAdmin(auth);
         }
         catch (Exception ex) {
             this.companyName = null;
             this.userName = null;
             this.isSuperAdmin = null;
+            this.isSystemAdmin = null;
         }
     }
 
     private String companyName;
     private String userName;
     private Boolean isSuperAdmin;
+    private Boolean isSystemAdmin;
 
     public String getCompanyName() {
         return companyName;
@@ -38,5 +41,9 @@ public class AuthPkg {
 
     public Boolean getIsSuperAdmin() {
         return isSuperAdmin;
+    }
+
+    public Boolean getIsSystemAdmin() {
+        return isSystemAdmin;
     }
 }

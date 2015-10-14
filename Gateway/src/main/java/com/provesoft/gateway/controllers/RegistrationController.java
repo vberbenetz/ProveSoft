@@ -53,6 +53,9 @@ public class RegistrationController {
     @Autowired
     ExternalConfiguration externalConfiguration;
 
+    @Autowired
+    BetaService betaService;
+
     @RequestMapping(
             value = "/register",
             method = RequestMethod.POST,
@@ -75,8 +78,17 @@ public class RegistrationController {
             String rawPassword = rootNode.get("password").textValue();
             String plan = rootNode.get("plan").textValue();
 
+            String betaKey = rootNode.get("betaKey").textValue();
+
             // Validate input
             if (!validateRegistrationFields(firstName, lastName, email, companyName, title, rawPassword, plan)) {
+                throw new BadRequestException();
+            }
+
+            // Check if beta key exists and matches email
+            BetaKeys keyObj = betaService.findKeyByEmailAndBetaKey(email, betaKey);
+
+            if (keyObj == null) {
                 throw new BadRequestException();
             }
 
@@ -161,10 +173,13 @@ public class RegistrationController {
             UserDetails userDetails = new UserDetails(companyName, firstName, lastName, email, title, defaultOrg);
             userDetailsService.addUser(userDetails);
 
+            // Delete beta key
+            betaService.deleteBetaKey(keyObj);
+
             return newUser;
 
         }
-        catch (IOException ioe) {
+        catch (IOException | NullPointerException ex) {
             throw new BadRequestException();
         }
         catch (UserExistsException uee) {
@@ -346,6 +361,24 @@ public class RegistrationController {
         throw new BadRequestException();
     }
 
+    @RequestMapping(
+            value = "/checkBK",
+            method = RequestMethod.GET
+    )
+    @ResponseBody
+    public Map<String, Boolean> checkBetaKey (@RequestParam(value = "email") String email,
+                                              @RequestParam(value = "betaKey") String betaKey) {
+
+        Map<String, Boolean> retMap = new HashMap<>();
+        if (betaService.findKeyByEmailAndBetaKey(email, betaKey) != null) {
+            retMap.put("valid", true);
+        }
+        else {
+            retMap.put("valid", false);
+        }
+
+        return retMap;
+    }
 
     @RequestMapping(
             value = "/tokenReg",
