@@ -255,7 +255,7 @@ function config($stateProvider, $locationProvider, $urlRouterProvider, $httpProv
         })
 
         .state('home.beta', {
-            url: '/beta-keygen',
+            url: 'beta-keygen',
             templateUrl: 'views/beta_keygen.html',
             controller: betaCtrl,
             data: { pageTitle: 'Beta Key Generation' }

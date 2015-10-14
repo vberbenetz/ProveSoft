@@ -40,6 +40,9 @@ zuul:
 url:
   abs: app.provesoft.com
 
+fileupload:
+  directory: /www/user_uploads/
+
 # ==================================================
 # PRODUCTION SERVER
 #------------------
@@ -64,6 +67,9 @@ url:
 # Custom
 #url:
 #  abs: app.provesoft.com
+
+#fileupload:
+#  directory: /www/user_uploads/
 
 
 

@@ -11,6 +11,8 @@ public class ExternalConfiguration {
 
     private String absoluteUrl;
 
+    private String fileUploadDirectory;
+
     private String host;
     private Integer port;
     private String user;
@@ -21,6 +23,7 @@ public class ExternalConfiguration {
 
     @Autowired
     public ExternalConfiguration(@Value("${url.abs}") String absoluteUrl,
+                                 @Value("${fileupload.directory}") String fileUploadDirectory,
                                  @Value("${mail.host}") String host,
                                  @Value("${mail.port}") Integer port,
                                  @Value("${mail.user}") String user,
@@ -30,6 +33,8 @@ public class ExternalConfiguration {
 
 
         this.absoluteUrl = absoluteUrl;
+
+        this.fileUploadDirectory = fileUploadDirectory.replaceAll("/", File.separator);
 
         this.host = host;
         this.port = port;
@@ -42,6 +47,10 @@ public class ExternalConfiguration {
 
     public String getAbsoluteUrl() {
         return absoluteUrl;
+    }
+
+    public String getFileUploadDirectory() {
+        return fileUploadDirectory;
     }
 
     public String getHost() {

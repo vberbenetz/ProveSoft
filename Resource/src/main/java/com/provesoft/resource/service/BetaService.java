@@ -14,7 +14,7 @@ public class BetaService {
     BetaKeysRepository betaKeysRepository;
 
     public List<BetaKeys> findAllKeys() {
-        return betaKeysRepository.findAll();
+        return betaKeysRepository.findAllKeys();
     }
 
     public BetaKeys addNewKey(String email, String key) {

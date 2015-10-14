@@ -24,7 +24,7 @@ public class MailerService {
                 "Hello " + user.getFirstName() + " " + user.getLastName() + "," + "\n\n" +
                 "This email was sent to you because you have been registered by your company's administrator " +
                 "to join the ProveSoft platform." +
-                "Please go to: " + url + " to complete your registration."
+                "Please go to: http://" + url + " to complete your registration."
         );
         mailSender.send(message);
     }
@@ -54,7 +54,7 @@ public class MailerService {
         message.setSubject("Welcome to ProveSoft Beta!");
         message.setText(
                 "You have been accepted into the ProveSoft closed beta!\n\n" +
-                "Please go to the following location register you and your company: " + url + "\n" +
+                "Please go to the following location register you and your company: http://" + url + "\n" +
                 "Beta key: " + key + "\n"
         );
         mailSender.send(message);

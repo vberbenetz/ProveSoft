@@ -18,6 +18,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.TransactionRolledbackException;
+import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -172,6 +173,12 @@ public class RegistrationController {
             // Create user details for user
             UserDetails userDetails = new UserDetails(companyName, firstName, lastName, email, title, defaultOrg);
             userDetailsService.addUser(userDetails);
+
+            // Create folder directory for company
+            Boolean result = new File(externalConfiguration.getFileUploadDirectory() + companyName).mkdir();
+            if (!result) {
+                throw new InternalServerErrorException("Error creating company new directory");
+            }
 
             // Delete beta key
             betaService.deleteBetaKey(keyObj);

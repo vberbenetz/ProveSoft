@@ -90,7 +90,7 @@ public class UploadController {
         headers.setContentType( new MediaType(primaryType, subType) );
 
         // Return the file data
-        Path p = Paths.get(externalConfiguration.getFileUploadDirectory() + documentUpload.getFileId());
+        Path p = Paths.get(externalConfiguration.getFileUploadDirectory() + companyName + File.separator + documentUpload.getFileId());
 
         try {
             byte[] fileData = Files.readAllBytes(p);
@@ -168,7 +168,7 @@ public class UploadController {
                 newUpload = documentService.addDocumentFile(newUploadedFile);
 
                 // Upload file
-                newFileUpload = new File(externalConfiguration.getFileUploadDirectory() + fileId);
+                newFileUpload = new File(externalConfiguration.getFileUploadDirectory() + companyName + File.separator + fileId);
                 stream = new BufferedOutputStream(new FileOutputStream(newFileUpload));
                 stream.write(bytes);
             }
@@ -308,7 +308,7 @@ public class UploadController {
         List<DocumentUpload> tempUploads = documentService.findUploadByCompanyNameAndDocumentIdAndRevision(companyName, documentId, tempRevId);
         try {
             for (DocumentUpload du : tempUploads) {
-                File f = new File(externalConfiguration.getFileUploadDirectory() + du.getFileId());
+                File f = new File(externalConfiguration.getFileUploadDirectory() + companyName + File.separator + du.getFileId());
                 f.delete();
             }
 

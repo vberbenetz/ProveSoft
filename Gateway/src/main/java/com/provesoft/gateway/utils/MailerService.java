@@ -19,7 +19,7 @@ public class MailerService {
         message.setTo(userEmail);
         message.setSubject("Provesoft Password Reset");
         message.setText(
-                "Please go to the link below to reset your password: \n\n" + url
+                "Please go to the link below to reset your password: \n\n" + "http://" + url
         );
         mailSender.send(message);
     }
