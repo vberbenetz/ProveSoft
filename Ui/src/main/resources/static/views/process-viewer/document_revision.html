@@ -128,7 +128,7 @@
                                         <div ng-bind-html="signoffPath.name | highlight: $select.search"></div>
                                     </ui-select-choices>
                                 </ui-select>
-                                <p class="text-danger" ng-show="">Please select a signoff path</p>
+                                <p class="text-danger" ng-show="fieldValidationFail.signoffPath">{{ fieldValidationFail.signoffPath }}</p>
                             </div>
                         </div>
                     </form>
@@ -172,7 +172,7 @@
                             <button ng-click="cancelRevision()" class="btn btn-danger margin-right-20">Cancel</button>
                         </div>
                         <div class="pull-right">
-                            <button ng-click="reviseDocumentForm=3" class="btn btn-primary margin-right-20">Next</button>
+                            <button ng-click="goToNextStage(3)" class="btn btn-primary margin-right-20">Next</button>
                         </div>
                         <div class="pull-right">
                             <button ng-click="reviseDocumentForm=1" class="btn btn-warning margin-right-20">Previous</button>
@@ -192,7 +192,8 @@
                         <div class="form-group" ng-hide="!signoffRequired">
                             <label class="col-md-2 control-label margin-left-10">Signoff Path</label>
                             <div class="form-control-static col-md-8 margin-bottom-20">
-                                <h4>{{ signoffPath.name }}</h4>
+                                <h4 ng-if="document.signoffPathId!=null">{{ signoffPath.name }}</h4>
+                                <h4 ng-if="document.signoffPathId==null">{{ revision.newSignoffPath.name }}</h4>
                             </div>
                         </div>
                         <div class="form-group">

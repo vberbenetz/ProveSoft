@@ -925,6 +925,16 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
                 }
             }
         }
+
+        else if (nextStage == 3) {
+            if ( $scope.signoffRequired && ($scope.document.signoffPathId === null) && ($scope.revision.newSignoffPath === null) ) {
+                $scope.fieldValidationFail.signoffPath = 'Please select a Signoff Path';
+            }
+            else {
+                $scope.reviseDocumentForm = 3;
+                delete $scope.fieldValidationFail.signoffPath;
+            }
+        }
     };
 
     // Watch for change to signoff path selection to update steps

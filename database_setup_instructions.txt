@@ -1,13 +1,17 @@
 CREATE DATABASE provesoft CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 
 DocumentType:
-description - mediumtext
+description - varchar(1024)
+alter table DocumentType change column description description varchar(1024);
 
 DocumentRevisions:
 changeReason - varchar(1024)
+alter table DocumentRevisions change column changeReason description varchar(1024);
 
 Organizations:
 description - varchar(1024)
+alter table Organizations change column description description varchar(1024);
 
 Roles:
 description - varchar(1024)
+alter table Roles change column description description varchar(1024);

@@ -28,10 +28,10 @@ public class RedirectController implements ErrorController {
         /*
         // Remote server deployment
         if ("401".equals(errorCode)) {
-            return new ModelAndView("redirect:" + "http://" + serverBaseUrl + "/");
+            return new ModelAndView("redirect:" + "http://" + serverUrl + "/");
         }
         else {
-            return new ModelAndView("redirect:" + "http://" + serverBaseUrl + "/ui/");
+            return new ModelAndView("redirect:" + "http://" + serverUrl + "/ui/");
         }
         */
 
