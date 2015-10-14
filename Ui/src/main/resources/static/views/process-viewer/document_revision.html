@@ -218,14 +218,14 @@
 
                     <div class="row">
                         <div class="pull-right">
-                            <button ng-click="cancelRevision()" class="btn btn-danger margin-right-20">Cancel</button>
+                            <button ng-disabled="revisionInProgress" ng-click="cancelRevision()" class="btn btn-danger margin-right-20">Cancel</button>
                         </div>
                         <div class="pull-right">
-                            <button ng-click="addRevision()" class="btn btn-primary margin-right-20">Submit</button>
+                            <button ng-disabled="revisionInProgress" ng-click="addRevision()" class="btn btn-primary margin-right-20">Submit</button>
                         </div>
                         <div class="pull-right">
-                            <button ng-if="signoffRequired" ng-click="$parent.reviseDocumentForm=2" class="btn btn-warning margin-right-20">Previous</button>
-                            <button ng-if="!signoffRequired" ng-click="$parent.reviseDocumentForm=1" class="btn btn-warning margin-right-20">Previous</button>
+                            <button ng-disabled="revisionInProgress" ng-if="signoffRequired" ng-click="$parent.reviseDocumentForm=2" class="btn btn-warning margin-right-20">Previous</button>
+                            <button ng-disabled="revisionInProgress" ng-if="!signoffRequired" ng-click="$parent.reviseDocumentForm=1" class="btn btn-warning margin-right-20">Previous</button>
                         </div>
                     </div>
                 </div>

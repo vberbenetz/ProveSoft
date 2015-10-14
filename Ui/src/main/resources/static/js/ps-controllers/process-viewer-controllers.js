@@ -776,6 +776,7 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
     // Keep track of form progress
     $scope.reviseDocumentForm = 1;
     $scope.documentId = $stateParams.documentId;
+    $scope.revisionInProgress = false;
 
     // Default set redline flag to true
     $scope.redlineRequired = true;
@@ -979,6 +980,8 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
     };
 
     $scope.addRevision = function() {
+        $scope.revisionInProgress = true;
+
         var revisionPayload = {
             documentId: $scope.documentId,
             changeReason: $scope.revision.changeReason,
@@ -1011,11 +1014,13 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
                         $state.go('process-viewer.document-lookup', {}, {reload: true});
                     }
                 }, function(data, status, headers, config) {
+                    $scope.revisionInProgress = false;
                     $scope.err = status;
                 });
 
             }, function(error) {
                 $scope.error = error;
+                $scope.revisionInProgress = false;
             });
         }
         else {
@@ -1027,6 +1032,7 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
                             $state.go('process-viewer.document-lookup', {}, {reload: true});
                         }, function(error) {
                             $scope.error = error;
+                            $scope.revisionInProgress = false;
                         });
                 }
                 else {
@@ -1034,6 +1040,7 @@ function documentRevisionCtrl($scope, $rootScope, $window, $state, $stateParams,
                 }
             }, function(data, status, headers, config) {
                 $scope.err = status;
+                $scope.revisionInProgress = false;
             });
         }
 
