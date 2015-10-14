@@ -115,6 +115,9 @@ angular.module('auth', ['ngRoute', 'ngCookies']).config(function($httpProvider) 
 
         $scope.processingEmail = false;
 
+        $scope.successfullyRequested = false;
+        $scope.errorRequesting = false;
+
         $scope.passResetReq = function() {
             if ( (typeof $scope.passReset.email !== 'undefined') && ($scope.passReset.email !== '') ) {
                 $scope.processingEmail = true;
@@ -124,10 +127,11 @@ angular.module('auth', ['ngRoute', 'ngCookies']).config(function($httpProvider) 
                 }).success(function(data) {
                     $scope.passReset = {email:''};
                     $scope.processingEmail = false;
-                    $location.url('/');
+                    $scope.successfullyRequested = true;
                 }).error(function(error) {
                     $scope.passReset = {email:''};
                     $scope.processingEmail = false;
+                    $scope.errorRequesting = true;
                 });
             }
             else {
