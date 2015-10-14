@@ -13,6 +13,7 @@
                         <div class="form-group">
                             <label class="subHeader-1">Your Email</label>
                             <input type="text" id="emailPassReset" placeholder="Email address" class="form-control rounded-4x trans50" ng-model="passReset.email">
+                            <span class="help-block text-white">{{ passReset.validationFail }}</span>
                         </div>
                         <button ng-hide="processingEmail" ng-click="passResetReq()" class="btn btn-lg bg-color-white rounded pull-right">Reset Password</button>
                         <div ng-if="processingEmail" class="sk-chasing-dots pull-right">

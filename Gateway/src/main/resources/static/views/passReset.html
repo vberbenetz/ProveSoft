@@ -12,17 +12,17 @@
                         <div class="form-group" ng-class="{ 'has-error': passResetVerificationInput.validationErrors.email }">
                             <label class="subHeader-1" for="email">Email</label>
                             <input type="text" id="email" name="Email" placeholder="Enter email for verification" class="form-control rounded-4x trans50" ng-model="passResetVerificationInput.email">
-                            <span>{{ passResetVerificationInput.validationErrors.email }}</span>
+                            <p class="text-white">{{ passResetVerificationInput.validationErrors.email }}</p>
                         </div>
                         <div class="form-group" ng-class="{ 'has-error': passResetVerificationInput.validationErrors.password }">
                             <label class="subHeader-1" for="newPassword">New Password</label>
                             <input type="password" id="newPassword" name="password" placeholder="New Password" class="form-control rounded-4x trans50" ng-model="passResetVerificationInput.newPassword">
-                            <span>{{ passResetVerificationInput.validationErrors.password }}</span>
+                            <p class="text-white">{{ passResetVerificationInput.validationErrors.password }}</p>
                         </div>
                         <div class="form-group" ng-class="{ 'has-error': passResetVerificationInput.validationErrors.verifyPassword }">
                             <label class="subHeader-1" for="passwordVerify">New Password</label>
                             <input type="password" id="passwordVerify" name="passwordVerify" placeholder="Verify New Password" class="form-control rounded-4x trans50" ng-model="passResetVerificationInput.verifyNewPassword">
-                            <span>{{ passResetVerificationInput.validationErrors.verifyPassword }}</span>
+                            <p class="text-white">{{ passResetVerificationInput.validationErrors.verifyPassword }}</p>
                         </div>
                         <div>
                             <button ng-disabled="successfullyReset" class="btn btn-lg bg-color-white rounded pull-right" type="submit">Reset Password</button>

@@ -122,13 +122,16 @@ angular.module('auth', ['ngRoute', 'ngCookies']).config(function($httpProvider) 
                     email: $scope.passReset.email,
                     url: $location.absUrl()
                 }).success(function(data) {
-                    $scope.passReset.email = '';
+                    $scope.passReset = {email:''};
                     $scope.processingEmail = false;
                     $location.url('/');
                 }).error(function(error) {
-                    $scope.passReset.email = '';
+                    $scope.passReset = {email:''};
                     $scope.processingEmail = false;
                 });
+            }
+            else {
+                $scope.passReset.validationFail = 'Please enter your email address';
             }
         };
     })

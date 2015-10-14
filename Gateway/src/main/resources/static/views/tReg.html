@@ -13,17 +13,17 @@
                         <div class="form-group" ng-class="{ 'has-error': regVerificationInput.validationErrors.email }">
                             <label class="subHeader-1">Email</label>
                             <input type="text" id="email" name="Email" placeholder="Enter email for verification" class="form-control rounded-4x trans50" ng-model="regVerificationInput.email">
-                            <span class="help-block">{{ regVerificationInput.validationErrors.email }}</span>
+                            <span class="help-block text-white">{{ regVerificationInput.validationErrors.email }}</span>
                         </div>
                         <div class="form-group" ng-class="{ 'has-error': regVerificationInput.validationErrors.password }">
                             <label class="subHeader-1">New Password</label>
                             <input type="password" id="newPassword" name="password" placeholder="New Password" class="form-control rounded-4x trans50" ng-model="regVerificationInput.newPassword">
-                            <span class="help-block">{{ regVerificationInput.validationErrors.password }}</span>
+                            <span class="help-block text-white">{{ regVerificationInput.validationErrors.password }}</span>
                         </div>
                         <div class="form-group" ng-class="{ 'has-error': regVerificationInput.validationErrors.verifyPassword }">
                             <label class="subHeader-1">New Password</label>
                             <input type="password" id="passwordVerify" name="passwordVerify" placeholder="Verify New Password" class="form-control rounded-4x trans50" ng-model="regVerificationInput.verifyNewPassword">
-                            <span class="help-block">{{ regVerificationInput.validationErrors.verifyPassword }}</span>
+                            <span class="help-block text-white">{{ regVerificationInput.validationErrors.verifyPassword }}</span>
                         </div>
                         <div>
                             <button ng-disabled="successfullyRegistered" class="btn btn-lg bg-color-white rounded pull-right" type="submit"><strong>Create Account</strong></button>
