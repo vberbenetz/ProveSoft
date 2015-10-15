@@ -177,7 +177,7 @@ public class RegistrationController {
             // Create folder directory for company
             Boolean result = new File(externalConfiguration.getFileUploadDirectory() + companyName).mkdir();
             if (!result) {
-                throw new InternalServerErrorException("Error creating company new directory");
+                throw new InternalServerErrorException();
             }
 
             // Delete beta key

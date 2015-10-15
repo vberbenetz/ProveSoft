@@ -8,6 +8,9 @@ server:
 logging:
   level: INFO
 
+url:
+  abs: app.provesoft.com
+
 # =========================================
 # PRODUCTION SERVER
 # ----------
@@ -21,4 +24,6 @@ logging:
 #
 #logging:
 #  level: WARN
-
+#
+#url:
+# abs: app.provesoft.com

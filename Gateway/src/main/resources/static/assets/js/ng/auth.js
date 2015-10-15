@@ -30,8 +30,8 @@ angular.module('auth', ['ngRoute', 'ngCookies']).config(function($httpProvider) 
                 }
 
                 // Redirect to beta registration
-                else if (type === 'btk') {
-                    $location.url('/btk');
+                else if (type === 'bkr') {
+                    $location.url('/bkr');
                 }
             }
         }
@@ -191,6 +191,9 @@ angular.module('auth', ['ngRoute', 'ngCookies']).config(function($httpProvider) 
                     }).error(function(error) {
                         $scope.processingReg = false;
                     });
+                }
+                else {
+                    $scope.processingReg = false;
                 }
             })
 
@@ -397,7 +400,7 @@ angular.module('auth', ['ngRoute', 'ngCookies']).config(function($httpProvider) 
                             }
                         }).success(function(result) {
                             if (result.valid) {
-                                return callback(true);
+                                return callback(!validationFailed);
                             }
                             else {
                                 $scope.reg.validationErrors.betaKey = 'Beta Key is invalid';
@@ -680,7 +683,7 @@ angular.module('auth', ['ngRoute', 'ngCookies']).config(function($httpProvider) 
                     controller: 'tRegCtrl'
                 })
 
-                .when('/btk', {
+                .when('/bkr', {
                     templateUrl: 'views/registration.html',
                     controller: 'registerCtrl'
                 })
